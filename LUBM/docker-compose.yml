@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  lubm-benchmark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lubm-generator
+    volumes:
+      # Mount the output directory to a relative path
+      - ./output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Override the default command to specify number of universities
+    # Example: docker-compose run lubm-benchmark --universities 5
+    command: ["--universities", "1"]

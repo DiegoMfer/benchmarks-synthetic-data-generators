@@ -1,0 +1,20 @@
+# Ignore generated output files
+output/
+
+# Ignore old generated files in root (if any)
+*.owl
+log.txt
+benchmark_report.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

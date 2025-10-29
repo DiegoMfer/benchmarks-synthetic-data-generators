@@ -1,0 +1,22 @@
+# Ignore generated files and output
+output/
+*.owl
+*.txt
+benchmark_report.json
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
