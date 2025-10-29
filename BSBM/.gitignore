@@ -1,0 +1,26 @@
+# Ignore output directory
+output/
+
+# Ignore generated datasets in root
+*.ttl
+*.nt
+*.n3
+*.trig
+*.owl
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

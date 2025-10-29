@@ -1,0 +1,19 @@
+# Docker build context exclusions
+output/
+bsbmtools-0.2/
+*.ttl
+*.nt
+*.n3
+*.trig
+
+# Python
+__pycache__/
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
