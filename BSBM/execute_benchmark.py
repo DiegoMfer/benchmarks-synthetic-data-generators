@@ -25,18 +25,21 @@ def run_bsbm_generator(products=1000, format_type="ttl", forward_chaining=True,
         output_dir: Directory for output files
     """
     
-    # Prepare output directory
-    output_path = Path(output_dir)
+    # Get the directory where this script is located (BSBM directory)
+    script_dir = Path(__file__).parent.resolve()
+    
+    # Prepare output directory (relative to script directory)
+    output_path = script_dir / output_dir
     output_path.mkdir(exist_ok=True)
     
-    # Build command
+    # Build command (use relative path since we run from script_dir)
     cmd = [
         "java", "-cp", "bsbm.jar:ssj.jar",
         "-Xmx2G",
         "benchmark.generator.Generator",
         "-pc", str(products),
         "-s", format_type,
-        "-fn", str(output_path / output_name)
+        "-fn", f"{output_dir}/{output_name}"
     ]
     
     if forward_chaining:
@@ -54,7 +57,8 @@ def run_bsbm_generator(products=1000, format_type="ttl", forward_chaining=True,
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            cwd=script_dir
         )
         
         end_time = time.time()

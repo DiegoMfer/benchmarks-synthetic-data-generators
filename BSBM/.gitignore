@@ -1,5 +1,6 @@
 # Ignore output directory
 output/
+td_data/
 
 # Ignore generated datasets in root
 *.ttl
