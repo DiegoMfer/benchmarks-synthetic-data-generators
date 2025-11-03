@@ -3,9 +3,9 @@
 
 
 Generators:
-LUBM
-BSBM
-PoDiGG
+LUBM - done
+BSBM - done
+PoDiGG 
 EvoGen
 LinkGen
 GRR
