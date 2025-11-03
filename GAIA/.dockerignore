@@ -1,0 +1,37 @@
+# Ignore generated files and output
+output/
+*.owl
+*.rdf
+*.ttl
+*.nt
+*.n3
+*.trig
+benchmark_report.json
+univ-bench.owl
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore Docker files during build
+Dockerfile
+docker-compose.yml
+.dockerignore

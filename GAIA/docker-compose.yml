@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  gaia-benchmark:
+    build: .
+    container_name: gaia-generator
+    volumes:
+      - ./output:/app/output
+    environment:
+      - JAVA_OPTS=-Xmx8g
+    command: ["--instances", "3", "--output", "output/gaia_instances.owl"]

@@ -1,0 +1,51 @@
+# Ignore generated output files
+output/
+
+# Ignore generated ontology files (but keep input univ-bench.owl)
+# Note: gaia_instances.owl is in output/ which is already ignored
+*.rdf
+*.ttl
+*.nt
+*.n3
+*.trig
+
+# Ignore any accidentally generated OWL files in root (but not univ-bench.owl)
+OWLInstances.rdf
+*_instances.owl
+*_generated.owl
+
+# Ignore benchmark reports
+benchmark_report.json
+benchmark_*.json
+
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.Python
+.pytest_cache/
+
+# Java artifacts (if any)
+*.class
+*.jar.original
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Docker generated files
+.dockerignore.bak
+
+# Log files
+*.log
+log.txt
