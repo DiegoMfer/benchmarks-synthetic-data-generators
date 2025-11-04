@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  linkgen-benchmark:
+    build: .
+    image: linkgen-benchmark
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./output:/app/output
+    environment:
+      - JAVA_OPTS=-Xmx4G
+    command: ["--triples", "100000", "--ontology", "dbpedia_2015.owl"]

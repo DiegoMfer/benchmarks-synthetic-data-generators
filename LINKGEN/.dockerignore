@@ -1,0 +1,34 @@
+# Git files
+.git
+.gitignore
+
+# Documentation
+README.md
+DOCKER_SETUP.md
+
+# Output and generated files
+output/
+*.log
+
+# Temporary and cache files
+*.pyc
+__pycache__/
+.pytest_cache/
+*.tmp
+config_temp.properties
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build scripts (not needed inside container)
+build-docker.sh
+run-benchmark.sh
+docker-compose.yml
