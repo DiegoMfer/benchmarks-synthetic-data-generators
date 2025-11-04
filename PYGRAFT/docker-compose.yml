@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  pygraft:
+    build: .
+    image: pygraft-benchmark:latest
+    container_name: pygraft-benchmark
+    volumes:
+      - ./output:/app/output
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+    user: "${UID:-1000}:${GID:-1000}"
+    command: >
+      python execute_benchmark.py
+      --mode full
+      --n-classes 50
+      --n-relations 30
+      --avg-instances 50

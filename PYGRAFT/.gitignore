@@ -1,0 +1,55 @@
+# PyGraft generated files and outputs
+
+# Generated data
+output/
+*.rdf
+*.owl
+*.ttl
+*.nt
+*.nq
+
+# Configuration files (generated dynamically)
+config.yml
+template.yml
+
+# Benchmark reports
+benchmark_report.json
+*_report.json
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+
+# PyGraft metadata
+class_info.json
+relation_info.json

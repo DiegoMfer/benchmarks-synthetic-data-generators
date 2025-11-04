@@ -5,11 +5,11 @@
 Generators:
 LUBM - done
 BSBM - done
-PoDiGG 
+PoDiGG - No pude
 EvoGen
-LinkGen
-GRR
-GAIA
-PyGraft
+LinkGen - done
+GRR - no está disponible al público
+GAIA -done
+PyGraft - done
 RDFMutate
 RDFGraphGen
