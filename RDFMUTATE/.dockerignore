@@ -1,0 +1,21 @@
+# Docker build context exclusions
+output/
+
+# Generated RDF files
+*.ttl
+*.nt
+*.n3
+*.trig
+*.owl
+
+# Python
+__pycache__/
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/

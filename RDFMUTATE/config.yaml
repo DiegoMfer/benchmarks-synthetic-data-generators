@@ -1,0 +1,20 @@
+strict_parsing: false
+
+seed_graph:
+  file: seed.ttl
+  type: rdf
+
+output_graph:
+  file: output/mutated.ttl
+  overwrite: true
+  type: rdf
+
+number_of_mutations: 50  # Apply 50 mutations per graph
+number_of_mutants: 10    # Generate 10 different graphs
+
+mutation_operators:
+  - resource:
+      file: addRelation.ttl
+      syntax: swrl
+
+print_summary: true

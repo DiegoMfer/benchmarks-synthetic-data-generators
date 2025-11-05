@@ -1,0 +1,24 @@
+# Ignore output directory and generated files within it
+output/*.ttl
+output/*.nt
+output/*.n3
+output/*.trig
+output/*.owl
+output/*.rdf
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

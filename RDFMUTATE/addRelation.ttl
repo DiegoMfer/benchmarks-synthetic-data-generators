@@ -1,0 +1,26 @@
+@prefix : <http://example.org/> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+:x rdf:type swrl:Variable .
+:y rdf:type swrl:Variable .
+
+[ rdf:type swrl:Imp ;
+  swrl:body [ rdf:type swrl:AtomList ;
+              rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                          swrl:propertyPredicate :hasFriend ;
+                          swrl:argument1 :x ;
+                          swrl:argument2 :y
+                        ] ;
+              rdf:rest rdf:nil
+            ] ;
+  swrl:head [ rdf:type swrl:AtomList ;
+              rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                          swrl:propertyPredicate :isFriendOf ;
+                          swrl:argument1 :y ;
+                          swrl:argument2 :x
+                        ] ;
+              rdf:rest rdf:nil
+            ]
+].
