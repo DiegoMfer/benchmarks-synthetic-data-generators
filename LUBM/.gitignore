@@ -1,4 +1,4 @@
-# Ignore generated output files
+# Ignore output directory (created automatically by benchmark script)
 output/
 
 # Ignore old generated files in root (if any)

@@ -1,6 +1,6 @@
 # PyGraft generated files and outputs
 
-# Generated data
+# Ignore output directory (created automatically by benchmark script)
 output/
 *.rdf
 *.owl

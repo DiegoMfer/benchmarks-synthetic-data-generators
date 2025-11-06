@@ -1,5 +1,7 @@
-# Ignore output directory
+# Ignore output directory (created automatically by benchmark script)
 output/
+
+# Ignore td_data directory (created automatically)
 td_data/
 
 # Ignore generated datasets in root

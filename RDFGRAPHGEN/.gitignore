@@ -1,6 +1,9 @@
 # Ignore output directory (created automatically by benchmark script)
 output/
 
+# Ignore output directory (created automatically by benchmark script)
+output/
+
 # Ignore Python cache
 __pycache__/
 *.py[cod]

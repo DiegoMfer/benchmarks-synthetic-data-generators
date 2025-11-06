@@ -1,4 +1,4 @@
-# Output directory - generated data
+# Ignore output directory (created automatically by benchmark script)
 output/
 
 # Keep the benchmark report for reference (optional - uncomment to ignore)

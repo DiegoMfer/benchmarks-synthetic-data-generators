@@ -1,4 +1,4 @@
-# Ignore generated output files
+# Ignore output directory (created automatically by benchmark script)
 output/
 
 # Ignore generated ontology files (but keep input univ-bench.owl)
