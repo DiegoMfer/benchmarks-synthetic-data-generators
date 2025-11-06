@@ -1,0 +1,29 @@
+@prefix ex: <http://example.org/> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Variables
+ex:x rdf:type swrl:Variable .
+ex:y rdf:type swrl:Variable .
+ex:z rdf:type swrl:Variable .
+
+# Rule: If X works on Y and Z works on Y, then X is a colleague of Z
+[ rdf:type swrl:Imp ;
+  swrl:body [ rdf:type swrl:AtomList ;
+              rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                          swrl:propertyPredicate ex:worksOn ;
+                          swrl:argument1 ex:x ;
+                          swrl:argument2 ex:y ] ;
+              rdf:rest [ rdf:type swrl:AtomList ;
+                        rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                                    swrl:propertyPredicate ex:worksOn ;
+                                    swrl:argument1 ex:z ;
+                                    swrl:argument2 ex:y ] ;
+                        rdf:rest rdf:nil ] ] ;
+  swrl:head [ rdf:type swrl:AtomList ;
+              rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                          swrl:propertyPredicate ex:colleague ;
+                          swrl:argument1 ex:x ;
+                          swrl:argument2 ex:z ] ;
+              rdf:rest rdf:nil ]
+].

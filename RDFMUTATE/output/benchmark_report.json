@@ -1,27 +1,27 @@
 {
   "benchmark": "RDFMutate",
   "version": "1.1.1",
-  "timestamp": "2025-11-05T11:49:08.989833",
+  "timestamp": "2025-11-06T10:41:21.722950",
   "configuration": {
     "config_file": "config.yaml"
   },
   "execution": {
-    "time_seconds": 2.76,
-    "time_milliseconds": 2759.869,
-    "time_formatted": "0:00:02.759869"
+    "time_seconds": 4.177,
+    "time_milliseconds": 4176.603,
+    "time_formatted": "0:00:04.176603"
   },
   "mutations": {
-    "total_mutations": 50,
-    "axioms_added": 1,
+    "total_mutations": 200,
+    "axioms_added": 33,
     "axioms_deleted": 0,
-    "net_change": 1
+    "net_change": 33
   },
   "performance_metrics": {
-    "mutations_per_second": 18.12,
-    "axioms_per_second": 0.36
+    "mutations_per_second": 47.89,
+    "axioms_per_second": 7.9
   },
   "output": {
     "file": "output/mutated0.ttl",
-    "affected_nodes": "[bob,alice]"
+    "affected_nodes": "[frank,grace,company1,alice,eve,diana,bob,company3,henry,charlie,company2]"
   }
 }

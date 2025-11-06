@@ -1,3 +1,40 @@
 @prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-ex:alice ex:hasFriend ex:bob .
+# People
+ex:alice a ex:Person ; ex:hasFriend ex:bob ; ex:name "Alice" .
+ex:bob a ex:Person ; ex:hasFriend ex:charlie ; ex:name "Bob" .
+ex:charlie a ex:Person ; ex:hasFriend ex:diana ; ex:name "Charlie" .
+ex:diana a ex:Person ; ex:hasFriend ex:eve ; ex:name "Diana" .
+ex:eve a ex:Person ; ex:hasFriend ex:frank ; ex:name "Eve" .
+ex:frank a ex:Person ; ex:hasFriend ex:grace ; ex:name "Frank" .
+ex:grace a ex:Person ; ex:hasFriend ex:henry ; ex:name "Grace" .
+ex:henry a ex:Person ; ex:hasFriend ex:alice ; ex:name "Henry" .
+
+# Organizations
+ex:company1 a ex:Organization ; ex:name "Tech Corp" .
+ex:company2 a ex:Organization ; ex:name "Data Inc" .
+ex:company3 a ex:Organization ; ex:name "Cloud Co" .
+
+# Employment relationships
+ex:alice ex:worksAt ex:company1 .
+ex:bob ex:worksAt ex:company1 .
+ex:charlie ex:worksAt ex:company2 .
+ex:diana ex:worksAt ex:company2 .
+ex:eve ex:worksAt ex:company3 .
+ex:frank ex:worksAt ex:company3 .
+
+# Projects
+ex:project1 a ex:Project ; ex:name "AI Research" .
+ex:project2 a ex:Project ; ex:name "Data Pipeline" .
+ex:project3 a ex:Project ; ex:name "Cloud Migration" .
+
+# Project assignments
+ex:alice ex:worksOn ex:project1 .
+ex:bob ex:worksOn ex:project1 .
+ex:charlie ex:worksOn ex:project2 .
+ex:diana ex:worksOn ex:project2 .
+ex:eve ex:worksOn ex:project3 .
+ex:frank ex:worksOn ex:project3 .
+

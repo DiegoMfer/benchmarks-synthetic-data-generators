@@ -59,6 +59,17 @@ python3 execute_benchmark.py
 
 # Run with custom config
 python3 execute_benchmark.py --config my-config.yaml
+
+# Override specific parameters (without editing config file)
+python3 execute_benchmark.py --mutations 100 --mutants 10
+
+# Full control with all overrides
+python3 execute_benchmark.py \
+  --config config.yaml \
+  --mutations 50 \
+  --mutants 20 \
+  --seed my-seed.ttl \
+  --operator my-operator.ttl
 ```
 
 ## Output
@@ -69,6 +80,9 @@ All generated files are saved to the `./output` directory:
 
 ## Configuration
 
+RDFMutate can be configured in two ways:
+
+### 1. YAML Configuration File (Traditional)
 RDFMutate uses YAML configuration files. The default `config.yaml` includes:
 
 ### Key Configuration Elements
@@ -101,7 +115,37 @@ mutation_operators:
 print_summary: true       # Print mutation summary
 ```
 
-### Supported Formats
+### 2. Command-Line Overrides (Convenient for Benchmarking)
+
+You can override configuration values directly from the command line without editing the YAML file:
+
+```bash
+# Override number of mutations and mutants
+python3 execute_benchmark.py --mutations 100 --mutants 10
+
+# Override seed graph
+python3 execute_benchmark.py --seed my-custom-seed.ttl
+
+# Override mutation operator
+python3 execute_benchmark.py --operator my-operators.ttl
+
+# Combine multiple overrides
+python3 execute_benchmark.py \
+  --mutations 50 \
+  --mutants 20 \
+  --seed custom-seed.ttl \
+  --operator custom-operator.ttl
+```
+
+**Available command-line options:**
+- `--config, -c`: Configuration file path (default: config.yaml)
+- `--mutations, -m`: Number of mutations to apply per graph
+- `--mutants, -n`: Number of mutant graphs to generate
+- `--seed, -s`: Seed graph file path
+- `--operator, -op`: Mutation operator file path
+- `--output-dir, -o`: Output directory (default: output)
+
+### Key Configuration Elements
 - **Input/Output types**: `rdf` (Turtle, N-Triples, etc.) or `owl` (OWL functional syntax)
 - **Mutation operators**: SWRL rules or SHACL shapes
 

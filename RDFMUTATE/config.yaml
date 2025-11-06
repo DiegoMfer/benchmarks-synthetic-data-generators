@@ -9,12 +9,21 @@ output_graph:
   overwrite: true
   type: rdf
 
-number_of_mutations: 50  # Apply 50 mutations per graph
-number_of_mutants: 10    # Generate 10 different graphs
+number_of_mutations: 200  # Apply 200 mutations per graph (increased from 50)
+number_of_mutants: 50     # Generate 50 different graphs (increased from 10)
 
 mutation_operators:
   - resource:
       file: addRelation.ttl
+      syntax: swrl
+  - resource:
+      file: addEmploymentRelation.ttl
+      syntax: swrl
+  - resource:
+      file: addColleagueRelation.ttl
+      syntax: swrl
+  - resource:
+      file: addKnowsRelation.ttl
       syntax: swrl
 
 print_summary: true

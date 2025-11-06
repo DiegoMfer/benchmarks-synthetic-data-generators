@@ -9,17 +9,23 @@ import json
 import time
 import argparse
 import re
+import yaml
 from datetime import datetime, timedelta
 from pathlib import Path
 
 
-def run_rdfmutate(config_file="config.yaml", output_dir="output"):
+def run_rdfmutate(config_file="config.yaml", output_dir="output", 
+                  mutations=None, mutants=None, seed_file=None, operator_file=None):
     """
     Run RDFMutate generator and collect metrics
     
     Args:
         config_file: Path to YAML configuration file
         output_dir: Directory for output files
+        mutations: Number of mutations to apply (overrides config)
+        mutants: Number of mutants to generate (overrides config)
+        seed_file: Seed graph file (overrides config)
+        operator_file: Mutation operator file (overrides config)
     """
     
     # Get the directory where this script is located (RDFMUTATE directory)
@@ -28,6 +34,28 @@ def run_rdfmutate(config_file="config.yaml", output_dir="output"):
     # Prepare output directory (relative to script directory)
     output_path = script_dir / output_dir
     output_path.mkdir(exist_ok=True)
+    
+    # Load and potentially modify config
+    config_path = script_dir / config_file
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Override config values if provided
+    if mutations is not None:
+        config['number_of_mutations'] = mutations
+    if mutants is not None:
+        config['number_of_mutants'] = mutants
+    if seed_file is not None:
+        config['seed_graph']['file'] = seed_file
+    if operator_file is not None:
+        if 'mutation_operators' in config and len(config['mutation_operators']) > 0:
+            if 'resource' in config['mutation_operators'][0]:
+                config['mutation_operators'][0]['resource']['file'] = operator_file
+    
+    # Create temporary config file with overrides
+    temp_config_path = script_dir / "temp_config.yaml"
+    with open(temp_config_path, 'w') as f:
+        yaml.dump(config, f)
     
     # Find the JAR file
     jar_files = list(script_dir.glob("rdfmutate*.jar"))
@@ -39,12 +67,16 @@ def run_rdfmutate(config_file="config.yaml", output_dir="output"):
     cmd = [
         "java",
         "-jar", str(jar_file),
-        f"--config={config_file}"
+        f"--config={temp_config_path}"
     ]
     
     print(f"Running RDFMutate Generator...")
     print(f"JAR: {jar_file.name}")
     print(f"Config: {config_file}")
+    if mutations is not None:
+        print(f"Mutations (override): {mutations}")
+    if mutants is not None:
+        print(f"Mutants (override): {mutants}")
     print(f"Command: {' '.join(cmd)}")
     print("=" * 60)
     
@@ -62,6 +94,10 @@ def run_rdfmutate(config_file="config.yaml", output_dir="output"):
         
         end_time = time.time()
         execution_time = end_time - start_time
+        
+        # Clean up temporary config
+        if temp_config_path.exists():
+            temp_config_path.unlink()
         
         # Parse output to extract metrics
         metrics = parse_generator_output(result.stdout)
@@ -187,12 +223,38 @@ def main():
         help="Output directory for generated files (default: output)"
     )
     
+    parser.add_argument(
+        "-m", "--mutations",
+        type=int,
+        help="Number of mutations to apply (overrides config)"
+    )
+    
+    parser.add_argument(
+        "-n", "--mutants",
+        type=int,
+        help="Number of mutant graphs to generate (overrides config)"
+    )
+    
+    parser.add_argument(
+        "-s", "--seed",
+        help="Seed graph file path (overrides config)"
+    )
+    
+    parser.add_argument(
+        "-op", "--operator",
+        help="Mutation operator file path (overrides config)"
+    )
+    
     args = parser.parse_args()
     
     try:
         report = run_rdfmutate(
             config_file=args.config,
-            output_dir=args.output_dir
+            output_dir=args.output_dir,
+            mutations=args.mutations,
+            mutants=args.mutants,
+            seed_file=args.seed,
+            operator_file=args.operator
         )
         
         print("\n✨ Benchmark execution completed successfully!")
