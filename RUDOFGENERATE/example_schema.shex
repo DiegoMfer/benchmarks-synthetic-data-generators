@@ -1,0 +1,24 @@
+prefix : <http://example.org/>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Person { 
+    :name       xsd:string  ;
+    :email      xsd:string  ;
+    :birthdate  xsd:date  ? ;
+    :age        xsd:integer ? ;
+    :enrolledIn @:Course * ;
+    :hasFriend  @:Person *
+}
+
+:Course { 
+    :name       xsd:string ;
+    :code       xsd:string ;
+    :credits    xsd:integer ? ;
+    :instructor @:Instructor ?
+}
+
+:Instructor {
+    :name       xsd:string ;
+    :email      xsd:string ;
+    :teaches    @:Course *
+}

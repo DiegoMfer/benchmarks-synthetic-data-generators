@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  rudofgenerate:
+    build: .
+    container_name: rudofgenerate-benchmark
+    volumes:
+      - ./output:/app/output
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["--schema", "example_schema.shex", "--entity-count", "100", "--output-dir", "output"]
