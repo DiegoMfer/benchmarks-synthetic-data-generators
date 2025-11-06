@@ -1,0 +1,141 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Person Shape
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass foaf:Person ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path foaf:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 18 ;
+        sh:maxInclusive 80 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path foaf:email ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path foaf:knows ;
+        sh:class foaf:Person ;
+        sh:minCount 0 ;
+        sh:maxCount 5 ;
+    ] ;
+    sh:property [
+        sh:path ex:worksFor ;
+        sh:class ex:Organization ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Organization Shape
+ex:OrganizationShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Organization ;
+    sh:property [
+        sh:path ex:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:foundedYear ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1900 ;
+        sh:maxInclusive 2024 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:hasEmployee ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:location ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Project Shape
+ex:ProjectShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Project ;
+    sh:property [
+        sh:path ex:projectName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:budget ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 1000.00 ;
+        sh:maxInclusive 1000000.00 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:startDate ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:assignedTo ;
+        sh:class foaf:Person ;
+        sh:minCount 1 ;
+        sh:maxCount 10 ;
+    ] ;
+    sh:property [
+        sh:path ex:sponsoredBy ;
+        sh:class ex:Organization ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Product Shape
+ex:ProductShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Product ;
+    sh:property [
+        sh:path ex:productName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:price ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+        sh:maxInclusive 10000.00 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:manufacturer ;
+        sh:class ex:Organization ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:releaseDate ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

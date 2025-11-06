@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  rdfgraphgen-benchmark:
+    build: .
+    image: rdfgraphgen-benchmark
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./output:/app/output
+    command: ["--scale-factor", "100"]

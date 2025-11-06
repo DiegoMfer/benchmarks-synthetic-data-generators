@@ -1,0 +1,34 @@
+# Ignore output directory
+output/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environments
+venv/
+ENV/
+env/
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Docker files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Ignore documentation
+*.md
+README.md
+DOCKER_SETUP.md
+
+# Ignore build scripts
+build-docker.sh
+run-benchmark.sh
