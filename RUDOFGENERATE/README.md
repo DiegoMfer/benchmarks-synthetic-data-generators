@@ -72,6 +72,7 @@ python3 execute_benchmark.py \
 | `--cardinality-strategy` | choice | `Balanced` | Strategy for cardinality: `Minimum`, `Maximum`, `Random`, `Balanced` |
 | `--batch-size` | int | 100 | Batch size for entity processing |
 | `--output-format` | choice | `Turtle` | RDF format: `Turtle`, `NTriples`, `RDFXML` |
+| `--parallel-files` | int | 1 | Number of parallel file writers for internal optimization (experimental) |
 | `--no-stats` | flag | false | Disable statistics file generation |
 | `--compress` | flag | false | Compress output file |
 

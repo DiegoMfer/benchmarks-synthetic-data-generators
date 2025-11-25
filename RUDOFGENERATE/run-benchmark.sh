@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Run the RUDOF Generate benchmark using Docker
-echo "Running RUDOF Generate benchmark..."
-echo "=================================="
+# Run the RUDOF Generate Binary benchmark using Docker
+echo "Running RUDOF Generate Binary benchmark..."
+echo "======================================="
 
 # Run the container
 docker compose up
