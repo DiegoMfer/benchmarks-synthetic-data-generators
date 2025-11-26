@@ -149,10 +149,15 @@ def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir
             print(f"RUDOF stderr: {result.stderr}")
         
         # Count triples - try stats file first, then fallback to parsing
-        stats_file = output_file.with_suffix(output_file.suffix + '.stats.json')
+        # Stats file is named: <base_name>.stats.json (e.g., generated_data.stats.json)
+        stats_file = output_file.with_suffix('.stats.json')
         if stats_file.exists():
             triples_total = count_triples_from_stats(stats_file)
+            if triples_total == 0:
+                print(f"Warning: Stats file exists but returned 0 triples, trying fallback parsing...")
+                triples_total = count_triples_from_file(output_file)
         else:
+            print(f"Warning: Stats file not found at {stats_file}, using fallback parsing...")
             # Fallback to parsing the output file
             triples_total = count_triples_from_file(output_file)
         
