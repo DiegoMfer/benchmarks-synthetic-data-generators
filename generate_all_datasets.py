@@ -535,7 +535,7 @@ Examples:
         
         if 'LINKGEN' in selected_generators:
             gen = LINKGENGenerator('LINKGEN', base_dir / 'LINKGEN', dataset_dir)
-            results['LINKGEN'] = gen.generate(triples=2000000, ontology='dbpedia_2015.owl', 
+            results['LINKGEN'] = gen.generate(triples=300000, ontology='dbpedia_2015.owl', 
                                              distribution='zipf', threads=4)
         
         if 'PYGRAFT' in selected_generators:
