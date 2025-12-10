@@ -325,48 +325,6 @@ class PyGraftGenerator(DatasetGenerator):
             return False
 
 
-class RDFMutateGenerator(DatasetGenerator):
-    """RDFMutate graph mutation-based generator"""
-    
-    def generate(self, config='config.yaml', mutations=100, mutants=10):
-        print(f"\n{'='*80}")
-        print(f"🔵 GENERATING RDFMUTATE DATASET")
-        print(f"{'='*80}")
-        print(f"Mutations: {mutations}")
-        print(f"Mutants: {mutants}")
-        
-        cmd = [
-            'python3',
-            str(self.source_dir / 'execute_benchmark.py'),
-            '--config', config
-        ]
-        
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        
-        if result.returncode == 0:
-            print(result.stdout)
-            
-            # Copy generated files
-            files = self.copy_files(['mutated*.ttl', 'benchmark_report.json'])
-            
-            # Save metadata
-            metadata = {
-                'configuration': {
-                    'config': config,
-                    'mutations': mutations,
-                    'mutants': mutants
-                },
-                'files': files,
-                'description': 'Graph mutation-based synthetic data generator using SWRL/SHACL operators'
-            }
-            self.save_metadata(metadata)
-            
-            return True
-        else:
-            print(f"❌ Error: {result.stderr}")
-            return False
-
-
 class RDFGraphGenGenerator(DatasetGenerator):
     """RDFGraphGen SHACL-based generator"""
     
@@ -413,29 +371,29 @@ class RDFGraphGenGenerator(DatasetGenerator):
 class RUDOFGenerateGenerator(DatasetGenerator):
     """RUDOF Generate high-performance ShEx-based generator"""
     
-    def generate(self, schema='example_schema.shex', entity_count=100000, 
-                 output_format='turtle', seed=42, parallel_threads=8):
+    def generate(self, schema='example_schema.shex', config_file='benchmark_config.toml'):
         print(f"\n{'='*80}")
         print(f"🟠 GENERATING RUDOF GENERATE DATASET (Binary v0.1.142)")
         print(f"{'='*80}")
         print(f"Schema: {schema}")
-        print(f"Entity count: {entity_count:,}")
-        print(f"Format: {output_format}")
-        print(f"Seed: {seed}")
-        print(f"Threads: {parallel_threads}")
+        print(f"Config file: {config_file}")
         
+        # Build first to ensure image is up to date
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Run using docker compose
         cmd = [
-            'python3',
-            str(self.source_dir / 'execute_benchmark_binary.py'),
-            '--schema', schema,
-            '--entity-count', str(entity_count),
-            '--output-dir', 'output',
-            '--output-format', output_format,
-            '--seed', str(seed),
-            '--parallel-threads', str(parallel_threads)
+            'docker', 'compose', 'run', '--rm',
+            '-e', f"CONFIG_FILE={config_file}",
+            'rudofgenerate'
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -447,10 +405,7 @@ class RUDOFGenerateGenerator(DatasetGenerator):
             metadata = {
                 'configuration': {
                     'schema': schema,
-                    'entity_count': entity_count,
-                    'output_format': output_format,
-                    'seed': seed,
-                    'parallel_threads': parallel_threads,
+                    'config_file': config_file,
                     'version': 'v0.1.142'
                 },
                 'files': files,
@@ -461,7 +416,66 @@ class RUDOFGenerateGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
+
+
+def get_benchmark_configurations():
+    """
+    Returns the configuration parameters for each benchmark generator.
+    Edit the values in this dictionary to configure the datasets.
+    """
+    return {
+        'BSBM': {
+            'runs': 1,
+            'products': 10000,
+            'format': 'ttl'
+        },
+        'LUBM': {
+            'runs': 1,
+            'universities': 10,
+            'seed': 0
+        },
+        'GAIA': {
+            'runs': 1,
+            'instances': 1000,
+            'materialization': True
+        },
+        'LINKGEN': {
+            'runs': 1,
+            'triples': 300000,
+            'ontology': 'dbpedia_2015.owl',
+            'distribution': 'zipf',
+            'threads': 4
+        },
+        'PYGRAFT': {
+            'runs': 1,
+            'mode': 'full',
+            'classes': 30,
+            'relations': 20,
+            'avg_instances': 80
+        },
+        'RDFGRAPHGEN': {
+            'runs': 1,
+            'shape': 'input-shape.ttl',
+            'scale_factor': 100
+        },
+        'RDFGRAPHGEN_LUBM': {
+            'runs': 1,
+            'shape': 'input-shape.ttl',
+            'scale_factor': 100
+        },
+        'RUDOFGENERATE': {
+            'runs': 1,
+            'schema': 'example_schema.shex',
+            'config_file': 'benchmark_config.toml'
+        },
+        'RUDOFGENERATE_LUBM': {
+            'runs': 1,
+            'schema': 'example_schema.shex',
+            'config_file': 'benchmark_config.toml'
+        }
+    }
 
 
 def main():
@@ -483,7 +497,8 @@ Examples:
     
     parser.add_argument('--generators', nargs='+', 
                        choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
-                               'RDFMUTATE', 'RDFGRAPHGEN', 'RUDOFGENERATE', 'ALL'],
+                               'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM', 'ALL'],
                        default=['ALL'],
                        help='Generators to run (default: ALL)')
     
@@ -495,7 +510,8 @@ Examples:
     # Determine which generators to run
     if 'ALL' in args.generators:
         selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
-                              'RDFMUTATE', 'RDFGRAPHGEN', 'RUDOFGENERATE']
+                               'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM']
     else:
         selected_generators = args.generators
     
@@ -519,45 +535,60 @@ Examples:
     
     results = {}
     
+    # Get configurations
+    configs = get_benchmark_configurations()
+    
+    # Generator class mapping
+    generator_classes = {
+        'BSBM': BSBMGenerator,
+        'LUBM': LUBMGenerator,
+        'GAIA': GAIAGenerator,
+        'LINKGEN': LINKGENGenerator,
+        'PYGRAFT': PyGraftGenerator,
+        'RDFGRAPHGEN': RDFGraphGenGenerator,
+        'RDFGRAPHGEN_LUBM': RDFGraphGenGenerator,
+        'RUDOFGENERATE': RUDOFGenerateGenerator,
+        'RUDOFGENERATE_LUBM': RUDOFGenerateGenerator
+    }
+
     # Generate datasets
     try:
-        if 'BSBM' in selected_generators:
-            gen = BSBMGenerator('BSBM', base_dir / 'BSBM', dataset_dir)
-            results['BSBM'] = gen.generate(products=10000, format='ttl')
-        
-        if 'LUBM' in selected_generators:
-            gen = LUBMGenerator('LUBM', base_dir / 'LUBM', dataset_dir)
-            results['LUBM'] = gen.generate(universities=10, seed=0)
-        
-        if 'GAIA' in selected_generators:
-            gen = GAIAGenerator('GAIA', base_dir / 'GAIA', dataset_dir)
-            results['GAIA'] = gen.generate(instances=1000, materialization=True)
-        
-        if 'LINKGEN' in selected_generators:
-            gen = LINKGENGenerator('LINKGEN', base_dir / 'LINKGEN', dataset_dir)
-            results['LINKGEN'] = gen.generate(triples=300000, ontology='dbpedia_2015.owl', 
-                                             distribution='zipf', threads=4)
-        
-        if 'PYGRAFT' in selected_generators:
-            gen = PyGraftGenerator('PYGRAFT', base_dir / 'PYGRAFT', dataset_dir)
-            results['PYGRAFT'] = gen.generate(mode='full', classes=30, relations=20, 
-                                             avg_instances=80)
-        
-        if 'RDFMUTATE' in selected_generators:
-            gen = RDFMutateGenerator('RDFMUTATE', base_dir / 'RDFMUTATE', dataset_dir)
-            results['RDFMUTATE'] = gen.generate(config='config.yaml', mutations=100, mutants=10)
-        
-        if 'RDFGRAPHGEN' in selected_generators:
-            gen = RDFGraphGenGenerator('RDFGRAPHGEN', base_dir / 'RDFGRAPHGEN', dataset_dir)
-            results['RDFGRAPHGEN'] = gen.generate(shape='input-shape.ttl', scale_factor=100)
-        
-        if 'RUDOFGENERATE' in selected_generators:
-            gen = RUDOFGenerateGenerator('RUDOFGENERATE', base_dir / 'RUDOFGENERATE', dataset_dir)
-            results['RUDOFGENERATE'] = gen.generate(schema='example_schema.shex', 
-                                                   entity_count=200000,
-                                                   output_format='turtle', 
-                                                   seed=42, 
-                                                   parallel_threads=8)
+        for gen_name in selected_generators:
+            if gen_name in generator_classes and gen_name in configs:
+                # Get config and extract runs
+                config = configs[gen_name].copy()
+                runs = config.pop('runs', 1)
+                
+                gen_class = generator_classes[gen_name]
+                
+                # Determine source directory (handle variants)
+                source_dir_name = gen_name
+                if gen_name == 'RUDOFGENERATE_LUBM':
+                    source_dir_name = 'RUDOFGENERATE'
+                elif gen_name == 'RDFGRAPHGEN_LUBM':
+                    source_dir_name = 'RDFGRAPHGEN'
+                
+                print(f"\n🔄 Running {gen_name} generator ({runs} runs)...")
+                
+                # Execute runs
+                gen_success = True
+                for i in range(runs):
+                    if runs > 1:
+                        print(f"   ▶ Run {i+1}/{runs}")
+                    
+                    gen = gen_class(gen_name, base_dir / source_dir_name, dataset_dir)
+                    success = gen.generate(**config)
+                    
+                    if not success:
+                        gen_success = False
+                        print(f"   ❌ Run {i+1} failed")
+                
+                results[gen_name] = gen_success
+
+            elif gen_name not in generator_classes:
+                print(f"⚠️  Unknown generator: {gen_name}")
+            elif gen_name not in configs:
+                print(f"⚠️  No configuration found for generator: {gen_name}")
     
     except KeyboardInterrupt:
         print("\n\n⚠️  Generation interrupted by user")

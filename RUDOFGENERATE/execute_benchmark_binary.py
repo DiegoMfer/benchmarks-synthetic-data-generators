@@ -15,7 +15,7 @@ import time
 import argparse
 from pathlib import Path
 import os
-import tempfile
+
 
 def count_triples_from_stats(stats_file_path):
     """Count the number of triples from RUDOF Generate stats file."""
@@ -81,7 +81,7 @@ def get_file_size_mb(file_path):
         return 0.0
 
 def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir, 
-                             output_format='turtle', seed=None, parallel_threads=None):
+                             output_format='turtle', seed=None, parallel_threads=None, config_file=None):
     """
     Run RUDOF binary to generate RDF data.
     
@@ -93,16 +93,17 @@ def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir
         output_format: Output format ('turtle', 'ntriples', 'rdfxml', 'trig', 'n3', 'nquads', 'jsonld')
         seed: Random seed for reproducible generation
         parallel_threads: Number of parallel threads
-    
-    Returns:
-        dict: Benchmark metrics including execution time, triples, and file size
+        config_file: Path to configuration file
     """
     print(f"\n{'='*70}")
     print(f"RUDOF Generate Binary Benchmark")
     print(f"{'='*70}")
     print(f"Schema: {schema_file}")
     print(f"Output: {output_file}")
-    print(f"Entity count: {entity_count}")
+    if config_file:
+        print(f"Config file: {config_file}")
+    if entity_count:
+        print(f"Entity count: {entity_count}")
     print(f"Output format: {output_format}")
     print(f"Seed: {seed}")
     print(f"Parallel threads: {parallel_threads}")
@@ -115,12 +116,17 @@ def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir
     rudof_cmd = [
         'rudof', 'generate',
         '--schema', str(schema_file),
-        '--entities', str(entity_count),
         '--output-file', str(output_file),
         '--result-format', output_format.lower()
     ]
     
-    # Add optional parameters
+    if config_file:
+        rudof_cmd.extend(['--config', str(config_file)])
+    
+    # Add optional parameters (only if provided)
+    if entity_count is not None:
+        rudof_cmd.extend(['--entities', str(entity_count)])
+        
     if seed is not None:
         rudof_cmd.extend(['--seed', str(seed)])
     
@@ -220,8 +226,10 @@ def main():
     parser = argparse.ArgumentParser(description='Benchmark RUDOF binary RDF data generator')
     parser.add_argument('--schema', type=str, default='example_schema.shex',
                        help='Path to the ShEx/SHACL schema file')
-    parser.add_argument('--entity-count', type=int, default=100,
-                       help='Number of entities to generate')
+    parser.add_argument('--config', type=str, default=None,
+                       help='Path to configuration file')
+    parser.add_argument('--entity-count', type=int, default=None,
+                       help='Number of entities to generate (default: 100 if no config)')
     parser.add_argument('--output-dir', type=str, default='output',
                        help='Directory for output files')
     parser.add_argument('--output-format', type=str, default='turtle',
@@ -238,6 +246,39 @@ def main():
     script_dir = Path(__file__).parent
     schema_path = script_dir / args.schema
     output_dir = script_dir / args.output_dir
+    
+    # Handle default entity count if not provided and no config
+    entity_count = args.entity_count
+    
+    # If config file is provided, try to read entity_count from it
+    if args.config and entity_count is None:
+        try:
+            config_path = script_dir / args.config
+            if config_path.exists():
+                # Simple TOML parsing for entity_count to avoid dependencies
+                with open(config_path, "r") as f:
+                    in_generation = False
+                    for line in f:
+                        line = line.strip()
+                        if line == "[generation]":
+                            in_generation = True
+                            continue
+                        elif line.startswith("["):
+                            in_generation = False
+                            continue
+                        
+                        if in_generation and (line.startswith("entity_count") or line.startswith("entities")):
+                            parts = line.split("=")
+                            if len(parts) >= 2:
+                                val = parts[1].split("#")[0].strip()
+                                entity_count = int(val)
+                                print(f"Read entity_count from config: {entity_count}")
+                                break
+        except Exception as e:
+            print(f"Warning: Could not read config file: {e}")
+
+    if entity_count is None:
+        entity_count = 100
     
     # Determine output file extension based on format
     format_extensions = {
@@ -263,11 +304,12 @@ def main():
     metrics = run_rudof_generate_binary(
         schema_file=schema_path,
         output_file=output_file,
-        entity_count=args.entity_count,
+        entity_count=entity_count,
         output_dir=output_dir,
         output_format=args.output_format,
         seed=args.seed,
-        parallel_threads=args.parallel_threads
+        parallel_threads=args.parallel_threads,
+        config_file=args.config
     )
     
     # Create benchmark report
@@ -276,7 +318,8 @@ def main():
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
         'configuration': {
             'schema_file': args.schema,
-            'entity_count': args.entity_count,
+            'config_file': args.config,
+            'entity_count': entity_count,
             'output_format': args.output_format,
             'seed': args.seed,
             'parallel_threads': args.parallel_threads,

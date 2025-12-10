@@ -1,0 +1,66 @@
+# Configuration for RUDOF Generate Benchmark
+# Based on example_schema.shex
+
+[output]
+format = "Turtle"
+path = "output/generated_data.ttl"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 1
+
+[parallel]
+threads = 4
+batch_size = 100
+parallel_shapes = false
+parallel_fields = false
+
+[generation]
+entity_count = 200000                 # Matching the benchmark default
+seed = 42                             # Fixed seed
+cardinality_strategy = "Balanced"     # Balanced strategy for lists
+
+[generation.entity_distribution]
+Weighted = { "http://example.org/Person" = 0.6, "http://example.org/Course" = 0.3, "http://example.org/Instructor" = 0.1 }
+
+[field_generators.default]
+locale = "en"
+quality = "Medium"
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 1
+max = 10000
+
+# Configure specific properties
+[field_generators.properties."http://example.org/name"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://example.org/email"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://example.org/birthdate"]
+generator = "date"
+[field_generators.properties."http://example.org/birthdate".parameters]
+start_year = 1950
+end_year = 2005
+
+[field_generators.properties."http://example.org/age"]
+generator = "integer"
+[field_generators.properties."http://example.org/age".parameters]
+min = 18
+max = 90
+
+[field_generators.properties."http://example.org/code"]
+generator = "pattern"
+[field_generators.properties."http://example.org/code".parameters]
+regex = "[A-Z]{3}-[0-9]{3}"
+
+[field_generators.properties."http://example.org/credits"]
+generator = "integer"
+[field_generators.properties."http://example.org/credits".parameters]
+min = 1
+max = 6

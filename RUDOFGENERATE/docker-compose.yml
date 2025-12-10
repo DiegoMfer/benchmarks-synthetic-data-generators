@@ -6,6 +6,8 @@ services:
     container_name: rudofgenerate-binary-benchmark
     volumes:
       - ./output:/app/output
+      - ./${CONFIG_FILE:-benchmark_config.toml}:/app/${CONFIG_FILE:-benchmark_config.toml}
     environment:
       - PYTHONUNBUFFERED=1
-    command: ["--schema", "example_schema.shex", "--entity-count", "100", "--output-dir", "output", "--output-format", "turtle", "--seed", "42", "--parallel-threads", "4"]
+      - CONFIG_FILE=${CONFIG_FILE:-benchmark_config.toml}
+    command: ["--schema", "example_schema.shex", "--config", "${CONFIG_FILE:-benchmark_config.toml}", "--output-dir", "output", "--output-format", "turtle"]

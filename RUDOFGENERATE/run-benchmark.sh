@@ -4,8 +4,12 @@
 echo "Running RUDOF Generate Binary benchmark..."
 echo "======================================="
 
-# Run the container
-docker compose up
+# Check if a config file was provided as an argument
+CONFIG_FILE=${1:-benchmark_config.toml}
+echo "Using configuration file: $CONFIG_FILE"
+
+# Run the container with the specified config file
+CONFIG_FILE=$CONFIG_FILE docker compose up
 
 if [ $? -eq 0 ]; then
     echo ""
