@@ -1,0 +1,1 @@
+#this file will generate a csv to store the performance of each generator and a csv with the metrics of the datasets of each generator
