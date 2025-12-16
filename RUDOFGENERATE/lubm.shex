@@ -1,0 +1,195 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX ub: <http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#>
+PREFIX xsd: <http://xsd.org/>
+PREFIX : <http://weso.es/shapes/>
+PREFIX brick: <https://brickschema.org/schema/Brick#>
+PREFIX csvw: <http://www.w3.org/ns/csvw#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcmitype: <http://purl.org/dc/dcmitype/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dcam: <http://purl.org/dc/dcam/>
+PREFIX doap: <http://usefulinc.com/ns/doap#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX prof: <http://www.w3.org/ns/dx/prof/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX schema: <https://schema.org/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX ssn: <http://www.w3.org/ns/ssn/>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX vann: <http://purl.org/vocab/vann/>
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX wgs: <https://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX xml: <http://www.w3.org/XML/1998/namespace/>
+
+:Publication
+{
+   rdf:type  [ub:Publication]  ;
+   ub:name  xsd:string  ;
+   ub:publicationAuthor  IRI  +
+}
+
+
+:Course
+{
+   rdf:type  [ub:Course]  ;
+   ub:name  xsd:string  
+}
+
+
+:GraduateCourse
+{
+   rdf:type  [ub:GraduateCourse]  ;
+   ub:name  xsd:string  
+}
+
+
+:UndergraduateStudent
+{
+   rdf:type  [ub:UndergraduateStudent]  ;
+   ub:telephone  xsd:string  ;
+   ub:memberOf  @:Department  ;
+   ub:emailAddress  xsd:string  ;
+   ub:name  xsd:string  ;
+   ub:takesCourse  @:Course  +
+}
+
+
+:University
+{
+   rdf:type  [ub:University]  
+}
+
+
+:Ontology
+{
+   rdf:type  [owl:Ontology]  ;
+   owl:imports  IRI  
+}
+
+
+:ResearchGroup
+{
+   rdf:type  [ub:ResearchGroup]  ;
+   ub:subOrganizationOf  @:Department  
+}
+
+
+:AssistantProfessor
+{
+   rdf:type  [ub:AssistantProfessor]  ;
+   ub:teacherOf  @:GraduateCourse  +;
+   ub:doctoralDegreeFrom  @:University  ;
+   ub:telephone  xsd:string  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:mastersDegreeFrom  @:University  ;
+   ub:name  xsd:string  ;
+   ub:emailAddress  xsd:string  ;
+   ub:worksFor  @:Department  ;
+   ub:researchInterest  xsd:string  
+}
+
+
+:GraduateStudent
+{
+   rdf:type  [ub:GraduateStudent]  ;
+   ub:memberOf  @:Department  ;
+   ub:emailAddress  xsd:string  ;
+   ub:takesCourse  @:GraduateCourse  +;
+   ub:advisor  IRI  ;
+   ub:telephone  xsd:string  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:name  xsd:string  
+}
+
+
+:ResearchAssistant
+{
+   rdf:type  [ub:GraduateStudent]  ;
+   rdf:type  [ub:ResearchAssistant]  ;
+   ub:memberOf  @:Department  ;
+   ub:emailAddress  xsd:string  ;
+   ub:takesCourse  @:GraduateCourse  +;
+   ub:advisor  IRI  ;
+   ub:telephone  xsd:string  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:name  xsd:string  
+}
+
+
+:AssociateProfessor
+{
+   rdf:type  [ub:AssociateProfessor]  ;
+   ub:emailAddress  xsd:string  ;
+   ub:telephone  xsd:string  ;
+   ub:mastersDegreeFrom  @:University  ;
+   ub:worksFor  @:Department  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:teacherOf  @:Course  +;
+   ub:researchInterest  xsd:string  ;
+   ub:name  xsd:string  ;
+   ub:doctoralDegreeFrom  @:University  
+}
+
+
+:Department
+{
+   rdf:type  [ub:Department]  ;
+   ub:name  xsd:string  ;
+   ub:subOrganizationOf  @:University  
+}
+
+
+:TeachingAssistant
+{
+   rdf:type  [ub:GraduateStudent]  ;
+   rdf:type  [ub:TeachingAssistant]  ;
+   ub:teachingAssistantOf  @:Course  ;
+   ub:takesCourse  @:GraduateCourse  +;
+   ub:telephone  xsd:string  ;
+   ub:advisor  IRI  ;
+   ub:emailAddress  xsd:string  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:memberOf  @:Department  ;
+   ub:name  xsd:string  
+}
+
+
+:Lecturer
+{
+   rdf:type  [ub:Lecturer]  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:telephone  xsd:string  ;
+   ub:teacherOf  @:Course  +;
+   ub:worksFor  @:Department  ;
+   ub:mastersDegreeFrom  @:University  ;
+   ub:name  xsd:string  ;
+   ub:emailAddress  xsd:string  ;
+   ub:doctoralDegreeFrom  @:University  
+}
+
+
+:FullProfessor
+{
+   rdf:type  [ub:FullProfessor]  ;
+   ub:worksFor  @:Department  ;
+   ub:mastersDegreeFrom  @:University  ;
+   ub:emailAddress  xsd:string  ;
+   ub:researchInterest  xsd:string  ;
+   ub:undergraduateDegreeFrom  @:University  ;
+   ub:teacherOf  @:Course  +;
+   ub:doctoralDegreeFrom  @:University  ;
+   ub:telephone  xsd:string  ;
+   ub:name  xsd:string  
+}
+
+

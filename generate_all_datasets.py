@@ -462,7 +462,7 @@ def get_benchmark_configurations():
         },
         'RDFGRAPHGEN_LUBM': {
             'runs': 1,
-            'shape': 'input-shape.ttl',
+            'shape': 'lubm_shacl.ttl',
             'scale_factor': 100
         },
         'RUDOFGENERATE': {
@@ -470,9 +470,14 @@ def get_benchmark_configurations():
             'schema': 'example_schema.shex',
             'config_file': 'benchmark_config.toml'
         },
-        'RUDOFGENERATE_LUBM': {
+        'RUDOFGENERATE_LUBM_SHEX': {
             'runs': 1,
-            'schema': 'example_schema.shex',
+            'schema': 'lubm.shex',
+            'config_file': 'benchmark_config.toml'
+        },
+        'RUDOFGENERATE_LUBM_SHACL': {
+            'runs': 1,
+            'schema': 'lubm_shacl.ttl',
             'config_file': 'benchmark_config.toml'
         }
     }
@@ -498,7 +503,7 @@ Examples:
     parser.add_argument('--generators', nargs='+', 
                        choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM', 'ALL'],
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL', 'ALL'],
                        default=['ALL'],
                        help='Generators to run (default: ALL)')
     
@@ -511,7 +516,7 @@ Examples:
     if 'ALL' in args.generators:
         selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM']
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL']
     else:
         selected_generators = args.generators
     
@@ -548,7 +553,8 @@ Examples:
         'RDFGRAPHGEN': RDFGraphGenGenerator,
         'RDFGRAPHGEN_LUBM': RDFGraphGenGenerator,
         'RUDOFGENERATE': RUDOFGenerateGenerator,
-        'RUDOFGENERATE_LUBM': RUDOFGenerateGenerator
+        'RUDOFGENERATE_LUBM_SHEX': RUDOFGenerateGenerator,
+        'RUDOFGENERATE_LUBM_SHACL': RUDOFGenerateGenerator
     }
 
     # Generate datasets
@@ -563,7 +569,7 @@ Examples:
                 
                 # Determine source directory (handle variants)
                 source_dir_name = gen_name
-                if gen_name == 'RUDOFGENERATE_LUBM':
+                if gen_name.startswith('RUDOFGENERATE'):
                     source_dir_name = 'RUDOFGENERATE'
                 elif gen_name == 'RDFGRAPHGEN_LUBM':
                     source_dir_name = 'RDFGRAPHGEN'
