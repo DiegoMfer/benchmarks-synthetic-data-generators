@@ -16,7 +16,7 @@ parallel_shapes = false
 parallel_fields = false
 
 [generation]
-entity_count = 200000                 # Matching the benchmark default
+entity_count = 200                 # Matching the benchmark default
 seed = 42                             # Fixed seed
 cardinality_strategy = "Balanced"     # Balanced strategy for lists
 

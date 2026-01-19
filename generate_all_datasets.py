@@ -428,22 +428,22 @@ def get_benchmark_configurations():
     return {
         'BSBM': {
             'runs': 1,
-            'products': 10000,
+            'products': 100,
             'format': 'ttl'
         },
         'LUBM': {
             'runs': 1,
-            'universities': 10,
+            'universities': 1,
             'seed': 0
         },
         'GAIA': {
             'runs': 1,
-            'instances': 1000,
+            'instances': 10,
             'materialization': True
         },
         'LINKGEN': {
             'runs': 1,
-            'triples': 300000,
+            'triples': 3000,
             'ontology': 'dbpedia_2015.owl',
             'distribution': 'zipf',
             'threads': 4
@@ -458,12 +458,12 @@ def get_benchmark_configurations():
         'RDFGRAPHGEN': {
             'runs': 1,
             'shape': 'input-shape.ttl',
-            'scale_factor': 100
+            'scale_factor': 10
         },
         'RDFGRAPHGEN_LUBM': {
             'runs': 1,
             'shape': 'lubm_shacl.ttl',
-            'scale_factor': 100
+            'scale_factor': 10
         },
         'RUDOFGENERATE': {
             'runs': 1,
@@ -500,7 +500,7 @@ Examples:
         """
     )
     
-    parser.add_argument('--generators', nargs='+', 
+    parser.add_argument('--generators', nargs='*', 
                        choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
                                'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL', 'ALL'],
@@ -513,7 +513,7 @@ Examples:
     args = parser.parse_args()
     
     # Determine which generators to run
-    if 'ALL' in args.generators:
+    if not args.generators or 'ALL' in args.generators:
         selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
                                'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL']
