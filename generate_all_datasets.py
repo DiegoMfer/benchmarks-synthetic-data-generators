@@ -428,22 +428,22 @@ def get_benchmark_configurations():
     return {
         'BSBM': {
             'runs': 1,
-            'products': 100,
+            'products': 5000,
             'format': 'ttl'
         },
         'LUBM': {
             'runs': 1,
-            'universities': 1,
+            'universities': 10,
             'seed': 0
         },
         'GAIA': {
             'runs': 1,
-            'instances': 10,
+            'instances': 20,
             'materialization': True
         },
         'LINKGEN': {
             'runs': 1,
-            'triples': 3000,
+            'triples': 60000,
             'ontology': 'dbpedia_2015.owl',
             'distribution': 'zipf',
             'threads': 4
@@ -451,19 +451,19 @@ def get_benchmark_configurations():
         'PYGRAFT': {
             'runs': 1,
             'mode': 'full',
-            'classes': 30,
-            'relations': 20,
-            'avg_instances': 80
+            'classes': 3000,
+            'relations': 200,
+            'avg_instances': 1200
         },
         'RDFGRAPHGEN': {
             'runs': 1,
             'shape': 'input-shape.ttl',
-            'scale_factor': 10
+            'scale_factor': 20
         },
         'RDFGRAPHGEN_LUBM': {
             'runs': 1,
             'shape': 'lubm_shacl.ttl',
-            'scale_factor': 10
+            'scale_factor': 20
         },
         'RUDOFGENERATE': {
             'runs': 1,
