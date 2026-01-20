@@ -115,8 +115,8 @@ def load_graph_for_run(run_path, generator_name):
         format = "xml"
     elif generator_name == "LINKGEN":
         # LINKGEN produces extensionless files like data_T0_1, and a void.ttl
-        # We want only the primary data file data_T0_1 as requested
-        files_to_load = glob.glob(os.path.join(run_path, "data_T0_1"))
+        # We want all the data files data_T*
+        files_to_load = glob.glob(os.path.join(run_path, "data_*"))
         # Exclude if they are directories (unlikely but safe)
         files_to_load = [f for f in files_to_load if os.path.isfile(f)]
         format = "nt"
@@ -322,7 +322,14 @@ def main():
                     print(f"  Error calculating RDF metrics: {e}")
             else:
                 print("  Skipping RDF metrics (graph empty or not loaded).")
-                
+            
+            # Recalculate Throughput using RDF_Triples (actual loaded) / Execution Time
+            # This overrides the tool-reported throughput
+            if 'RDF_Triples' in rdf_metrics:
+                exec_time = perf_metrics.get('Perf_Execution_Time')
+                if exec_time and exec_time > 0:
+                    perf_metrics['Perf_Throughput'] = rdf_metrics['RDF_Triples'] / exec_time
+
             # Combine
             run_data = {
                 "Generator": generator_name,

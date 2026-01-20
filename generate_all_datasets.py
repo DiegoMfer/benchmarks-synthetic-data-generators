@@ -443,7 +443,7 @@ def get_benchmark_configurations():
         },
         'LINKGEN': {
             'runs': 1,
-            'triples': 60000,
+            'triples': 6000,
             'ontology': 'dbpedia_2015.owl',
             'distribution': 'zipf',
             'threads': 4
@@ -451,9 +451,9 @@ def get_benchmark_configurations():
         'PYGRAFT': {
             'runs': 1,
             'mode': 'full',
-            'classes': 3000,
-            'relations': 200,
-            'avg_instances': 1200
+            'classes': 30,
+            'relations': 20,
+            'avg_instances': 80
         },
         'RDFGRAPHGEN': {
             'runs': 1,
