@@ -1,9 +1,0 @@
-Generator,Throughput_mean,Throughput_std,Throughput_min,Throughput_max,Triples_mean,Triples_std,ExecutionTime_mean,ExecutionTime_std,Total_Runs
-BSBM,530265.47,,530265.47,530265.47,3564773.0,,6.72,,1
-LUBM,306817.42,,306817.42,306817.42,,,4.29,,1
-RUDOFGENERATE,30904.83,,30904.83,30904.83,1466639.0,,47.46,,1
-LINKGEN,18197.74,,18197.74,18197.74,,,16.49,,1
-RDFGRAPHGEN,1234.69,,1234.69,1234.69,3690.0,,2.99,,1
-PYGRAFT,1191.09,,1191.09,1191.09,4490.0,,3.77,,1
-GAIA,,,,,,,0.64,,1
-RDFMUTATE,,,,,,,4.49,,1
