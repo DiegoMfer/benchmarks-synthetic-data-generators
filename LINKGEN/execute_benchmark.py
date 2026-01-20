@@ -130,6 +130,24 @@ log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:
     return log4j_file
 
 
+def parse_void_triples(void_file_path):
+    """Parse void.ttl file to extract the total triples count"""
+    if not void_file_path.exists():
+        return 0
+    
+    try:
+        content = void_file_path.read_text()
+        # Look for void:triples 2928 ; pattern
+        # Handles potential whitespace variations
+        match = re.search(r'void:triples\s+(\d+)\s*;', content)
+        if match:
+            return int(match.group(1))
+    except Exception as e:
+        print(f"Warning: Failed to parse void.ttl: {e}")
+    
+    return 0
+
+
 def run_linkgen_generator(args):
     """
     Run LINKGEN generator and collect metrics
@@ -199,16 +217,29 @@ def run_linkgen_generator(args):
         # Parse output to extract metrics
         metrics = parse_generator_output(result.stdout, result.stderr)
         
+        # Parse void.ttl for accurate triple count
+        void_file = output_dir / "void.ttl"
+        actual_triples = parse_void_triples(void_file)
+        if actual_triples > 0:
+            metrics['triples_generated'] = actual_triples
+            # Override args.triples for throughput calculation if we have actual data
+            # But we keep args.triples in 'triples_requested'
+        
         # Print summary
         print("\n" + "=" * 60)
         print("✅ LINKGEN Generation Complete!")
         print("=" * 60)
         print(f"⏱️  Execution Time: {execution_time:.2f} seconds")
         print(f"🔢 Triples Requested: {args.triples:,}")
+        print(f"🔢 Triples Generated (VoID): {metrics.get('triples_generated', 0):,}")
         print(f"📊 Files Generated: {file_stats['file_count']}")
         print(f"💾 Total Size: {file_stats['total_size_mb']:.2f} MB")
+        
+        # Calculate throughput using actual triples if available, else requested
+        throughput_triples = metrics.get('triples_generated', args.triples)
         if execution_time > 0:
-            print(f"⚡ Throughput: {args.triples / execution_time:,.0f} triples/sec")
+            print(f"⚡ Throughput: {throughput_triples / execution_time:,.0f} triples/sec")
+            
         print(f"📁 Output Format: {args.format.upper()}")
         print(f"📂 Output Location: {output_dir}")
         print("=" * 60)
@@ -301,6 +332,11 @@ def count_output_files(output_dir, output_name, format_type):
 def create_benchmark_report(args, execution_time, metrics, file_stats):
     """Create a comprehensive benchmark report"""
     
+    # Use actual generated triples if available, otherwise fallback to requested
+    triples_count = metrics.get('triples_generated', 0)
+    if triples_count == 0:
+        triples_count = args.triples
+
     report = {
         "benchmark": "LINKGEN",
         "timestamp": datetime.now().isoformat(),
@@ -323,12 +359,13 @@ def create_benchmark_report(args, execution_time, metrics, file_stats):
         },
         "generated_data": {
             "triples_requested": args.triples,
+            "triples_total": triples_count,
             "files_generated": file_stats['file_count'],
             "total_size_bytes": file_stats['total_size'],
             "total_size_mb": round(file_stats['total_size_mb'], 2)
         },
         "performance_metrics": {
-            "triples_per_second": round(args.triples / execution_time, 2) if execution_time > 0 else 0,
+            "triples_per_second": round(triples_count / execution_time, 2) if execution_time > 0 else 0,
             "mb_per_second": round(file_stats['total_size_mb'] / execution_time, 2) if execution_time > 0 else 0
         },
         "files": file_stats['files'][:10]  # Include first 10 files

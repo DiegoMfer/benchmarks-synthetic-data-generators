@@ -115,8 +115,8 @@ def load_graph_for_run(run_path, generator_name):
         format = "xml"
     elif generator_name == "LINKGEN":
         # LINKGEN produces extensionless files like data_T0_1, and a void.ttl
-        # We want the data files.
-        files_to_load = glob.glob(os.path.join(run_path, "data_*"))
+        # We want only the primary data file data_T0_1 as requested
+        files_to_load = glob.glob(os.path.join(run_path, "data_T0_1"))
         # Exclude if they are directories (unlikely but safe)
         files_to_load = [f for f in files_to_load if os.path.isfile(f)]
         format = "nt"
@@ -217,6 +217,19 @@ def extract_performance_metrics(run_path):
             if instances and instances > 0:
                 triples = instances * 3 # Approximation
         
+        # LINKGEN Special Case checking void.ttl
+        linkgen_void = os.path.join(run_path, 'void.ttl')
+        if os.path.exists(linkgen_void):
+             try:
+                with open(linkgen_void, 'r') as vf:
+                    vcontent = vf.read()
+                    # void:triples 2928 ;
+                    vmatch = re.search(r'void:triples\s+(\d+)\s*;', vcontent)
+                    if vmatch:
+                        triples = int(vmatch.group(1))
+             except:
+                 pass
+
         # --- Execution Time Extraction ---
         if 'execution' in benchmark and 'time_seconds' in benchmark['execution']:
             exec_time = benchmark['execution']['time_seconds']
@@ -252,23 +265,14 @@ def main():
 
     # Load existing results to avoid re-computation
     existing_results = {}
+    # Overwrite mode requested: Do not load existing CSV
+    print(f"Overwriting mode: Will generate fresh {OUTPUT_CSV}")
     if os.path.exists(OUTPUT_CSV):
-        try:
-            df_existing = pd.read_csv(OUTPUT_CSV)
-            # Create a dict keyed by (Generator, Run_ID)
-            for _, row in df_existing.iterrows():
-                key = (row['Generator'], row['Run_ID'])
-                # Only consider it "existing" if we have RDF metrics (check RDF_Triples)
-                # If RDF_Triples is NaN/empty, we want to re-compute
-                if pd.notna(row.get('RDF_Triples')) and row.get('RDF_Triples') != "":
-                    existing_results[key] = row.to_dict()
-            print(f"Loaded {len(existing_results)} existing complete runs from {OUTPUT_CSV}")
-        except Exception as e:
-            print(f"Error loading existing CSV: {e}")
+        os.remove(OUTPUT_CSV)
 
     all_results = []
     # Initialize all_results with existing data so we don't lose it if we crash
-    all_results.extend(list(existing_results.values()))
+    # all_results.extend(list(existing_results.values()))
     
     datasets_path = Path(DATASETS_DIR)
     
@@ -293,9 +297,11 @@ def main():
             
             # Check if we already have this run completed
             # Force re-process for RUDOFGENERATE_LUBM variants (missing RDF) and LUBM (missing Perf Triples)
+            # Also re-process LINKGEN to pick up void.ttl triples
             is_rudof_variant = "RUDOFGENERATE_LUBM" in generator_name
             is_lubm = generator_name == "LUBM"
-            if (generator_name, run_id) in existing_results and not is_rudof_variant and not is_lubm:
+            is_linkgen = "LINKGEN" in generator_name
+            if (generator_name, run_id) in existing_results and not is_rudof_variant and not is_lubm and not is_linkgen:
                 print(f"  Skipping {run_id} (already complete)")
                 continue
 
