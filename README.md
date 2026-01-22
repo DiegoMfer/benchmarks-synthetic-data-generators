@@ -1,6 +1,8 @@
 # RDF Synthetic Data Generators Benchmark
 
-A comprehensive benchmark suite for evaluating 8 different RDF synthetic data generators.
+A comprehensive benchmark suite for evaluating 10 different RDF synthetic data generators with Docker containerization.
+
+**Author:** DiegoMfer (diegomartin.research@gmail.com)
 
 ## 🚀 Quick Start
 
@@ -10,7 +12,7 @@ A comprehensive benchmark suite for evaluating 8 different RDF synthetic data ge
 python3 generate_all_datasets.py
 ```
 
-This will generate datasets from all 8 generators and save them in the `1-Datasets/` folder with complete metadata.
+This will generate datasets from all 10 generators and save them in the `1-Datasets/` folder with complete metadata. All generators run in Docker containers for consistency and reproducibility.
 
 ### Generate Specific Datasets
 
@@ -28,18 +30,20 @@ python3 generate_all_datasets.py --generators RUDOFGENERATE
 python3 generate_all_datasets.py --dataset-dir my-custom-datasets
 ```
 
-## 📊 Available Generators
+## 📊 Available Generators (10 Total)
 
-| Generator | Status | Description |
-|-----------|--------|-------------|
-| **BSBM** | ✅ Done | E-commerce domain with products, vendors, offers, and reviews |
-| **LUBM** | ✅ Done | University domain with departments, professors, students, and courses |
-| **GAIA** | ✅ Done | Ontology instance generator using LUBM ontology for university domain data |
-| **LINKGEN** | ✅ Done | Flexible synthetic linked data generator with configurable distributions (Zipf/Gaussian) |
-| **PyGraft** | ✅ Done | Configurable schema and knowledge graph generator with RDFS/OWL constructs |
-| **RDFMutate** | ✅ Done | Graph mutation-based synthetic data generator using SWRL/SHACL operators |
-| **RDFGraphGen** | ✅ Done | SHACL-based synthetic data generator that generates RDF from shape definitions |
-| **RUDOF Generate** | ✅ Done | High-performance RDF generator using ShEx schemas (Binary v0.1.142) |
+| Generator | Status | Type | Description |
+|-----------|--------|------|-------------|
+| **BSBM** | ✅ Working | Docker | E-commerce benchmark with products, vendors, offers, and reviews |
+| **LUBM** | ✅ Working | Docker | University domain with departments, professors, students, and courses |
+| **GAIA** | ✅ Working | Docker | Ontology instance generator using LUBM ontology |
+| **LINKGEN** | ✅ Working | Docker | Flexible linked data generator with configurable distributions (Zipf/Gaussian) |
+| **PyGraft** | ✅ Working | Docker | Knowledge graph generator with RDFS/OWL constructs |
+| **RDFGraphGen** | ✅ Working | Docker | SHACL-based synthetic data generator |
+| **RDFGraphGen-LUBM** | ✅ Working | Docker | RDFGraphGen variant with LUBM SHACL shapes |
+| **RUDOF Generate** | ✅ Working | Docker | ShEx-based RDF generator (Binary v0.1.142) |
+| **RUDOF Generate-LUBM-ShEx** | ✅ Working | Docker | RUDOF variant with LUBM ShEx schema |
+| **RUDOF Generate-LUBM-SHACL** | ✅ Working | Docker | RUDOF variant with LUBM SHACL shapes |
 
 ## 📁 Dataset Structure
 
@@ -67,9 +71,10 @@ After running the generation script, datasets are organized as follows:
 ## 🔧 Requirements
 
 - Python 3.8+
-- Docker (for PyGraft)
-- Java 8+ (for BSBM, LUBM, GAIA, LINKGEN)
-- RUDOF binary v0.1.142 (installed via Docker or system)
+- Docker & Docker Compose (all generators run containerized)
+- Linux/macOS/WSL (Docker host environment)
+
+**Note:** All generators are containerized, so you don't need to install Java or other dependencies locally. Docker Compose handles all dependencies.
 
 ## 📈 Benchmark Comparison
 
@@ -87,21 +92,31 @@ The notebook provides:
 
 ## 🛠️ Individual Generator Usage
 
-Each generator can also be run independently:
+Each generator can also be run independently via its Docker Compose setup:
 
 ```bash
 # BSBM
-python3 BSBM/execute_benchmark.py --products 10000 --format ttl
+cd BSBM && docker compose run --rm bsbm-benchmark --products 10000 --format ttl
 
 # LUBM
-python3 LUBM/execute_benchmark.py --universities 10 --seed 0
+cd LUBM && docker compose run --rm lubm-benchmark --universities 10
 
-# RUDOF Generate (Binary)
-python3 RUDOFGENERATE/execute_benchmark_binary.py --entity-count 100000 --seed 42
+# RUDOF Generate
+cd RUDOFGENERATE && docker compose run --rm rudof --entity-count 100000
 ```
 
-## 📚 Generators Not Included
+## 🐳 Docker Containerization
 
-- **PoDiGG**: Implementation issues
-- **EvoGen**: Not yet integrated
-- **GRR**: Not publicly available
+All 10 generators now run in Docker containers for consistent, reproducible results across environments:
+
+- **Base Images**: eclipse-temurin:21-jre-jammy (Java), debian:bookworm-slim (system packages), python:3.11-slim (Python tools)
+- **Volume Mounting**: Generated datasets are saved to the host's `output/` directory
+- **Isolation**: Each generator runs in its own containerized environment with all dependencies pre-installed
+
+## 📝 Recent Improvements
+
+- ✅ All 10 generators converted to Docker Compose
+- ✅ Fixed permission issues with containerized execution
+- ✅ Automated dataset copying to `1-Datasets/` with metadata tracking
+- ✅ Added support for SHACL and ShEx schema variants
+- ✅ Improved performance metrics collection across all generators
