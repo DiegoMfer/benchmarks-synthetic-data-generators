@@ -1,9 +1,9 @@
-# Use OpenJDK base image with Python
-FROM python:3.11-slim
+# Use Debian base image with Python and Java
+FROM debian:bookworm-slim
 
-# Install Java 17
+# Install Python, Java and other required tools
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jre-headless && \
+    apt-get install -y --no-install-recommends python3 python3-pip default-jre && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -14,11 +14,11 @@ WORKDIR /app
 COPY linkgen.jar /app/
 COPY lib/ /app/lib/
 COPY *.owl /app/
-COPY entity.nt /app/
+COPY log4j.properties /app/
 COPY execute_benchmark.py /app/
 
 # Create output directory for generated data
-RUN mkdir -p /app/output
+RUN mkdir -p /app/output && chmod 777 /app/output && chmod 777 /app
 
 # Set the output directory as a volume
 VOLUME ["/app/output"]

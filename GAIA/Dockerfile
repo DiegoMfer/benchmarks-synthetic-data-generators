@@ -1,10 +1,10 @@
-FROM openjdk:11-jre-slim
+FROM debian:bookworm-slim
 
-# Install Python for the benchmark script
-RUN apt-get update && apt-get install -y \
+# Install Python and Java for the benchmark script
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
-    wget \
+    default-jre \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory

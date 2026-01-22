@@ -1,9 +1,9 @@
-# Use OpenJDK base image with Python
-FROM python:3.11-slim
+# Use official Java image
+FROM eclipse-temurin:21-jre-jammy
 
-# Install Java
+# Install Python
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jre-headless && \
+    apt-get install -y --no-install-recommends python3 python3-pip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

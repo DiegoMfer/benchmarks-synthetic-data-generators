@@ -4,7 +4,6 @@ services:
   bsbm-benchmark:
     build: .
     image: bsbm-benchmark
-    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./output:/app/output
     environment:

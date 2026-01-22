@@ -89,19 +89,28 @@ class BSBMGenerator(DatasetGenerator):
     
     def generate(self, products=10000, format='ttl'):
         print(f"\n{'='*80}")
-        print(f"🔵 GENERATING BSBM DATASET")
+        print(f"🔵 GENERATING BSBM DATASET (Docker)")
         print(f"{'='*80}")
         print(f"Products: {products:,}")
         print(f"Format: {format}")
         
+        # Build Docker image
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Run using docker compose
         cmd = [
-            'python3', 
-            str(self.source_dir / 'execute_benchmark.py'),
+            'docker', 'compose', 'run', '--rm',
+            'bsbm-benchmark',
             '--products', str(products),
             '--format', format
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -123,6 +132,7 @@ class BSBMGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
 
 
@@ -131,19 +141,28 @@ class LUBMGenerator(DatasetGenerator):
     
     def generate(self, universities=10, seed=0):
         print(f"\n{'='*80}")
-        print(f"🔴 GENERATING LUBM DATASET")
+        print(f"🔴 GENERATING LUBM DATASET (Docker)")
         print(f"{'='*80}")
         print(f"Universities: {universities}")
         print(f"Seed: {seed}")
         
+        # Build Docker image
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Run using docker compose
         cmd = [
-            'python3',
-            str(self.source_dir / 'execute_benchmark.py'),
+            'docker', 'compose', 'run', '--rm',
+            'lubm-benchmark',
             '--universities', str(universities),
             '--seed', str(seed)
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -165,6 +184,7 @@ class LUBMGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
 
 
@@ -173,16 +193,21 @@ class GAIAGenerator(DatasetGenerator):
     
     def generate(self, instances=1000, materialization=True):
         print(f"\n{'='*80}")
-        print(f"🟢 GENERATING GAIA DATASET")
+        print(f"🟢 GENERATING GAIA DATASET (Docker)")
         print(f"{'='*80}")
         print(f"Instances per class: {instances}")
         print(f"Materialization: {materialization}")
         
-        cmd = [
-            'python3',
-            'execute_benchmark.py',
-            '--instances', str(instances)
-        ]
+        # Build Docker image
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Build command with optional materialization flag
+        cmd = ['docker', 'compose', 'run', '--rm', 'gaia-benchmark', '--instances', str(instances)]
         
         if materialization:
             cmd.append('--materialization')
@@ -209,6 +234,7 @@ class GAIAGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
 
 
@@ -217,22 +243,31 @@ class LINKGENGenerator(DatasetGenerator):
     
     def generate(self, triples=2000000, ontology='dbpedia_2015.owl', distribution='zipf', threads=4):
         print(f"\n{'='*80}")
-        print(f"🟡 GENERATING LINKGEN DATASET")
+        print(f"🟡 GENERATING LINKGEN DATASET (Docker)")
         print(f"{'='*80}")
         print(f"Triples: {triples:,}")
         print(f"Ontology: {ontology}")
         print(f"Distribution: {distribution}")
         
+        # Build Docker image
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Run using docker compose
         cmd = [
-            'python3',
-            str(self.source_dir / 'execute_benchmark.py'),
+            'docker', 'compose', 'run', '--rm',
+            'linkgen-benchmark',
             '--triples', str(triples),
             '--ontology', ontology,
             '--distribution', distribution,
             '--threads', str(threads)
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -256,6 +291,7 @@ class LINKGENGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
 
 
@@ -330,20 +366,29 @@ class RDFGraphGenGenerator(DatasetGenerator):
     
     def generate(self, shape='input-shape.ttl', scale_factor=100):
         print(f"\n{'='*80}")
-        print(f"🟢 GENERATING RDFGRAPHGEN DATASET")
+        print(f"🟢 GENERATING RDFGRAPHGEN DATASET (Docker)")
         print(f"{'='*80}")
         print(f"Shape: {shape}")
         print(f"Scale factor: {scale_factor}")
         
+        # Build Docker image
+        print("Building Docker image...")
+        try:
+            subprocess.run(['docker', 'compose', 'build'], cwd=self.source_dir, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Docker build failed: {e.stderr.decode()}")
+            return False
+        
+        # Run using docker compose
         cmd = [
-            'python3',
-            str(self.source_dir / 'execute_benchmark.py'),
+            'docker', 'compose', 'run', '--rm',
+            'rdfgraphgen-benchmark',
             '--shape', shape,
             '--output', 'output-graph.ttl',
             '--scale-factor', str(scale_factor)
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -365,6 +410,7 @@ class RDFGraphGenGenerator(DatasetGenerator):
             return True
         else:
             print(f"❌ Error: {result.stderr}")
+            print(f"Stdout: {result.stdout}")
             return False
 
 

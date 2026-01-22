@@ -1,0 +1,7 @@
+rdflib
+pandas
+numpy
+shexer
+matplotlib
+seaborn
+jupyter

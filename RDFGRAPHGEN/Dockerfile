@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir rdf-graph-gen
 
 # Copy the benchmark execution script and sample files
 COPY execute_benchmark.py /app/
-COPY input-shape.ttl /app/
+COPY *.ttl /app/
 
 # Create output directory for generated data
 RUN mkdir -p /app/output
