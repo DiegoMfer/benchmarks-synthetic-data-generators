@@ -1,0 +1,3 @@
+Histogram with the thoughput per classifier with whiskers
+Histogram with the triples generated for each benchmark
+Histogram with each of the other metrics put all together with a color for each other metric
