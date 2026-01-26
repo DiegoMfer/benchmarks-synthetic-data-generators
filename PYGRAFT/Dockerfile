@@ -1,17 +1,12 @@
-# PyGraft Benchmark Docker Image
-# Python 3.11 with Java 17 for HermiT reasoner
+# PyGraft Benchmark Docker Image with Java and Python
 
-FROM python:3.11-slim
+FROM eclipse-temurin:21-jre-jammy
 
-# Install Java (required for HermiT reasoner in PyGraft)
+# Install Python
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    openjdk-21-jre-headless \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set JAVA_HOME environment variable
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-ENV PATH="$JAVA_HOME/bin:$PATH"
+    apt-get install -y --no-install-recommends python3 python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app

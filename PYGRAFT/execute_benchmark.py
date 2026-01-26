@@ -390,14 +390,14 @@ Examples:
                         choices=['schema', 'kg', 'full'],
                         help='Generation mode: schema, kg, or full (default: full)')
     
-    parser.add_argument('--n-classes', type=int, default=50,
-                        help='Number of classes in schema (default: 50)')
+    parser.add_argument('--n-classes', type=int, default=20,
+                        help='Number of classes in schema (default: 20)')
     
-    parser.add_argument('--n-relations', type=int, default=30,
-                        help='Number of relations/properties (default: 30)')
+    parser.add_argument('--n-relations', type=int, default=15,
+                        help='Number of relations/properties (default: 15)')
     
-    parser.add_argument('--avg-instances', type=int, default=50,
-                        help='Average instances per class (default: 50)')
+    parser.add_argument('--avg-instances', type=int, default=30,
+                        help='Average instances per class (default: 30)')
     
     parser.add_argument('--std-instances', type=int, default=10,
                         help='Std deviation for instances per class (default: 10)')

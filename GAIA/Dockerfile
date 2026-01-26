@@ -1,11 +1,11 @@
-FROM debian:bookworm-slim
+# Use official Java image
+FROM eclipse-temurin:21-jre-jammy
 
-# Install Python and Java for the benchmark script
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    default-jre \
-    && rm -rf /var/lib/apt/lists/*
+# Install Python
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
