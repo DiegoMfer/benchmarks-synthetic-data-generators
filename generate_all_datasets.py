@@ -17,6 +17,7 @@ import subprocess
 import json
 import shutil
 import argparse
+import os
 from pathlib import Path
 from datetime import datetime
 import sys
@@ -436,14 +437,18 @@ class RUDOFGenerateGenerator(DatasetGenerator):
             print(f"❌ Docker build failed: {e.stderr.decode()}")
             return False
         
+        # Set environment variables for docker-compose
+        env = os.environ.copy()
+        env['CONFIG_FILE'] = config_file
+        env['SCHEMA_FILE'] = schema
+        
         # Run using docker compose
         cmd = [
             'docker', 'compose', 'run', '--rm',
-            '-e', f"CONFIG_FILE={config_file}",
             'rudofgenerate'
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir, env=env)
         
         if result.returncode == 0:
             print(result.stdout)
@@ -528,6 +533,37 @@ def get_benchmark_configurations():
             'runs': 3,
             'schema': 'lubm_shacl.ttl',
             'config_file': 'benchmark_config.toml'
+        },
+        # LUBM Distribution Variants for Coherence Testing
+        'RUDOF_LUBM_STRUCTURED': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_structured_balanced.toml'
+        },
+        'RUDOF_LUBM_REALISTIC': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_weighted_realistic.toml'
+        },
+        'RUDOF_LUBM_SKEWED': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_weighted_skewed.toml'
+        },
+        'RUDOF_LUBM_RANDOM': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_random_cardinality.toml'
+        },
+        'RUDOF_LUBM_MINIMUM': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_minimum_cardinality.toml'
+        },
+        'RUDOF_LUBM_MAXIMUM': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'lubm_maximum_cardinality.toml'
         }
     }
 
@@ -552,7 +588,9 @@ Examples:
     parser.add_argument('--generators', nargs='*', 
                        choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL', 'ALL'],
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL',
+                               'RUDOF_LUBM_STRUCTURED', 'RUDOF_LUBM_REALISTIC', 'RUDOF_LUBM_SKEWED',
+                               'RUDOF_LUBM_RANDOM', 'RUDOF_LUBM_MINIMUM', 'RUDOF_LUBM_MAXIMUM', 'ALL'],
                        default=['ALL'],
                        help='Generators to run (default: ALL)')
     
@@ -565,7 +603,9 @@ Examples:
     if not args.generators or 'ALL' in args.generators:
         selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL']
+                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL',
+                               'RUDOF_LUBM_STRUCTURED', 'RUDOF_LUBM_REALISTIC', 'RUDOF_LUBM_SKEWED',
+                               'RUDOF_LUBM_RANDOM', 'RUDOF_LUBM_MINIMUM', 'RUDOF_LUBM_MAXIMUM']
     else:
         selected_generators = args.generators
     
@@ -604,7 +644,13 @@ Examples:
         'RDFGRAPHGEN_LUBM': RDFGraphGenGenerator,
         'RUDOFGENERATE': RUDOFGenerateGenerator,
         'RUDOFGENERATE_LUBM_SHEX': RUDOFGenerateGenerator,
-        'RUDOFGENERATE_LUBM_SHACL': RUDOFGenerateGenerator
+        'RUDOFGENERATE_LUBM_SHACL': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_STRUCTURED': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_REALISTIC': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_SKEWED': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_RANDOM': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_MINIMUM': RUDOFGenerateGenerator,
+        'RUDOF_LUBM_MAXIMUM': RUDOFGenerateGenerator
     }
 
     # Generate datasets
@@ -619,7 +665,7 @@ Examples:
                 
                 # Determine source directory (handle variants)
                 source_dir_name = gen_name
-                if gen_name.startswith('RUDOFGENERATE'):
+                if gen_name.startswith('RUDOFGENERATE') or gen_name.startswith('RUDOF_LUBM'):
                     source_dir_name = 'RUDOFGENERATE'
                 elif gen_name == 'RDFGRAPHGEN_LUBM':
                     source_dir_name = 'RDFGRAPHGEN'

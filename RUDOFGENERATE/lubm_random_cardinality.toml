@@ -1,0 +1,55 @@
+# LUBM Configuration: Random Cardinality Strategy
+# Purpose: Random property cardinality values - less predictable structure
+#          Expected LOW-MEDIUM coherence score
+
+[output]
+format = "Turtle"
+path = "output/generated_data.ttl"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 1
+
+[parallel]
+threads = 4
+batch_size = 100
+parallel_shapes = false
+parallel_fields = false
+
+[generation]
+entity_count = 10000
+seed = 42                              # Fixed seed for reproducibility
+entity_distribution = "Equal"          # Equal distribution
+cardinality_strategy = "Random"        # Random cardinality values - less structured
+
+[field_generators.default]
+locale = "en"
+quality = "Medium"
+
+# Required datatypes section
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 1
+max = 10000
+
+# LUBM-specific property generators
+[field_generators.properties."http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#name"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#emailAddress"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#telephone"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#researchInterest"]
+generator = "string"
+parameters = {}
