@@ -396,7 +396,7 @@ Examples:
                         help='Number of distinct triples to generate (default: 100000)')
     
     parser.add_argument('--ontology', type=str, default='dbpedia_2015.owl',
-                        choices=['dbpedia_2015.owl', 'schemaorg.owl'],
+                        choices=['dbpedia_2015.owl', 'schemaorg.owl', 'univ-bench.owl'],
                         help='Ontology file to use (default: dbpedia_2015.owl)')
     
     parser.add_argument('--distribution', type=str, default='zipf',

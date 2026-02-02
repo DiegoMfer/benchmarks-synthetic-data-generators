@@ -298,7 +298,7 @@ class LINKGENGenerator(DatasetGenerator):
 class PyGraftGenerator(DatasetGenerator):
     """PyGraft schema and knowledge graph generator"""
     
-    def generate(self, mode='full', classes=30, relations=20, avg_instances=80):
+    def generate(self, mode='full', classes=30, relations=20, avg_instances=80, max_depth=5, p_subclass=0.15):
         print(f"\n{'='*80}")
         print(f"🟣 GENERATING PYGRAFT DATASET")
         print(f"{'='*80}")
@@ -306,6 +306,8 @@ class PyGraftGenerator(DatasetGenerator):
         print(f"Classes: {classes}")
         print(f"Relations: {relations}")
         print(f"Avg instances: {avg_instances}")
+        print(f"Max depth: {max_depth}")
+        print(f"Subclass prob: {p_subclass}")
         
         cmd = [
             'docker', 'run', '--rm',
@@ -316,6 +318,8 @@ class PyGraftGenerator(DatasetGenerator):
             '--n-classes', str(classes),
             '--n-relations', str(relations),
             '--avg-instances', str(avg_instances),
+            '--max-depth', str(max_depth),
+            '--p-subclass', str(p_subclass),
             '--no-check-consistency'
         ]
         
@@ -473,56 +477,55 @@ def get_benchmark_configurations():
     """
     return {
         'BSBM': {
-            'runs': 1,
-            'products': 5000,
+            'runs': 3,
+            'products': 50000,
             'format': 'ttl'
         },
         'LUBM': {
-            'runs': 1,
+            'runs': 3,
             'universities': 10,
             'seed': 0
         },
         'GAIA': {
-            'runs': 1,
-            'instances': 20,
+            'runs': 3,
+            'instances': 10000,
             'materialization': True
         },
         'LINKGEN': {
-            'runs': 1,
-            'triples': 6000,
+            'runs': 3,
+            'triples': 60000,
             'ontology': 'dbpedia_2015.owl',
             'distribution': 'zipf',
             'threads': 4
         },
-        'PYGRAFT': {
-            'runs': 1,
-            'mode': 'full',
-            'classes': 30,
-            'relations': 20,
-            'avg_instances': 80
+        'LINKGEN_LUBM': {
+            'runs': 3,
+            'triples': 6000,
+            'ontology': 'univ-bench.owl',
+            'distribution': 'zipf',
+            'threads': 4
         },
-        'RDFGRAPHGEN': {
-            'runs': 1,
-            'shape': 'input-shape.ttl',
-            'scale_factor': 20
+        'PYGRAFT': {
+            'runs': 3,
+            'mode': 'full',
+            'classes': 32,
+            'relations': 18,
+            'avg_instances': 300,
+            'max_depth': 3,
+            'p_subclass': 0.1
         },
         'RDFGRAPHGEN_LUBM': {
-            'runs': 1,
+            'runs': 3,
             'shape': 'lubm_shacl.ttl',
-            'scale_factor': 20
-        },
-        'RUDOFGENERATE': {
-            'runs': 1,
-            'schema': 'example_schema.shex',
-            'config_file': 'benchmark_config.toml'
+            'scale_factor': 2000
         },
         'RUDOFGENERATE_LUBM_SHEX': {
-            'runs': 1,
+            'runs': 3,
             'schema': 'lubm.shex',
             'config_file': 'benchmark_config.toml'
         },
         'RUDOFGENERATE_LUBM_SHACL': {
-            'runs': 1,
+            'runs': 3,
             'schema': 'lubm_shacl.ttl',
             'config_file': 'benchmark_config.toml'
         }
@@ -547,7 +550,7 @@ Examples:
     )
     
     parser.add_argument('--generators', nargs='*', 
-                       choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
+                       choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
                                'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL', 'ALL'],
                        default=['ALL'],
@@ -560,7 +563,7 @@ Examples:
     
     # Determine which generators to run
     if not args.generators or 'ALL' in args.generators:
-        selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'PYGRAFT', 
+        selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
                                'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
                                'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL']
     else:
@@ -595,6 +598,7 @@ Examples:
         'LUBM': LUBMGenerator,
         'GAIA': GAIAGenerator,
         'LINKGEN': LINKGENGenerator,
+        'LINKGEN_LUBM': LINKGENGenerator,
         'PYGRAFT': PyGraftGenerator,
         'RDFGRAPHGEN': RDFGraphGenGenerator,
         'RDFGRAPHGEN_LUBM': RDFGraphGenGenerator,
@@ -619,6 +623,8 @@ Examples:
                     source_dir_name = 'RUDOFGENERATE'
                 elif gen_name == 'RDFGRAPHGEN_LUBM':
                     source_dir_name = 'RDFGRAPHGEN'
+                elif gen_name == 'LINKGEN_LUBM':
+                    source_dir_name = 'LINKGEN'
                 
                 print(f"\n🔄 Running {gen_name} generator ({runs} runs)...")
                 

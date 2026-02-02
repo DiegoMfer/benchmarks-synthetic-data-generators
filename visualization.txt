@@ -1,3 +1,22 @@
-Histogram with the thoughput per classifier with whiskers
-Histogram with the triples generated for each benchmark
+benchmark 1 performance
+
+Histogram with the thoughput per classifier with whiskers, all the generators, and the generators that can be configured using LUBM
+
+So
+LUBM, BSBM, GAIA_LUBM, LINKGEN_LUBM, PYGRAFT, RDFGRAPHGEN_LUBM, RUDOFGENERATE_SHACL_LUBM, RUDOFGENERATE_SHEX_LUBM
+
+
+benchmark 2 data quality
+
+Measure different metrics from each dataset
+So
+LUBM, BSBM, GAIA_LUBM, LINKGEN_LUBM, PYGRAFT, RDFGRAPHGEN_LUBM, RUDOFGENERATE_SHACL_LUBM, RUDOFGENERATE_SHEX_LUBM
+
+
+benchmark 3 customization capabilities
+
+Level of customization
+
+
+
 Histogram with each of the other metrics put all together with a color for each other metric

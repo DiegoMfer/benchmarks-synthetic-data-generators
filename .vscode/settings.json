@@ -1,3 +1,9 @@
 {
-    "python.defaultInterpreterPath": "/usr/bin/python3"
+    "python.defaultInterpreterPath": "/usr/bin/python3",
+    "chat.tools.terminal.autoApprove": {
+        "/^python3 generate_all_datasets\\.py --generators PYGRAFT 2>&1 \\| tail -150$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }
