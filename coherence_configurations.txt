@@ -1,0 +1,394 @@
+================================================================================
+COHERENCE CONFIGURATIONS FOR RDF SYNTHETIC DATA GENERATORS
+================================================================================
+
+This document describes the configuration parameters used to achieve HIGH and
+LOW coherence for each RDF data generator in the benchmark suite.
+
+COHERENCE DEFINITION:
+- HIGH COHERENCE (~1): Highly structured data where instances of a type have 
+  values for almost all properties. Similar to relational databases (e.g., TPC-H).
+- LOW COHERENCE (~0): Sparse/unstructured data where properties vary significantly
+  between instances of the same type. Similar to LOD datasets (e.g., DBpedia).
+
+================================================================================
+1. BSBM - Berlin SPARQL Benchmark (E-commerce)
+================================================================================
+
+Generator Class: BSBMGenerator
+Source Directory: BSBM/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ products: 50000                                                             │
+│ format: ttl                                                                 │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Large number of products creates dense, complete product data   │
+│ with full attribute coverage (price, label, features, reviews).            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ products: 10000                                                             │
+│ format: ttl                                                                 │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Fewer products with more variation in attribute coverage.       │
+│ Note: BSBM has limited control over sparsity; this is baseline comparison. │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+2. LUBM - Lehigh University Benchmark
+================================================================================
+
+Generator Class: LUBMGenerator
+Source Directory: LUBM/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ universities: 10                                                            │
+│ seed: 0                                                                     │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Standard LUBM generates complete university structures with     │
+│ full property coverage for students, faculty, courses, departments.        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ universities: 5                                                             │
+│ seed: 42                                                                    │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Reduced scale for baseline comparison. LUBM inherently produces │
+│ structured data; this serves as reference point.                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+3. GAIA - Ontology Instance Generator
+================================================================================
+
+Generator Class: GAIAGenerator
+Source Directory: GAIA/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ instances: 10000                                                            │
+│ materialization: True    ← KEY PARAMETER                                    │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Full materialization infers and adds all implicit properties,   │
+│ ensuring complete property coverage for each instance type.                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ instances: 10000                                                            │
+│ materialization: False   ← KEY PARAMETER                                    │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: No materialization means only explicit properties are present,  │
+│ resulting in sparse/incomplete property coverage across instances.         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+4. LINKGEN - Flexible Linked Data Generator
+================================================================================
+
+Generator Class: LINKGENGenerator
+Source Directory: LINKGEN/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE (DBpedia ontology)                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ triples: 60000                                                              │
+│ ontology: dbpedia_2015.owl                                                  │
+│ distribution: uniform    ← KEY PARAMETER                                    │
+│ threads: 4                                                                  │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Uniform distribution ensures even property coverage across all  │
+│ instances. Each instance type gets balanced representation of properties.  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE (DBpedia ontology)                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ triples: 60000                                                              │
+│ ontology: dbpedia_2015.owl                                                  │
+│ distribution: zipf       ← KEY PARAMETER                                    │
+│ threads: 4                                                                  │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Zipf (power-law) distribution creates uneven property coverage. │
+│ Some properties appear frequently, others are rare → low coherence.        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE (LUBM ontology)                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ triples: 6000                                                               │
+│ ontology: univ-bench.owl                                                    │
+│ distribution: uniform    ← KEY PARAMETER                                    │
+│ threads: 4                                                                  │
+│ runs: 3                                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE (LUBM ontology)                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ triples: 6000                                                               │
+│ ontology: univ-bench.owl                                                    │
+│ distribution: zipf       ← KEY PARAMETER                                    │
+│ threads: 4                                                                  │
+│ runs: 3                                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+5. PYGRAFT - Schema and Knowledge Graph Generator
+================================================================================
+
+Generator Class: PyGraftGenerator
+Source Directory: PYGRAFT/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ mode: full                                                                  │
+│ classes: 16              ← Fewer classes = more instances per class         │
+│ relations: 12            ← Fewer relations = more uniform coverage          │
+│ avg_instances: 500       ← More instances per class                         │
+│ max_depth: 2             ← Shallow hierarchy = uniform structure            │
+│ p_subclass: 0.05         ← Low subclass prob = flatter types                │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Flat hierarchy with few classes/relations and many instances    │
+│ per class creates uniform, highly coherent data structure.                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ mode: full                                                                  │
+│ classes: 64              ← Many classes = fewer instances per class         │
+│ relations: 32            ← Many relations = varied property coverage        │
+│ avg_instances: 100       ← Fewer instances per class                        │
+│ max_depth: 5             ← Deep hierarchy = type variation                  │
+│ p_subclass: 0.25         ← High subclass prob = complex hierarchy           │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Deep hierarchy with many classes/relations and fewer instances  │
+│ per class creates varied, sparse data with low coherence.                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+6. RDFGRAPHGEN - SHACL-based Generator
+================================================================================
+
+Generator Class: RDFGraphGenGenerator
+Source Directory: RDFGRAPHGEN/
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ shape: lubm_shacl.ttl                                                       │
+│ scale_factor: 3000       ← KEY PARAMETER                                    │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Higher scale factor generates more complete data conforming     │
+│ to SHACL shapes, ensuring full property coverage per shape.                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ shape: lubm_shacl.ttl                                                       │
+│ scale_factor: 500        ← KEY PARAMETER                                    │
+│ runs: 3                                                                     │
+│                                                                             │
+│ Rationale: Lower scale factor produces sparser data with less complete     │
+│ property coverage across instances.                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+7. RUDOFGENERATE - ShEx/SHACL High-Performance Generator
+================================================================================
+
+Generator Class: RUDOFGenerateGenerator
+Source Directory: RUDOFGENERATE/
+
+Configuration Files:
+- benchmark_config_high_coherence.toml
+- benchmark_config_low_coherence.toml
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE (ShEx schema)                                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_high_coherence.toml                           │
+│ runs: 3                                                                     │
+│                                                                             │
+│ TOML Configuration:                                                         │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │ [generation]                                                            │ │
+│ │ entity_count = 20000                                                    │ │
+│ │ seed = 42                                                               │ │
+│ │ cardinality_strategy = "Maximum"   ← Fill ALL optional properties       │ │
+│ │                                                                         │ │
+│ │ [generation.entity_distribution]                                        │ │
+│ │ Equal = true                       ← Uniform type distribution          │ │
+│ │                                                                         │ │
+│ │ [field_generators.default]                                              │ │
+│ │ locale = "en"                                                           │ │
+│ │ quality = "High"                   ← Complete, realistic data           │ │
+│ │                                                                         │ │
+│ │ + Many LUBM property-specific generators (email, phone, age, etc.)      │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE (ShEx schema)                                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_low_coherence.toml                            │
+│ runs: 3                                                                     │
+│                                                                             │
+│ TOML Configuration:                                                         │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │ [generation]                                                            │ │
+│ │ entity_count = 20000                                                    │ │
+│ │ seed = 42                                                               │ │
+│ │ cardinality_strategy = "Minimum"   ← Only REQUIRED properties           │ │
+│ │                                                                         │ │
+│ │ [generation.entity_distribution]                                        │ │
+│ │ Weighted = {                       ← Uneven type distribution           │ │
+│ │   GraduateStudent = 0.25,                                               │ │
+│ │   UndergraduateStudent = 0.25,                                          │ │
+│ │   Faculty = 0.15,                                                       │ │
+│ │   Professor = 0.10,                                                     │ │
+│ │   Course = 0.15,                                                        │ │
+│ │   Department = 0.05,                                                    │ │
+│ │   University = 0.05                                                     │ │
+│ │ }                                                                       │ │
+│ │                                                                         │ │
+│ │ [field_generators.default]                                              │ │
+│ │ locale = "en"                                                           │ │
+│ │ quality = "Low"                    ← Minimal, basic data                │ │
+│ │                                                                         │ │
+│ │ + Minimal property generators (only essential datatypes)                │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ HIGH COHERENCE (SHACL schema)                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm_shacl.ttl                                                      │
+│ config_file: benchmark_config_high_coherence.toml                           │
+│ runs: 3                                                                     │
+│ (Same TOML configuration as ShEx high coherence)                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW COHERENCE (SHACL schema)                                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm_shacl.ttl                                                      │
+│ config_file: benchmark_config_low_coherence.toml                            │
+│ runs: 3                                                                     │
+│ (Same TOML configuration as ShEx low coherence)                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+8. RUDOF DISTRIBUTION PROFILES (Benchmark 3)
+================================================================================
+
+These configurations map to different coherence profiles for detailed analysis:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_MAXIMUM (Highest Coherence)                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_maximum.toml                                  │
+│ cardinality_strategy = "Maximum"                                            │
+│                                                                             │
+│ All optional properties filled → Maximum coherence                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_STRUCTURED (High Coherence)                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_structured.toml                               │
+│ cardinality_strategy = "Balanced"                                           │
+│                                                                             │
+│ Deterministic, structured property assignment                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_REALISTIC (Medium Coherence)                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_realistic.toml                                │
+│ cardinality_strategy = "Balanced" + Weighted distribution                   │
+│                                                                             │
+│ Mimics real-world data distribution patterns                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_SKEWED (Low Coherence)                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_skewed.toml                                   │
+│ cardinality_strategy = "Random" + highly skewed weights                     │
+│                                                                             │
+│ Power-law/Zipf-like distribution → uneven property coverage                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_RANDOM (Low Coherence)                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_random.toml                                   │
+│ cardinality_strategy = "Random"                                             │
+│                                                                             │
+│ Random property assignment → varied coverage per instance                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ RUDOF_LUBM_MINIMUM (Lowest Coherence)                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ schema: lubm.shex                                                           │
+│ config_file: benchmark_config_minimum.toml                                  │
+│ cardinality_strategy = "Minimum"                                            │
+│                                                                             │
+│ Only required properties → Maximum sparsity, minimum coherence              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+SUMMARY: KEY PARAMETERS FOR COHERENCE CONTROL
+================================================================================
+
+┌───────────────┬─────────────────────────┬─────────────────────────────────────┐
+│ Generator     │ High Coherence          │ Low Coherence                       │
+├───────────────┼─────────────────────────┼─────────────────────────────────────┤
+│ BSBM          │ products=50000          │ products=10000                      │
+│ LUBM          │ universities=10         │ universities=5                      │
+│ GAIA          │ materialization=True    │ materialization=False               │
+│ LINKGEN       │ distribution=uniform    │ distribution=zipf                   │
+│ PYGRAFT       │ classes=16, depth=2     │ classes=64, depth=5                 │
+│               │ p_subclass=0.05         │ p_subclass=0.25                     │
+│ RDFGRAPHGEN   │ scale_factor=3000       │ scale_factor=500                    │
+│ RUDOFGENERATE │ cardinality=Maximum     │ cardinality=Minimum                 │
+│               │ quality=High            │ quality=Low                         │
+│               │ distribution=Equal      │ distribution=Weighted               │
+└───────────────┴─────────────────────────┴─────────────────────────────────────┘
+
+================================================================================
+END OF DOCUMENT
+================================================================================

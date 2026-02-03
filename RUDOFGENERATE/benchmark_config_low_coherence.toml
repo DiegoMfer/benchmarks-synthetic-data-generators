@@ -1,0 +1,62 @@
+# Low Coherence Configuration for RUDOF Generate Benchmark
+# ============================================================================
+# LOW COHERENCE: Only required properties are filled, optional properties are
+# skipped. This creates sparse, unstructured data where properties vary 
+# significantly between instances of the same type. Mimics real-world LOD
+# data (e.g., DBpedia) with coherence ≈ 0.
+# ============================================================================
+
+[output]
+format = "Turtle"
+path = "output/generated_data.ttl"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 1
+
+[parallel]
+threads = 4
+batch_size = 100
+parallel_shapes = true
+parallel_fields = true
+
+[generation]
+entity_count = 20000                  # Number of entities to generate
+seed = 42                             # Fixed seed for reproducibility
+cardinality_strategy = "Minimum"      # LOW COHERENCE: Only REQUIRED properties
+                                      # This ensures instances have minimal property
+                                      # coverage, maximizing sparsity
+
+[generation.entity_distribution]
+# Weighted distribution creates uneven type coverage (more realistic sparse data)
+Weighted = { 
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#GraduateStudent" = 0.25,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#UndergraduateStudent" = 0.25,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Faculty" = 0.15,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Professor" = 0.10,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Course" = 0.15,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Department" = 0.05,
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#University" = 0.05
+}
+
+[field_generators.default]
+locale = "en"
+quality = "Low"                       # Low quality = minimal, basic data
+
+# ============================================================================
+# Minimal property generators - only essential datatypes
+# Keep configuration sparse to match low coherence intent
+# ============================================================================
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 1
+max = 1000
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}
+
+# Note: Fewer property-specific generators defined here compared to high coherence
+# This further reduces uniformity across instances

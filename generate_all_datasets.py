@@ -475,7 +475,7 @@ class RUDOFGenerateGenerator(DatasetGenerator):
             return False
 
 
-def get_benchmark_configurations():
+def get_benchmark_configurations2():
     """
     Returns the configuration parameters for each benchmark generator.
     Edit the values in this dictionary to configure the datasets.
@@ -533,40 +533,160 @@ def get_benchmark_configurations():
             'runs': 3,
             'schema': 'lubm_shacl.ttl',
             'config_file': 'benchmark_config.toml'
-        },
-        # LUBM Distribution Variants for Coherence Testing
-        'RUDOF_LUBM_STRUCTURED': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_structured_balanced.toml'
-        },
-        'RUDOF_LUBM_REALISTIC': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_weighted_realistic.toml'
-        },
-        'RUDOF_LUBM_SKEWED': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_weighted_skewed.toml'
-        },
-        'RUDOF_LUBM_RANDOM': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_random_cardinality.toml'
-        },
-        'RUDOF_LUBM_MINIMUM': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_minimum_cardinality.toml'
-        },
-        'RUDOF_LUBM_MAXIMUM': {
-            'runs': 1,
-            'schema': 'lubm.shex',
-            'config_file': 'lubm_maximum_cardinality.toml'
         }
+        
     }
 
+def get_benchmark_configurations():
+    """
+    Returns the configuration parameters for each benchmark generator.
+    Includes both HIGH COHERENCE and LOW COHERENCE configurations.
+    
+    Coherence measures structural regularity:
+    - HIGH (~1): Instances have values for almost all properties (structured/complete)
+    - LOW (~0): Properties vary significantly between instances (sparse/varied)
+    
+    Edit the values in this dictionary to configure the datasets.
+    """
+    return {
+        # =======================================================================
+        # BSBM - Berlin SPARQL Benchmark (E-commerce)
+        # =======================================================================
+        'BSBM_HIGH_COHERENCE': {
+            'runs': 1,
+            'products': 50000,
+            'format': 'ttl',
+            'description': 'High coherence: Dense product data with complete attributes'
+        },
+        'BSBM_LOW_COHERENCE': {
+            'runs': 1,
+            'products': 10000,  # Fewer products, more variation in attribute coverage
+            'format': 'ttl',
+            'description': 'Low coherence: Sparse product data with varied attributes'
+        },
+        
+        # =======================================================================
+        # LUBM - Lehigh University Benchmark
+        # =======================================================================
+        'LUBM_HIGH_COHERENCE': {
+            'runs': 1,
+            'universities': 10,
+            'seed': 0,
+            'description': 'High coherence: Standard LUBM with complete university structures'
+        },
+        'LUBM_LOW_COHERENCE': {
+            'runs': 1,
+            'universities': 5,
+            'seed': 42,
+            'description': 'Low coherence: Reduced universities for baseline comparison'
+        },
+        
+        # =======================================================================
+        # GAIA - Ontology Instance Generator
+        # =======================================================================
+        'GAIA_LUBM_HIGH_COHERENCE': {
+            'runs': 1,
+            'instances': 10000,
+            'materialization': True,  # Full materialization = complete property coverage
+            'description': 'High coherence: Full materialization ensures complete property sets'
+        },
+        'GAIA_LUBM_LOW_COHERENCE': {
+            'runs': 1,
+            'instances': 10000,
+            'materialization': False,  # No materialization = sparse/incomplete properties
+            'description': 'Low coherence: No materialization results in sparse property coverage'
+        },
+        
+        # =======================================================================
+        # LINKGEN - Flexible Linked Data Generator
+        # =======================================================================
+        'LINKGEN_LUBM_HIGH_COHERENCE': {
+            'runs': 1,
+            'triples': 6000,
+            'ontology': 'univ-bench.owl',
+            'distribution': 'uniform',
+            'threads': 4,
+            'description': 'High coherence: LUBM schema with uniform distribution'
+        },
+        'LINKGEN_LUBM_LOW_COHERENCE': {
+            'runs': 1,
+            'triples': 6000,
+            'ontology': 'univ-bench.owl',
+            'distribution': 'zipf',
+            'threads': 4,
+            'description': 'Low coherence: LUBM schema with Zipf distribution'
+        },
+        
+        # =======================================================================
+        # PYGRAFT - Schema and Knowledge Graph Generator
+        # =======================================================================
+        'PYGRAFT_HIGH_COHERENCE': {
+            'runs': 1,
+            'mode': 'full',
+            'classes': 16,           # Fewer classes = more instances per class
+            'relations': 12,         # Fewer relations = more uniform coverage
+            'avg_instances': 500,    # More instances per class
+            'max_depth': 2,          # Shallow hierarchy = more uniform structure
+            'p_subclass': 0.05,      # Low subclass prob = flatter, more coherent types
+            'description': 'High coherence: Flat hierarchy, many instances per type, uniform relations'
+        },
+        'PYGRAFT_LOW_COHERENCE': {
+            'runs': 1,
+            'mode': 'full',
+            'classes': 64,           # Many classes = fewer instances per class
+            'relations': 32,         # Many relations = varied property coverage
+            'avg_instances': 100,    # Fewer instances per class
+            'max_depth': 5,          # Deep hierarchy = more type variation
+            'p_subclass': 0.25,      # High subclass prob = complex hierarchy, varied properties
+            'description': 'Low coherence: Deep hierarchy, many types, varied property coverage'
+        },
+        
+        # =======================================================================
+        # RDFGRAPHGEN - SHACL-based Generator
+        # =======================================================================
+        'RDFGRAPHGEN_LUBM_HIGH_COHERENCE': {
+            'runs': 1,
+            'shape': 'lubm_shacl.ttl',
+            'scale_factor': 3000,    # Higher scale = more complete data per shape
+            'description': 'High coherence: High scale factor ensures complete shape conformance'
+        },
+        'RDFGRAPHGEN_LUBM_LOW_COHERENCE': {
+            'runs': 1,
+            'shape': 'lubm_shacl.ttl',
+            'scale_factor': 500,     # Lower scale = sparser data
+            'description': 'Low coherence: Lower scale factor results in sparser data'
+        },
+        
+        # =======================================================================
+        # RUDOFGENERATE - ShEx/SHACL-based High-Performance Generator
+        # =======================================================================
+        'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'benchmark_config_high_coherence.toml',
+            'description': 'High coherence: ShEx schema with maximum property coverage config'
+        },
+        'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE': {
+            'runs': 1,
+            'schema': 'lubm.shex',
+            'config_file': 'benchmark_config_low_coherence.toml',
+            'description': 'Low coherence: ShEx schema with minimum/random property coverage config'
+        },
+        'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE': {
+            'runs': 1,
+            'schema': 'lubm_shacl.ttl',
+            'config_file': 'benchmark_config_high_coherence.toml',
+            'description': 'High coherence: SHACL schema with maximum property coverage config'
+        },
+        'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE': {
+            'runs': 1,
+            'schema': 'lubm_shacl.ttl',
+            'config_file': 'benchmark_config_low_coherence.toml',
+            'description': 'Low coherence: SHACL schema with minimum/random property coverage config'
+        }
+        
+        
+    }
 
 def main():
     parser = argparse.ArgumentParser(

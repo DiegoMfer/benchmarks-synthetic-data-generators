@@ -3,7 +3,14 @@ benchmark 1 performance
 Histogram with the thoughput per classifier with whiskers, all the generators, and the generators that can be configured using LUBM
 
 So
-LUBM, BSBM, GAIA_LUBM, LINKGEN_LUBM, PYGRAFT, RDFGRAPHGEN_LUBM, RUDOFGENERATE_SHACL_LUBM, RUDOFGENERATE_SHEX_LUBM
+LUBM
+BSBM,
+GAIA_LUBM, 
+LINKGEN_LUBM, 
+PYGRAFT_LUBM, 
+RDFGRAPHGEN_LUBM, 
+RUDOFGENERATE_SHACL_LUBM, 
+RUDOFGENERATE_SHEX_LUBM
 
 
 benchmark 2 data quality
@@ -13,10 +20,17 @@ So
 LUBM, BSBM, GAIA_LUBM, LINKGEN_LUBM, PYGRAFT, RDFGRAPHGEN_LUBM, RUDOFGENERATE_SHACL_LUBM, RUDOFGENERATE_SHEX_LUBM
 
 
-benchmark 3 customization capabilities
-
-Level of customization
+benchmark 3 data quality and across different rudof configurations
 
 
+RUDOF_LUBM_RANDOM
+RUDOF_LUBM_REALISTIC
+RUDOF_LUBM_SKEWED
+RUDOF_LUBM_STRUCTURED
+RUDOF_LUBM_MAXIMUM
+RUDOF_LUBM_MINIMUM
+RUDOFGENERATE_LUBM_SHEX
+RUDOFGENERATE_LUBM_SHACL
 
-Histogram with each of the other metrics put all together with a color for each other metric
+
+Histogram with each of the other metrics put all together with a color for each metric 

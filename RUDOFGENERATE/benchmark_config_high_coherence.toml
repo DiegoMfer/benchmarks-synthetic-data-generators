@@ -1,0 +1,82 @@
+# High Coherence Configuration for RUDOF Generate Benchmark
+# ============================================================================
+# HIGH COHERENCE: All optional properties are filled, creating highly 
+# structured data where instances of each type have values for almost all
+# properties. This mimics relational data (e.g., TPC-H) with coherence ≈ 1.
+# ============================================================================
+
+[output]
+format = "Turtle"
+path = "output/generated_data.ttl"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 1
+
+[parallel]
+threads = 4
+batch_size = 100
+parallel_shapes = true
+parallel_fields = true
+
+[generation]
+entity_count = 20000                  # Number of entities to generate
+seed = 42                             # Fixed seed for reproducibility
+cardinality_strategy = "Maximum"      # HIGH COHERENCE: Fill ALL optional properties
+                                      # This ensures every instance has values for
+                                      # as many properties as possible
+
+[generation.entity_distribution]
+# Equal distribution ensures uniform coverage across all types
+Equal = true
+
+[field_generators.default]
+locale = "en"
+quality = "High"                      # High quality = complete, realistic data
+
+# ============================================================================
+# LUBM-specific property generators
+# These ensure consistent, complete data for university benchmark entities
+# ============================================================================
+
+# Person-related properties
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 1
+max = 10000
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date"]
+generator = "date"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date".parameters]
+start_year = 1950
+end_year = 2005
+
+# University-related properties with high completeness
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#name"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#emailAddress"]
+generator = "pattern"
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#emailAddress".parameters]
+regex = "[a-z]{5,10}@[a-z]{5,8}.edu"
+
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#telephone"]
+generator = "pattern"
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#telephone".parameters]
+regex = "\\d{3}-\\d{3}-\\d{4}"
+
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#age"]
+generator = "integer"
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#age".parameters]
+min = 18
+max = 75
+
+[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#researchInterest"]
+generator = "string"
+parameters = {}

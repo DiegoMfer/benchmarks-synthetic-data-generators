@@ -1,0 +1,57 @@
+Aquí tienes el resumen solicitado sobre la coherencia, sus fórmulas y procedimientos, basado en el texto proporcionado.
+1. Definición de Coherencia
+La coherencia es una métrica que cuantifica el nivel de estructuración de un conjunto de datos RDF.
+• Alta Coherencia (≈1): Datos altamente estructurados donde las instancias de un tipo tienen valores para casi todas las propiedades (ej. datos relacionales como TPC-H).
+• Baja Coherencia (≈0): Datos no estructurados o dispersos donde las propiedades varían mucho entre instancias del mismo tipo (ej. DBpedia).
+
+--------------------------------------------------------------------------------
+2. Las Fórmulas
+Para calcular la coherencia (CH) del conjunto de datos D con un sistema de tipos T, se utiliza una suma ponderada de la cobertura (CV) de cada tipo individual:
+CH(T,D)= 
+T∈T
+∑
+​
+ WT(CV(T,D))×CV(T,D)
+Los componentes son:
+• Cobertura (CV): Mide la completitud de un tipo T. Es la relación entre las propiedades realmente presentes y las posibles si todas las instancias tuvieran todas las propiedades. 
+CV(T,D)= 
+∣P(T)∣×∣I(T,D)∣
+∑ 
+p∈P(T)
+​
+ OC(p,I(T,D))
+​
+ 
+ (Donde OC son las ocurrencias, P(T) las propiedades del tipo y I(T,D) las instancias).
+• Peso (WT): Da más importancia a los tipos con mayor número de propiedades e instancias. 
+WT(CV(T,D))= 
+∑ 
+T 
+′
+ ∈T
+​
+ (∣P(T 
+′
+ )∣+∣I(T 
+′
+ ,D)∣)
+∣P(T)∣+∣I(T,D)∣
+​
+ 
+
+--------------------------------------------------------------------------------
+3. Instrucciones para el Agente (Cálculo)
+Para que un agente calcule la coherencia, debe realizar un análisis extensional (basado en los datos, no en esquemas externos) siguiendo estos pasos:
+1. Escanear Tipos: Buscar triples con rdf:type para identificar el conjunto de tipos T y las instancias I(T,D).
+2. Identificar Propiedades: Para cada tipo, determinar el conjunto P(T) uniendo todas las propiedades que aparecen en sus instancias.
+3. Contar Ocurrencias: Contar cuántas instancias poseen cada propiedad específica (OC).
+4. Calcular y Sumar: Aplicar las fórmulas de Cobertura y Peso para cada tipo y realizar la suma final.
+
+--------------------------------------------------------------------------------
+4. Minimización de la Coherencia
+Para minimizar la coherencia (hacer los datos menos estructurados), se debe reducir la superposición de propiedades entre instancias del mismo tipo. El proceso se formula como un problema de programación entera:
+• Método: Eliminar triples específicos (llamados "monedas" o coins) del conjunto de datos.
+• Objetivo: Maximizar la eliminación de triples para reducir la cobertura sin violar las restricciones.
+• Restricciones Críticas (para mantener la validez):
+    1. No eliminar la instancia: Se debe conservar el triple rdf:type.
+    2. No eliminar la propiedad del tipo: Para cada propiedad del tipo, debe quedar al menos una instancia que la tenga (no borrar la propiedad del "vocabulario" del tipo).
