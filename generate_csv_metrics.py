@@ -103,30 +103,36 @@ def load_graph_for_run(run_path, generator_name):
     format = "turtle" # Default
     
     # Define file patterns based on generator type
-    # Use exact matches or startswith to avoid substring collisions (e.g. LUBM in RDFGRAPHGEN_LUBM)
+    # Use startswith or 'in' to handle suffixed names like LUBM_HIGH_COHERENCE, GAIA_LUBM_LOW_COHERENCE
+    # Order matters: check more specific patterns first to avoid substring collisions
     
-    if generator_name == "BSBM":
+    if generator_name.startswith("BSBM"):
+        # BSBM, BSBM_HIGH_COHERENCE, BSBM_LOW_COHERENCE
         files_to_load = glob.glob(os.path.join(run_path, "dataset.ttl"))
-    elif generator_name == "LUBM":
-        files_to_load = glob.glob(os.path.join(run_path, "*.owl"))
-        format = "xml" 
-    elif generator_name == "GAIA":
+    elif generator_name.startswith("GAIA"):
+        # GAIA, GAIA_LUBM_HIGH_COHERENCE, GAIA_LUBM_LOW_COHERENCE
         files_to_load = glob.glob(os.path.join(run_path, "gaia_instances.owl"))
         format = "xml"
-    elif generator_name == "LINKGEN":
+    elif generator_name.startswith("LINKGEN"):
+        # LINKGEN, LINKGEN_LUBM_HIGH_COHERENCE, LINKGEN_LUBM_LOW_COHERENCE
         # LINKGEN produces extensionless files like data_T0_1, and a void.ttl
         # We want all the data files data_T*
         files_to_load = glob.glob(os.path.join(run_path, "data_*"))
         # Exclude if they are directories (unlikely but safe)
         files_to_load = [f for f in files_to_load if os.path.isfile(f)]
         format = "nt"
-    elif generator_name == "PYGRAFT":
+    elif generator_name.startswith("LUBM"):
+        # LUBM, LUBM_HIGH_COHERENCE, LUBM_LOW_COHERENCE (but NOT GAIA_LUBM or LINKGEN_LUBM)
+        files_to_load = glob.glob(os.path.join(run_path, "*.owl"))
+        format = "xml" 
+    elif generator_name.startswith("PYGRAFT"):
+        # PYGRAFT, PYGRAFT_LUBM_HIGH_COHERENCE, PYGRAFT_LUBM_LOW_COHERENCE
         files_to_load = glob.glob(os.path.join(run_path, "full_graph.ttl"))
         if not files_to_load:
              files_to_load = glob.glob(os.path.join(run_path, "full_graph.rdf"))
              format = "xml"
     elif "RDFGRAPHGEN" in generator_name:
-        # Matches RDFGRAPHGEN and RDFGRAPHGEN_LUBM
+        # Matches RDFGRAPHGEN and RDFGRAPHGEN_LUBM variants
         files_to_load = glob.glob(os.path.join(run_path, "output-graph.ttl"))
     elif "RUDOF" in generator_name:
         # Matches RUDOFGENERATE and its variants

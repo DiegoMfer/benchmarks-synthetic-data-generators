@@ -26,9 +26,13 @@ cardinality_strategy = "Maximum"      # HIGH COHERENCE: Fill ALL optional proper
                                       # This ensures every instance has values for
                                       # as many properties as possible
 
-[generation.entity_distribution]
-# Equal distribution ensures uniform coverage across all types
-Equal = true
+# Coherence Settings
+property_fill_probability = 1.0       # Fill 100% of properties
+ignore_min_cardinality = false        # Respect all schema constraints
+max_properties_per_instance = 0       # No limit on properties
+property_selection_strategy = "All"   # Select all applicable properties
+property_count_variance = 0.0         # Uniform property counts
+entity_distribution = "Equal"         # Equal distribution ensures uniform coverage across all types
 
 [field_generators.default]
 locale = "en"

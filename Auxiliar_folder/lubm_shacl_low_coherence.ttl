@@ -1,0 +1,494 @@
+@prefix : <http://weso.es/shapes/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ub: <http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:AssistantProfessor a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :GraduateCourse ;
+            sh:path ub:teacherOf ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:mastersDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:doctoralDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:researchInterest ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:worksFor ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:AssistantProfessor ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ] ;
+    sh:targetClass ub:AssistantProfessor .
+
+:AssociateProfessor a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:mastersDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:worksFor ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:doctoralDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :Course ;
+            sh:path ub:teacherOf ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:researchInterest ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:AssociateProfessor ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ] ;
+    sh:targetClass ub:AssociateProfessor .
+
+:FullProfessor a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :Course ;
+            sh:path ub:teacherOf ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:FullProfessor ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:researchInterest ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:doctoralDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:mastersDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:worksFor ] ;
+    sh:targetClass ub:FullProfessor .
+
+:GraduateStudent a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:memberOf ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :GraduateCourse ;
+            sh:path ub:takesCourse ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:GraduateStudent ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:nodeKind sh:IRI ;
+            sh:path ub:advisor ] ;
+    sh:targetClass ub:GraduateStudent .
+
+:Lecturer a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:Lecturer ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:mastersDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:worksFor ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :Course ;
+            sh:path ub:teacherOf ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:doctoralDegreeFrom ] ;
+    sh:targetClass ub:Lecturer .
+
+:Ontology a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:nodeKind sh:IRI ;
+            sh:path owl:imports ],
+        [ a sh:PropertyShape ;
+            sh:in ( owl:Ontology ) ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ] ;
+    sh:targetClass owl:Ontology .
+
+:Publication a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:nodeKind sh:IRI ;
+            sh:path ub:publicationAuthor ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:Publication ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ] ;
+    sh:targetClass ub:Publication .
+
+:ResearchAssistant a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:GraduateStudent ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:nodeKind sh:IRI ;
+            sh:path ub:advisor ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :GraduateCourse ;
+            sh:path ub:takesCourse ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:ResearchAssistant ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:memberOf ] ;
+    sh:targetClass ub:ResearchAssistant .
+
+:ResearchGroup a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:ResearchGroup ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:subOrganizationOf ] ;
+    sh:targetClass ub:ResearchGroup .
+
+:TeachingAssistant a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Course ;
+            sh:path ub:teachingAssistantOf ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:memberOf ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:undergraduateDegreeFrom ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :GraduateCourse ;
+            sh:path ub:takesCourse ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:TeachingAssistant ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:nodeKind sh:IRI ;
+            sh:path ub:advisor ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:GraduateStudent ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ] ;
+    sh:targetClass ub:TeachingAssistant .
+
+:UndergraduateStudent a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :Department ;
+            sh:path ub:memberOf ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:UndergraduateStudent ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:minCount 0 ;
+            sh:node :Course ;
+            sh:path ub:takesCourse ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:telephone ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:emailAddress ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ] ;
+    sh:targetClass ub:UndergraduateStudent .
+
+:GraduateCourse a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:GraduateCourse ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ] ;
+    sh:targetClass ub:GraduateCourse .
+
+:Course a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:in ( ub:Course ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ] ;
+    sh:targetClass ub:Course .
+
+:Department a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:Department ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ],
+        [ a sh:PropertyShape ;
+            sh:dataType xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path ub:name ],
+        [ a sh:PropertyShape ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:node :University ;
+            sh:path ub:subOrganizationOf ] ;
+    sh:targetClass ub:Department .
+
+:University a sh:NodeShape ;
+    sh:property [ a sh:PropertyShape ;
+            sh:in ( ub:University ) ;
+            sh:minCount 1 ;
+            sh:maxCount 1 ;
+            sh:minCount 0 ;
+            sh:path rdf:type ] ;
+    sh:targetClass ub:University .
+

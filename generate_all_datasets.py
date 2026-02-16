@@ -242,7 +242,8 @@ class GAIAGenerator(DatasetGenerator):
 class LINKGENGenerator(DatasetGenerator):
     """LINKGEN flexible linked data generator"""
     
-    def generate(self, triples=2000000, ontology='dbpedia_2015.owl', distribution='zipf', threads=4):
+    def generate(self, triples=2000000, ontology='dbpedia_2015.owl', distribution='zipf', 
+                 threads=4, gaussian_mean=50, gaussian_deviation=10, zipf_exponent=1.5):
         print(f"\n{'='*80}")
         print(f"🟡 GENERATING LINKGEN DATASET (Docker)")
         print(f"{'='*80}")
@@ -267,6 +268,13 @@ class LINKGENGenerator(DatasetGenerator):
             '--distribution', distribution,
             '--threads', str(threads)
         ]
+        
+        # Add distribution-specific parameters
+        if distribution == 'gaussian':
+            cmd.extend(['--gaussian-mean', str(gaussian_mean)])
+            cmd.extend(['--gaussian-deviation', str(gaussian_deviation)])
+        elif distribution == 'zipf':
+            cmd.extend(['--zipf-exponent', str(zipf_exponent)])
         
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.source_dir)
         
@@ -299,16 +307,34 @@ class LINKGENGenerator(DatasetGenerator):
 class PyGraftGenerator(DatasetGenerator):
     """PyGraft schema and knowledge graph generator"""
     
-    def generate(self, mode='full', classes=30, relations=20, avg_instances=80, max_depth=5, p_subclass=0.15):
+    def generate(self, mode='full', classes=30, relations=20, avg_instances=80, max_depth=5, 
+                 p_subclass=0.15, avg_relations=3, std_instances=10, std_relations=1,
+                 p_disjoint=0.05, p_inverse=0.2, p_functional=0.2, p_symmetric=0.1,
+                 p_transitive=0.1, seed=42):
+        """
+        Generate synthetic RDF data using PyGraft.
+        
+        Coherence-affecting parameters:
+        - classes: Number of classes (fewer = higher coherence per type)
+        - avg_instances: Instances per class (more = higher coherence)
+        - max_depth: Hierarchy depth (shallow = higher coherence)
+        - p_subclass: Subclass probability (lower = flatter, higher coherence)
+        - avg_relations: Relations per individual (more = higher coherence)
+        - std_instances/std_relations: Variation (lower = more uniform, higher coherence)
+        """
         print(f"\n{'='*80}")
         print(f"🟣 GENERATING PYGRAFT DATASET")
         print(f"{'='*80}")
         print(f"Mode: {mode}")
         print(f"Classes: {classes}")
         print(f"Relations: {relations}")
-        print(f"Avg instances: {avg_instances}")
+        print(f"Avg instances/class: {avg_instances}")
+        print(f"Std instances: {std_instances}")
+        print(f"Avg relations/individual: {avg_relations}")
+        print(f"Std relations: {std_relations}")
         print(f"Max depth: {max_depth}")
         print(f"Subclass prob: {p_subclass}")
+        print(f"Seed: {seed}")
         
         cmd = [
             'docker', 'run', '--rm',
@@ -319,8 +345,17 @@ class PyGraftGenerator(DatasetGenerator):
             '--n-classes', str(classes),
             '--n-relations', str(relations),
             '--avg-instances', str(avg_instances),
+            '--std-instances', str(std_instances),
+            '--avg-relations', str(avg_relations),
+            '--std-relations', str(std_relations),
             '--max-depth', str(max_depth),
             '--p-subclass', str(p_subclass),
+            '--p-disjoint', str(p_disjoint),
+            '--p-inverse', str(p_inverse),
+            '--p-functional', str(p_functional),
+            '--p-symmetric', str(p_symmetric),
+            '--p-transitive', str(p_transitive),
+            '--seed', str(seed),
             '--no-check-consistency'
         ]
         
@@ -353,7 +388,18 @@ class PyGraftGenerator(DatasetGenerator):
                     'mode': mode,
                     'classes': classes,
                     'relations': relations,
-                    'avg_instances': avg_instances
+                    'avg_instances': avg_instances,
+                    'std_instances': std_instances,
+                    'avg_relations': avg_relations,
+                    'std_relations': std_relations,
+                    'max_depth': max_depth,
+                    'p_subclass': p_subclass,
+                    'p_disjoint': p_disjoint,
+                    'p_inverse': p_inverse,
+                    'p_functional': p_functional,
+                    'p_symmetric': p_symmetric,
+                    'p_transitive': p_transitive,
+                    'seed': seed
                 },
                 'files': files,
                 'description': 'Configurable schema and knowledge graph generator with RDFS/OWL constructs'
@@ -604,9 +650,11 @@ def get_benchmark_configurations():
             'runs': 1,
             'triples': 6000,
             'ontology': 'univ-bench.owl',
-            'distribution': 'uniform',
+            'distribution': 'gaussian',  # Gaussian = more uniform distribution
+            'gaussian_mean': 50,          # Centered mean for uniform-like coverage
+            'gaussian_deviation': 10,     # Low deviation = consistent property usage
             'threads': 4,
-            'description': 'High coherence: LUBM schema with uniform distribution'
+            'description': 'High coherence: LUBM schema with gaussian distribution'
         },
         'LINKGEN_LUBM_LOW_COHERENCE': {
             'runs': 1,
@@ -619,26 +667,50 @@ def get_benchmark_configurations():
         
         # =======================================================================
         # PYGRAFT - Schema and Knowledge Graph Generator
+        # Configured to approximate LUBM ontology structure:
+        # - LUBM has ~43 classes, ~32 properties, hierarchy depth ~3-4
         # =======================================================================
-        'PYGRAFT_HIGH_COHERENCE': {
+        'PYGRAFT_LUBM_HIGH_COHERENCE': {
             'runs': 1,
             'mode': 'full',
-            'classes': 16,           # Fewer classes = more instances per class
-            'relations': 12,         # Fewer relations = more uniform coverage
-            'avg_instances': 500,    # More instances per class
-            'max_depth': 2,          # Shallow hierarchy = more uniform structure
-            'p_subclass': 0.05,      # Low subclass prob = flatter, more coherent types
-            'description': 'High coherence: Flat hierarchy, many instances per type, uniform relations'
+            # --- EXACT same schema as LOW_COHERENCE (which works) ---
+            'classes': 43,              # Same as low coherence
+            'relations': 32,            # Same as low coherence
+            'max_depth': 4,             # Same as low coherence
+            # --- HIGH COHERENCE: more instances, same proportions ---
+            'avg_instances': 50,        # SAME as low (required for stability)
+            'std_instances': 40,        # SAME as low (required for stability)
+            'avg_relations': 5,         # Higher than low (2) for more property coverage
+            'std_relations': 1,         # Lower than low (2) = more consistent relations
+            'p_subclass': 0.25,         # Same as low coherence
+            'p_disjoint': 0.10,         # Same as low coherence
+            'p_inverse': 0.25,          # Same as low coherence
+            'p_functional': 0.05,       # Same as low coherence
+            'p_symmetric': 0.15,        # Same as low coherence
+            'p_transitive': 0.15,       # Same as low coherence
+            'seed': 42,                 # Same seed
+            'description': 'High coherence: Same schema, more relations per instance'
         },
-        'PYGRAFT_LOW_COHERENCE': {
+        'PYGRAFT_LUBM_LOW_COHERENCE': {
             'runs': 1,
             'mode': 'full',
-            'classes': 64,           # Many classes = fewer instances per class
-            'relations': 32,         # Many relations = varied property coverage
-            'avg_instances': 100,    # Fewer instances per class
-            'max_depth': 5,          # Deep hierarchy = more type variation
-            'p_subclass': 0.25,      # High subclass prob = complex hierarchy, varied properties
-            'description': 'Low coherence: Deep hierarchy, many types, varied property coverage'
+            # --- EXACT same schema as HIGH_COHERENCE (required for stability) ---
+            'classes': 43,              # Same as high coherence
+            'relations': 32,            # Same as high coherence
+            'max_depth': 4,             # Same as high coherence
+            # --- LOW COHERENCE parameters (differ in relations per instance) ---
+            'avg_instances': 50,        # Same as high (required for stability)
+            'std_instances': 40,        # Same as high (required for stability)
+            'avg_relations': 2,         # Lower than high (5) = sparse property coverage
+            'std_relations': 2,         # Higher than high (1) = varied relation counts
+            'p_subclass': 0.25,         # Same as high coherence
+            'p_disjoint': 0.10,         # Same as high coherence
+            'p_inverse': 0.25,          # Same as high coherence
+            'p_functional': 0.05,       # Same as high coherence
+            'p_symmetric': 0.15,        # Same as high coherence
+            'p_transitive': 0.15,       # Same as high coherence
+            'seed': 42,                 # Same seed
+            'description': 'Low coherence: Same schema, fewer relations per instance'
         },
         
         # =======================================================================
@@ -674,15 +746,15 @@ def get_benchmark_configurations():
         },
         'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE': {
             'runs': 1,
-            'schema': 'lubm_shacl.ttl',
+            'schema': 'lubm_shacl.ttl',  # All properties required (minCount 1)
             'config_file': 'benchmark_config_high_coherence.toml',
-            'description': 'High coherence: SHACL schema with maximum property coverage config'
+            'description': 'High coherence: SHACL schema with all required properties (coherence ~1.0)'
         },
         'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE': {
             'runs': 1,
-            'schema': 'lubm_shacl.ttl',
+            'schema': 'lubm_shacl_low_coherence.ttl',  # Most properties optional (minCount 0)
             'config_file': 'benchmark_config_low_coherence.toml',
-            'description': 'Low coherence: SHACL schema with minimum/random property coverage config'
+            'description': 'Low coherence: SHACL schema with optional properties + minimum cardinality'
         }
         
         
@@ -706,11 +778,15 @@ Examples:
     )
     
     parser.add_argument('--generators', nargs='*', 
-                       choices=['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
-                               'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL',
-                               'RUDOF_LUBM_STRUCTURED', 'RUDOF_LUBM_REALISTIC', 'RUDOF_LUBM_SKEWED',
-                               'RUDOF_LUBM_RANDOM', 'RUDOF_LUBM_MINIMUM', 'RUDOF_LUBM_MAXIMUM', 'ALL'],
+                       choices=['BSBM_HIGH_COHERENCE', 'BSBM_LOW_COHERENCE',
+                               'LUBM_HIGH_COHERENCE', 'LUBM_LOW_COHERENCE',
+                               'GAIA_LUBM_HIGH_COHERENCE', 'GAIA_LUBM_LOW_COHERENCE',
+                               'LINKGEN_LUBM_HIGH_COHERENCE', 'LINKGEN_LUBM_LOW_COHERENCE',
+                               'PYGRAFT_LUBM_HIGH_COHERENCE', 'PYGRAFT_LUBM_LOW_COHERENCE',
+                               'RDFGRAPHGEN_LUBM_HIGH_COHERENCE', 'RDFGRAPHGEN_LUBM_LOW_COHERENCE',
+                               'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE',
+                               'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE',
+                               'ALL'],
                        default=['ALL'],
                        help='Generators to run (default: ALL)')
     
@@ -721,11 +797,14 @@ Examples:
     
     # Determine which generators to run
     if not args.generators or 'ALL' in args.generators:
-        selected_generators = ['BSBM', 'LUBM', 'GAIA', 'LINKGEN', 'LINKGEN_LUBM', 'PYGRAFT', 
-                               'RDFGRAPHGEN', 'RDFGRAPHGEN_LUBM', 
-                               'RUDOFGENERATE', 'RUDOFGENERATE_LUBM_SHEX', 'RUDOFGENERATE_LUBM_SHACL',
-                               'RUDOF_LUBM_STRUCTURED', 'RUDOF_LUBM_REALISTIC', 'RUDOF_LUBM_SKEWED',
-                               'RUDOF_LUBM_RANDOM', 'RUDOF_LUBM_MINIMUM', 'RUDOF_LUBM_MAXIMUM']
+        selected_generators = ['BSBM_HIGH_COHERENCE', 'BSBM_LOW_COHERENCE',
+                               'LUBM_HIGH_COHERENCE', 'LUBM_LOW_COHERENCE',
+                               'GAIA_LUBM_HIGH_COHERENCE', 'GAIA_LUBM_LOW_COHERENCE',
+                               'LINKGEN_LUBM_HIGH_COHERENCE', 'LINKGEN_LUBM_LOW_COHERENCE',
+                               'PYGRAFT_LUBM_HIGH_COHERENCE', 'PYGRAFT_LUBM_LOW_COHERENCE',
+                               'RDFGRAPHGEN_LUBM_HIGH_COHERENCE', 'RDFGRAPHGEN_LUBM_LOW_COHERENCE',
+                               'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE',
+                               'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE']
     else:
         selected_generators = args.generators
     
@@ -754,23 +833,22 @@ Examples:
     
     # Generator class mapping
     generator_classes = {
-        'BSBM': BSBMGenerator,
-        'LUBM': LUBMGenerator,
-        'GAIA': GAIAGenerator,
-        'LINKGEN': LINKGENGenerator,
-        'LINKGEN_LUBM': LINKGENGenerator,
-        'PYGRAFT': PyGraftGenerator,
-        'RDFGRAPHGEN': RDFGraphGenGenerator,
-        'RDFGRAPHGEN_LUBM': RDFGraphGenGenerator,
-        'RUDOFGENERATE': RUDOFGenerateGenerator,
-        'RUDOFGENERATE_LUBM_SHEX': RUDOFGenerateGenerator,
-        'RUDOFGENERATE_LUBM_SHACL': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_STRUCTURED': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_REALISTIC': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_SKEWED': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_RANDOM': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_MINIMUM': RUDOFGenerateGenerator,
-        'RUDOF_LUBM_MAXIMUM': RUDOFGenerateGenerator
+        'BSBM_HIGH_COHERENCE': BSBMGenerator,
+        'BSBM_LOW_COHERENCE': BSBMGenerator,
+        'LUBM_HIGH_COHERENCE': LUBMGenerator,
+        'LUBM_LOW_COHERENCE': LUBMGenerator,
+        'GAIA_LUBM_HIGH_COHERENCE': GAIAGenerator,
+        'GAIA_LUBM_LOW_COHERENCE': GAIAGenerator,
+        'LINKGEN_LUBM_HIGH_COHERENCE': LINKGENGenerator,
+        'LINKGEN_LUBM_LOW_COHERENCE': LINKGENGenerator,
+        'PYGRAFT_LUBM_HIGH_COHERENCE': PyGraftGenerator,
+        'PYGRAFT_LUBM_LOW_COHERENCE': PyGraftGenerator,
+        'RDFGRAPHGEN_LUBM_HIGH_COHERENCE': RDFGraphGenGenerator,
+        'RDFGRAPHGEN_LUBM_LOW_COHERENCE': RDFGraphGenGenerator,
+        'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE': RUDOFGenerateGenerator,
+        'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE': RUDOFGenerateGenerator,
+        'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE': RUDOFGenerateGenerator,
+        'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE': RUDOFGenerateGenerator,
     }
 
     # Generate datasets
@@ -780,17 +858,28 @@ Examples:
                 # Get config and extract runs
                 config = configs[gen_name].copy()
                 runs = config.pop('runs', 1)
+                # Remove description from config (not a generator parameter)
+                config.pop('description', None)
                 
                 gen_class = generator_classes[gen_name]
                 
                 # Determine source directory (handle variants)
-                source_dir_name = gen_name
-                if gen_name.startswith('RUDOFGENERATE') or gen_name.startswith('RUDOF_LUBM'):
+                if 'RUDOFGENERATE' in gen_name:
                     source_dir_name = 'RUDOFGENERATE'
-                elif gen_name == 'RDFGRAPHGEN_LUBM':
+                elif 'RDFGRAPHGEN' in gen_name:
                     source_dir_name = 'RDFGRAPHGEN'
-                elif gen_name == 'LINKGEN_LUBM':
+                elif 'LINKGEN' in gen_name:
                     source_dir_name = 'LINKGEN'
+                elif 'GAIA' in gen_name:
+                    source_dir_name = 'GAIA'
+                elif 'PYGRAFT' in gen_name:
+                    source_dir_name = 'PYGRAFT'
+                elif 'LUBM' in gen_name:
+                    source_dir_name = 'LUBM'
+                elif 'BSBM' in gen_name:
+                    source_dir_name = 'BSBM'
+                else:
+                    source_dir_name = gen_name
                 
                 print(f"\n🔄 Running {gen_name} generator ({runs} runs)...")
                 

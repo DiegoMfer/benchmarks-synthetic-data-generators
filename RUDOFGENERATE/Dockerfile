@@ -19,7 +19,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 WORKDIR /app
 
 # Download and install RUDOF binary v0.1.142
-RUN curl -L -o rudof https://github.com/rudof-project/rudof/releases/download/v0.1.142/rudof_v0.1.142_x86_64_linux_gnu && \
+RUN curl -L -o rudof https://github.com/rudof-project/rudof/releases/download/v0.1.148/rudof_v0.1.148_x86_64_linux_gnu && \
     chmod +x rudof && \
     mv rudof /usr/local/bin/
 

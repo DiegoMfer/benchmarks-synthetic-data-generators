@@ -27,17 +27,15 @@ cardinality_strategy = "Minimum"      # LOW COHERENCE: Only REQUIRED properties
                                       # This ensures instances have minimal property
                                       # coverage, maximizing sparsity
 
-[generation.entity_distribution]
-# Weighted distribution creates uneven type coverage (more realistic sparse data)
-Weighted = { 
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#GraduateStudent" = 0.25,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#UndergraduateStudent" = 0.25,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Faculty" = 0.15,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Professor" = 0.10,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Course" = 0.15,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#Department" = 0.05,
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#University" = 0.05
-}
+# Coherence Settings
+property_fill_probability = 0.35      # Only fill ~35% of possible properties
+ignore_min_cardinality = true         # Allow skipping required properties
+max_properties_per_instance = 6       # Hard cap on properties per instance
+property_selection_strategy = "Random"# Randomly select properties to keep
+property_count_variance = 0.7         # High variance in property counts
+
+
+entity_distribution = "Equal"         # Equal distribution ensures consistent entity count (20k) for comparison
 
 [field_generators.default]
 locale = "en"
