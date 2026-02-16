@@ -2,7 +2,6 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX ub: <http://www.lehigh.edu/~yug2/Research/SemanticWeb/LUBM/univ-bench.owl#>
-PREFIX xsd: <http://xsd.org/>
 PREFIX : <http://weso.es/shapes/>
 PREFIX brick: <https://brickschema.org/schema/Brick#>
 PREFIX csvw: <http://www.w3.org/ns/csvw#>

@@ -746,15 +746,15 @@ def get_benchmark_configurations():
         },
         'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE': {
             'runs': 1,
-            'schema': 'lubm_shacl.ttl',  # All properties required (minCount 1)
+            'schema': 'lubm_shacl.ttl',
             'config_file': 'benchmark_config_high_coherence.toml',
-            'description': 'High coherence: SHACL schema with all required properties (coherence ~1.0)'
+            'description': 'High coherence: SHACL schema with maximum cardinality strategy'
         },
         'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE': {
             'runs': 1,
-            'schema': 'lubm_shacl_low_coherence.ttl',  # Most properties optional (minCount 0)
+            'schema': 'lubm_shacl.ttl',  # Same schema, different config
             'config_file': 'benchmark_config_low_coherence.toml',
-            'description': 'Low coherence: SHACL schema with optional properties + minimum cardinality'
+            'description': 'Low coherence: SHACL schema with minimum cardinality strategy'
         }
         
         
