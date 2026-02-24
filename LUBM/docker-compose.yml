@@ -11,6 +11,4 @@ services:
       - ./output:/app/output
     environment:
       - PYTHONUNBUFFERED=1
-    # Override the default command to specify number of universities
-    # Example: docker-compose run lubm-benchmark --universities 5
-    command: ["--universities", "1"]
+    # Command is passed via docker compose run, default removed to allow override

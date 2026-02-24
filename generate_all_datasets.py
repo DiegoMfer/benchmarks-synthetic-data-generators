@@ -600,13 +600,13 @@ def get_benchmark_configurations():
         # =======================================================================
         'BSBM_HIGH_COHERENCE': {
             'runs': 1,
-            'products': 50000,
+            'products': 300000,
             'format': 'ttl',
             'description': 'High coherence: Dense product data with complete attributes'
         },
         'BSBM_LOW_COHERENCE': {
             'runs': 1,
-            'products': 10000,  # Fewer products, more variation in attribute coverage
+            'products': 200000,  # Fewer products, more variation in attribute coverage
             'format': 'ttl',
             'description': 'Low coherence: Sparse product data with varied attributes'
         },
@@ -616,13 +616,13 @@ def get_benchmark_configurations():
         # =======================================================================
         'LUBM_HIGH_COHERENCE': {
             'runs': 1,
-            'universities': 10,
+            'universities': 50,
             'seed': 0,
             'description': 'High coherence: Standard LUBM with complete university structures'
         },
         'LUBM_LOW_COHERENCE': {
             'runs': 1,
-            'universities': 5,
+            'universities': 30,
             'seed': 42,
             'description': 'Low coherence: Reduced universities for baseline comparison'
         },
@@ -632,13 +632,13 @@ def get_benchmark_configurations():
         # =======================================================================
         'GAIA_LUBM_HIGH_COHERENCE': {
             'runs': 1,
-            'instances': 10000,
+            'instances': 80000,
             'materialization': True,  # Full materialization = complete property coverage
             'description': 'High coherence: Full materialization ensures complete property sets'
         },
         'GAIA_LUBM_LOW_COHERENCE': {
             'runs': 1,
-            'instances': 10000,
+            'instances': 80000,
             'materialization': False,  # No materialization = sparse/incomplete properties
             'description': 'Low coherence: No materialization results in sparse property coverage'
         },
@@ -648,7 +648,7 @@ def get_benchmark_configurations():
         # =======================================================================
         'LINKGEN_LUBM_HIGH_COHERENCE': {
             'runs': 1,
-            'triples': 6000,
+            'triples': 2000000,
             'ontology': 'univ-bench.owl',
             'distribution': 'gaussian',  # Gaussian = more uniform distribution
             'gaussian_mean': 50,          # Centered mean for uniform-like coverage
@@ -658,7 +658,7 @@ def get_benchmark_configurations():
         },
         'LINKGEN_LUBM_LOW_COHERENCE': {
             'runs': 1,
-            'triples': 6000,
+            'triples': 2000000,
             'ontology': 'univ-bench.owl',
             'distribution': 'zipf',
             'threads': 4,
@@ -678,7 +678,7 @@ def get_benchmark_configurations():
             'relations': 32,            # Same as low coherence
             'max_depth': 4,             # Same as low coherence
             # --- HIGH COHERENCE: more instances, same proportions ---
-            'avg_instances': 50,        # SAME as low (required for stability)
+            'avg_instances': 150,       # Increased from 50 for longer execution
             'std_instances': 40,        # SAME as low (required for stability)
             'avg_relations': 5,         # Higher than low (2) for more property coverage
             'std_relations': 1,         # Lower than low (2) = more consistent relations
@@ -699,7 +699,7 @@ def get_benchmark_configurations():
             'relations': 32,            # Same as high coherence
             'max_depth': 4,             # Same as high coherence
             # --- LOW COHERENCE parameters (differ in relations per instance) ---
-            'avg_instances': 50,        # Same as high (required for stability)
+            'avg_instances': 150,       # Increased from 50 for longer execution
             'std_instances': 40,        # Same as high (required for stability)
             'avg_relations': 2,         # Lower than high (5) = sparse property coverage
             'std_relations': 2,         # Higher than high (1) = varied relation counts
@@ -725,7 +725,7 @@ def get_benchmark_configurations():
         'RDFGRAPHGEN_LUBM_LOW_COHERENCE': {
             'runs': 1,
             'shape': 'lubm_shacl.ttl',
-            'scale_factor': 500,     # Lower scale = sparser data
+            'scale_factor': 2500,    # Increased from 500 to balance execution time
             'description': 'Low coherence: Lower scale factor results in sparser data'
         },
         

@@ -9,4 +9,4 @@ services:
       - ./output:/app/output
     environment:
       - JAVA_OPTS=-Xmx4G
-    command: ["--triples", "100000", "--ontology", "dbpedia_2015.owl"]
+    # Command is passed via docker compose run, default removed to allow override

@@ -8,4 +8,4 @@ services:
       - ./output:/app/output
     environment:
       - JAVA_OPTS=-Xmx2G
-    command: ["--products", "1000"]
+    # Command is passed via docker compose run, default removed to allow override

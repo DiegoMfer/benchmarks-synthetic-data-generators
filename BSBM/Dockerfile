@@ -36,5 +36,6 @@ ENV PYTHONUNBUFFERED=1
 ENV JAVA_OPTS="-Xmx2G"
 
 # Default command - can be overridden
-ENTRYPOINT ["sh", "-c", "umask 0000 && python3 /app/execute_benchmark.py"]
+# Use a wrapper script approach to properly pass arguments
+ENTRYPOINT ["sh", "-c", "umask 0000 && exec python3 /app/execute_benchmark.py \"$@\"", "--"]
 CMD ["--products", "1000"]

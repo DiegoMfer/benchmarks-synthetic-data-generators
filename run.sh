@@ -4,7 +4,9 @@
 echo "Starting generation of ALL datasets..."
 echo "Generators: BSBM, LUBM, GAIA, LINKGEN, PYGRAFT, RDFGRAPHGEN, RUDOFGENERATE, and LUBM Variants"
 
-# Run 4 times as requested
+# Remove existing 1-Datasets folder to start fresh
+rm -rf 1-Datasets
+
 
 echo "----------------------------------------------------------------"
 echo "Starting generation"

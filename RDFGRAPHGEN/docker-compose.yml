@@ -7,4 +7,4 @@ services:
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./output:/app/output
-    command: ["--scale-factor", "100"]
+    # Command is passed via docker compose run, default removed to allow override
