@@ -113,10 +113,3 @@ All 10 generators now run in Docker containers for consistent, reproducible resu
 - **Volume Mounting**: Generated datasets are saved to the host's `output/` directory
 - **Isolation**: Each generator runs in its own containerized environment with all dependencies pre-installed
 
-## 📝 Recent Improvements
-
-- ✅ All 10 generators converted to Docker Compose
-- ✅ Fixed permission issues with containerized execution
-- ✅ Automated dataset copying to `1-Datasets/` with metadata tracking
-- ✅ Added support for SHACL and ShEx schema variants
-- ✅ Improved performance metrics collection across all generators

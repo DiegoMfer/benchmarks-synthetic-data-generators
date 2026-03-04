@@ -340,7 +340,7 @@ class PyGraftGenerator(DatasetGenerator):
             'docker', 'run', '--rm',
             '-v', f"{self.source_dir / 'output'}:/app/output",
             'pygraft-benchmark:latest',
-            'python', 'execute_benchmark.py',
+            'python3', 'execute_benchmark.py',
             '--mode', mode,
             '--n-classes', str(classes),
             '--n-relations', str(relations),
@@ -600,13 +600,13 @@ def get_benchmark_configurations():
         # =======================================================================
         'BSBM_HIGH_COHERENCE': {
             'runs': 1,
-            'products': 300000,
+            'products': 100000,
             'format': 'ttl',
             'description': 'High coherence: Dense product data with complete attributes'
         },
         'BSBM_LOW_COHERENCE': {
             'runs': 1,
-            'products': 200000,  # Fewer products, more variation in attribute coverage
+            'products': 50000,  # Fewer products, more variation in attribute coverage
             'format': 'ttl',
             'description': 'Low coherence: Sparse product data with varied attributes'
         },
@@ -648,7 +648,7 @@ def get_benchmark_configurations():
         # =======================================================================
         'LINKGEN_LUBM_HIGH_COHERENCE': {
             'runs': 1,
-            'triples': 2000000,
+            'triples': 100000,
             'ontology': 'univ-bench.owl',
             'distribution': 'gaussian',  # Gaussian = more uniform distribution
             'gaussian_mean': 50,          # Centered mean for uniform-like coverage
@@ -658,7 +658,7 @@ def get_benchmark_configurations():
         },
         'LINKGEN_LUBM_LOW_COHERENCE': {
             'runs': 1,
-            'triples': 2000000,
+            'triples': 100000,
             'ontology': 'univ-bench.owl',
             'distribution': 'zipf',
             'threads': 4,
