@@ -61,8 +61,8 @@ num.avg.frequency.subject={args.avg_frequency}
 # Statistical distribution
 distribution.function={args.distribution}
 zipf.exponent={args.zipf_exponent}
-gaussian.mean={args.gaussian_mean}
-gaussian.deviation={args.gaussian_deviation}
+gaussian.mean={int(args.gaussian_mean)}
+gaussian.deviation={int(args.gaussian_deviation)}
 
 # Noise generation
 gen.noise={str(args.noise).lower()}
@@ -162,6 +162,14 @@ def run_linkgen_generator(args):
     # Prepare output directory
     output_dir = script_dir / "output"
     output_dir.mkdir(exist_ok=True)
+    
+    # Clean old output files to ensure we detect generation failures
+    # Keep the directory but remove data files and void.ttl
+    for old_file in output_dir.glob("data_*"):
+        old_file.unlink()
+    void_file_old = output_dir / "void.ttl"
+    if void_file_old.exists():
+        void_file_old.unlink()
     
     # Create log4j properties if it doesn't exist
     create_log4j_properties(script_dir)

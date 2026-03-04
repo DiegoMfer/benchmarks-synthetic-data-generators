@@ -71,7 +71,7 @@ fast_gen: true
 oversample: false
 relation_balance_ratio: 0.9
 prop_untyped_entities: 0.0
-avg_depth_specific_class: {args.avg_instances / 25}
+avg_depth_specific_class: {max(1.0, min(float(args.max_depth) / 2.0, 2.0))}
 multityping: false
 avg_multityping: 1.5
 """
