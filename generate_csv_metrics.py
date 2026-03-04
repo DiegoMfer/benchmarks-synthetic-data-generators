@@ -546,6 +546,12 @@ def _save_results(all_results):
         all_results, key=lambda r: (r.get("Generator", ""), r.get("Run_ID", ""))
     )
 
+    # Round Perf_Execution_Time to 2 decimal places
+    for row in sorted_results:
+        val = row.get("Perf_Execution_Time")
+        if isinstance(val, float):
+            row["Perf_Execution_Time"] = round(val, 2)
+
     with open(OUTPUT_CSV, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         writer.writeheader()
