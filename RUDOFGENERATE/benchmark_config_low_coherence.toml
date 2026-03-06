@@ -21,7 +21,7 @@ parallel_shapes = true
 parallel_fields = true
 
 [generation]
-entity_count = 150000                  # Number of entities to generate
+entity_count = 100000                  # Number of entities to generate
 seed = 42                             # Fixed seed for reproducibility
 cardinality_strategy = "Minimum"      # LOW COHERENCE: Only REQUIRED properties
                                       # This ensures instances have minimal property
