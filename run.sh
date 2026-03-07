@@ -13,6 +13,12 @@ echo "Starting generation"
 echo "----------------------------------------------------------------"
 python3 generate_all_datasets.py --generators ALL
 
+
+echo "----------------------------------------------------------------"
+echo "Starting measurements, this will take hours..."
+echo "----------------------------------------------------------------"
+
+
 echo "Generating CSV metrics..."
 python3 generate_csv_metrics.py
 
