@@ -667,10 +667,8 @@ def get_benchmark_configurations():
         
         # =======================================================================
         # PYGRAFT - Schema and Knowledge Graph Generator
-        # Configured to approximate LUBM ontology structure:
-        # - LUBM has ~43 classes, ~32 properties, hierarchy depth ~3-4
         # =======================================================================
-        'PYGRAFT_LUBM_HIGH_COHERENCE': {
+        'PYGRAFT_HIGH_COHERENCE': {
             'runs': 10,
             'mode': 'full',
             # --- EXACT same schema as LOW_COHERENCE (which works) ---
@@ -691,7 +689,7 @@ def get_benchmark_configurations():
             'seed': 42,                 # Same seed
             'description': 'High coherence: Same schema, more relations per instance'
         },
-        'PYGRAFT_LUBM_LOW_COHERENCE': {
+        'PYGRAFT_LOW_COHERENCE': {
             'runs': 10,
             'mode': 'full',
             # --- EXACT same schema as HIGH_COHERENCE (required for stability) ---
@@ -782,7 +780,7 @@ Examples:
                                'LUBM_HIGH_COHERENCE', 'LUBM_LOW_COHERENCE',
                                'GAIA_LUBM_HIGH_COHERENCE', 'GAIA_LUBM_LOW_COHERENCE',
                                'LINKGEN_LUBM_HIGH_COHERENCE', 'LINKGEN_LUBM_LOW_COHERENCE',
-                               'PYGRAFT_LUBM_HIGH_COHERENCE', 'PYGRAFT_LUBM_LOW_COHERENCE',
+                       'PYGRAFT_HIGH_COHERENCE', 'PYGRAFT_LOW_COHERENCE',
                                'RDFGRAPHGEN_LUBM_HIGH_COHERENCE', 'RDFGRAPHGEN_LUBM_LOW_COHERENCE',
                                'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE',
                                'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE',
@@ -801,7 +799,7 @@ Examples:
                                'LUBM_HIGH_COHERENCE', 'LUBM_LOW_COHERENCE',
                                'GAIA_LUBM_HIGH_COHERENCE', 'GAIA_LUBM_LOW_COHERENCE',
                                'LINKGEN_LUBM_HIGH_COHERENCE', 'LINKGEN_LUBM_LOW_COHERENCE',
-                               'PYGRAFT_LUBM_HIGH_COHERENCE', 'PYGRAFT_LUBM_LOW_COHERENCE',
+                               'PYGRAFT_HIGH_COHERENCE', 'PYGRAFT_LOW_COHERENCE',
                                'RDFGRAPHGEN_LUBM_HIGH_COHERENCE', 'RDFGRAPHGEN_LUBM_LOW_COHERENCE',
                                'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE',
                                'RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE', 'RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE']
@@ -841,8 +839,8 @@ Examples:
         'GAIA_LUBM_LOW_COHERENCE': GAIAGenerator,
         'LINKGEN_LUBM_HIGH_COHERENCE': LINKGENGenerator,
         'LINKGEN_LUBM_LOW_COHERENCE': LINKGENGenerator,
-        'PYGRAFT_LUBM_HIGH_COHERENCE': PyGraftGenerator,
-        'PYGRAFT_LUBM_LOW_COHERENCE': PyGraftGenerator,
+        'PYGRAFT_HIGH_COHERENCE': PyGraftGenerator,
+        'PYGRAFT_LOW_COHERENCE': PyGraftGenerator,
         'RDFGRAPHGEN_LUBM_HIGH_COHERENCE': RDFGraphGenGenerator,
         'RDFGRAPHGEN_LUBM_LOW_COHERENCE': RDFGraphGenGenerator,
         'RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE': RUDOFGenerateGenerator,
