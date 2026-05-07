@@ -470,7 +470,7 @@ class RUDOFGenerateGenerator(DatasetGenerator):
     
     def generate(self, schema='example_schema.shex', config_file='benchmark_config.toml'):
         print(f"\n{'='*80}")
-        print(f"🟠 GENERATING RUDOF GENERATE DATASET (Binary v0.1.142)")
+        print(f"🟠 GENERATING RUDOF GENERATE DATASET (Binary v0.2.15)")
         print(f"{'='*80}")
         print(f"Schema: {schema}")
         print(f"Config file: {config_file}")
@@ -482,6 +482,16 @@ class RUDOFGenerateGenerator(DatasetGenerator):
         except subprocess.CalledProcessError as e:
             print(f"❌ Docker build failed: {e.stderr.decode()}")
             return False
+        
+        # Clean output files before running (to avoid "file already exists" errors)
+        output_dir = self.source_dir / 'output'
+        if output_dir.exists():
+            for pattern in ['generated_data.*', '*.stats.json']:
+                for file_path in output_dir.glob(pattern):
+                    try:
+                        file_path.unlink()
+                    except Exception:
+                        pass
         
         # Set environment variables for docker-compose
         env = os.environ.copy()
@@ -507,7 +517,7 @@ class RUDOFGenerateGenerator(DatasetGenerator):
                 'configuration': {
                     'schema': schema,
                     'config_file': config_file,
-                    'version': 'v0.1.142'
+                    'version': 'v0.2.15'
                 },
                 'files': files,
                 'description': 'High-performance RDF generator using ShEx schemas (Binary version)'

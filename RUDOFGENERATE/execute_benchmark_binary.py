@@ -121,7 +121,7 @@ def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir
     ]
     
     if config_file:
-        rudof_cmd.extend(['--config', str(config_file)])
+        rudof_cmd.extend(['--config-file', str(config_file)])
     
     # Add optional parameters (only if provided)
     if entity_count is not None:
@@ -226,7 +226,7 @@ def main():
     parser = argparse.ArgumentParser(description='Benchmark RUDOF binary RDF data generator')
     parser.add_argument('--schema', type=str, default='example_schema.shex',
                        help='Path to the ShEx/SHACL schema file')
-    parser.add_argument('--config', type=str, default=None,
+    parser.add_argument('--config', '--config-file', type=str, default=None, dest='config',
                        help='Path to configuration file')
     parser.add_argument('--entity-count', type=int, default=None,
                        help='Number of entities to generate (default: 100 if no config)')

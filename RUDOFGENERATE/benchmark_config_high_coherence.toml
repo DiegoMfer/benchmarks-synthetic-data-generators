@@ -1,10 +1,3 @@
-# High Coherence Configuration for RUDOF Generate Benchmark
-# ============================================================================
-# HIGH COHERENCE: All optional properties are filled, creating highly 
-# structured data where instances of each type have values for almost all
-# properties. This mimics relational data (e.g., TPC-H) with coherence ≈ 1.
-# ============================================================================
-
 [output]
 format = "Turtle"
 path = "output/generated_data.ttl"
@@ -20,30 +13,21 @@ parallel_shapes = true
 parallel_fields = true
 
 [generation]
-entity_count = 100000                 # Number of entities to generate
-seed = 42                             # Fixed seed for reproducibility
-cardinality_strategy = "Maximum"      # HIGH COHERENCE: Fill ALL optional properties
-                                      # This ensures every instance has values for
-                                      # as many properties as possible
+entity_count = 10000
+seed = 42
+cardinality_strategy = "Maximum"
 
-# Coherence Settings
-property_fill_probability = 1.0       # Fill 100% of properties
-ignore_min_cardinality = false        # Respect all schema constraints
-max_properties_per_instance = 0       # No limit on properties
-property_selection_strategy = "All"   # Select all applicable properties
-property_count_variance = 0.0         # Uniform property counts
-entity_distribution = "Equal"         # Equal distribution ensures uniform coverage across all types
+property_fill_probability = 1.0
+ignore_min_cardinality = false
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+entity_distribution = "Equal"
 
 [field_generators.default]
 locale = "en"
-quality = "High"                      # High quality = complete, realistic data
+quality = "High"
 
-# ============================================================================
-# LUBM-specific property generators
-# These ensure consistent, complete data for university benchmark entities
-# ============================================================================
-
-# Person-related properties
 [field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
 generator = "integer"
 [field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
@@ -60,27 +44,18 @@ generator = "date"
 start_year = 1950
 end_year = 2005
 
-# University-related properties with high completeness
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#name"]
-generator = "string"
-parameters = {}
+# Ensure all types generate complete data
+[generation.type_overrides."http://weso.es/shapes/GraduateStudent"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
 
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#emailAddress"]
-generator = "pattern"
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#emailAddress".parameters]
-regex = "[a-z]{5,10}@[a-z]{5,8}.edu"
+[generation.type_overrides."http://weso.es/shapes/UndergraduateStudent"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
 
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#telephone"]
-generator = "pattern"
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#telephone".parameters]
-regex = "\\d{3}-\\d{3}-\\d{4}"
-
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#age"]
-generator = "integer"
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#age".parameters]
-min = 18
-max = 75
-
-[field_generators.properties."http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#researchInterest"]
-generator = "string"
-parameters = {}
+[generation.type_overrides."http://weso.es/shapes/AssistantProfessor"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"

@@ -1,11 +1,3 @@
-# Low Coherence Configuration for RUDOF Generate Benchmark
-# ============================================================================
-# LOW COHERENCE: Only required properties are filled, optional properties are
-# skipped. This creates sparse, unstructured data where properties vary 
-# significantly between instances of the same type. Mimics real-world LOD
-# data (e.g., DBpedia) with coherence ≈ 0.
-# ============================================================================
-
 [output]
 format = "Turtle"
 path = "output/generated_data.ttl"
@@ -21,30 +13,68 @@ parallel_shapes = true
 parallel_fields = true
 
 [generation]
-entity_count = 100000                  # Number of entities to generate
-seed = 42                             # Fixed seed for reproducibility
-cardinality_strategy = "Minimum"      # LOW COHERENCE: Only REQUIRED properties
-                                      # This ensures instances have minimal property
-                                      # coverage, maximizing sparsity
+entity_count = 10000
+seed = 42
+cardinality_strategy = "Minimum"
 
-# Coherence Settings
-property_fill_probability = 0.35      # Only fill ~35% of possible properties
-ignore_min_cardinality = true         # Allow skipping required properties
-max_properties_per_instance = 6       # Hard cap on properties per instance
-property_selection_strategy = "Random"# Randomly select properties to keep
-property_count_variance = 0.7         # High variance in property counts
+property_fill_probability = 0.03
+ignore_min_cardinality = false
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+property_count_variance = 0.95
 
+entity_distribution = "Equal"
 
-entity_distribution = "Equal"         # Equal distribution ensures consistent entity count (20k) for comparison
+excluded_properties = [
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#advisor",
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#teacherOf",
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#teaches",
+    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#takesCourse"
+]
+
+[generation.type_overrides."http://weso.es/shapes/GraduateStudent"]
+property_fill_probability = 0.02
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/UndergraduateStudent"]
+property_fill_probability = 0.02
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/ResearchAssistant"]
+property_fill_probability = 0.02
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/TeachingAssistant"]
+property_fill_probability = 0.02
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/Lecturer"]
+property_fill_probability = 0.05
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/AssistantProfessor"]
+property_fill_probability = 0.05
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/AssociateProfessor"]
+property_fill_probability = 0.05
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
+
+[generation.type_overrides."http://weso.es/shapes/FullProfessor"]
+property_fill_probability = 0.05
+max_properties_per_instance = 1
+property_selection_strategy = "Random"
 
 [field_generators.default]
 locale = "en"
-quality = "Low"                       # Low quality = minimal, basic data
-
-# ============================================================================
-# Minimal property generators - only essential datatypes
-# Keep configuration sparse to match low coherence intent
-# ============================================================================
+quality = "Low"
 
 [field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
 generator = "integer"
@@ -55,6 +85,3 @@ max = 1000
 [field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
 generator = "string"
 parameters = {}
-
-# Note: Fewer property-specific generators defined here compared to high coherence
-# This further reduces uniformity across instances

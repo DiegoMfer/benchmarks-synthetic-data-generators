@@ -12,4 +12,4 @@ services:
       - PYTHONUNBUFFERED=1
       - CONFIG_FILE=${CONFIG_FILE:-benchmark_config.toml}
       - SCHEMA_FILE=${SCHEMA_FILE:-example_schema.shex}
-    command: ["--schema", "${SCHEMA_FILE:-example_schema.shex}", "--config", "${CONFIG_FILE:-benchmark_config.toml}", "--output-dir", "output", "--output-format", "turtle"]
+    command: ["--schema", "${SCHEMA_FILE:-example_schema.shex}", "--config-file", "${CONFIG_FILE:-benchmark_config.toml}", "--output-dir", "output", "--output-format", "turtle"]

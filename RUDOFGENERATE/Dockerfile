@@ -19,8 +19,8 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 WORKDIR /app
 
 # Download and install RUDOF binary v0.2.15
-RUN wget https://github.com/rudof-project/rudof/releases/download/v0.2.15/rudof_v0.2.15_amd64.deb && \
-    dpkg -i rudof_v0.2.15_amd64.deb
+RUN wget https://github.com/rudof-project/rudof/releases/download/0.2.15/rudof_0.2.15_amd64.deb && \
+    dpkg -i rudof_0.2.15_amd64.deb
 
 # Copy benchmark scripts and schema files
 COPY execute_benchmark_binary.py .
