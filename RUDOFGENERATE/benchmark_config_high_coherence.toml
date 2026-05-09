@@ -44,18 +44,51 @@ generator = "date"
 start_year = 1950
 end_year = 2005
 
-# Ensure all types generate complete data
+# High coherence: Ensure all types generate with maximum properties
 [generation.type_overrides."http://weso.es/shapes/GraduateStudent"]
 property_fill_probability = 1.0
 max_properties_per_instance = 0
 property_selection_strategy = "All"
+property_count_variance = 0.0
 
 [generation.type_overrides."http://weso.es/shapes/UndergraduateStudent"]
 property_fill_probability = 1.0
 max_properties_per_instance = 0
 property_selection_strategy = "All"
+property_count_variance = 0.0
 
 [generation.type_overrides."http://weso.es/shapes/AssistantProfessor"]
 property_fill_probability = 1.0
 max_properties_per_instance = 0
 property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[generation.type_overrides."http://weso.es/shapes/AssociateProfessor"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[generation.type_overrides."http://weso.es/shapes/FullProfessor"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[generation.type_overrides."http://weso.es/shapes/Lecturer"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[generation.type_overrides."http://weso.es/shapes/ResearchAssistant"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[generation.type_overrides."http://weso.es/shapes/TeachingAssistant"]
+property_fill_probability = 1.0
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0

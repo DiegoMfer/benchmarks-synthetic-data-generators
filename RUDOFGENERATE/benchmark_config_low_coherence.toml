@@ -15,62 +15,18 @@ parallel_fields = true
 [generation]
 entity_count = 10000
 seed = 42
-cardinality_strategy = "Minimum"
+cardinality_strategy = "Balanced"
 
-property_fill_probability = 0.03
-ignore_min_cardinality = false
-max_properties_per_instance = 1
+# Low coherence: balanced cardinality with random property selection
+# Random selection means some entities skip some properties
+# This creates sparsity while keeping same predicate union as high coherence
+property_fill_probability = 0.6
+ignore_min_cardinality = true
+max_properties_per_instance = 0
 property_selection_strategy = "Random"
-property_count_variance = 0.95
+property_count_variance = 0.0
 
 entity_distribution = "Equal"
-
-excluded_properties = [
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#advisor",
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#teacherOf",
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#teaches",
-    "http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#takesCourse"
-]
-
-[generation.type_overrides."http://weso.es/shapes/GraduateStudent"]
-property_fill_probability = 0.02
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/UndergraduateStudent"]
-property_fill_probability = 0.02
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/ResearchAssistant"]
-property_fill_probability = 0.02
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/TeachingAssistant"]
-property_fill_probability = 0.02
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/Lecturer"]
-property_fill_probability = 0.05
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/AssistantProfessor"]
-property_fill_probability = 0.05
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/AssociateProfessor"]
-property_fill_probability = 0.05
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
-
-[generation.type_overrides."http://weso.es/shapes/FullProfessor"]
-property_fill_probability = 0.05
-max_properties_per_instance = 1
-property_selection_strategy = "Random"
 
 [field_generators.default]
 locale = "en"
