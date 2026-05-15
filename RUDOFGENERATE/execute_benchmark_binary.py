@@ -113,15 +113,15 @@ def run_rudof_generate_binary(schema_file, output_file, entity_count, output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Prepare RUDOF command
+    # Use rudof_generate binary (not 'rudof generate')
     rudof_cmd = [
-        'rudof', 'generate',
+        'rudof_generate',
         '--schema', str(schema_file),
-        '--output-file', str(output_file),
-        '--result-format', output_format.lower()
+        '--output', str(output_file)
     ]
     
     if config_file:
-        rudof_cmd.extend(['--config-file', str(config_file)])
+        rudof_cmd.extend(['--config', str(config_file)])
     
     # Add optional parameters (only if provided)
     if entity_count is not None:
