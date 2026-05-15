@@ -18,13 +18,13 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 # Set working directory
 WORKDIR /app
 
-# Download and install RUDOF binary v0.2.19
-RUN wget https://github.com/rudof-project/rudof/releases/download/0.2.19/rudof_0.2.19_amd64.deb && \
-    dpkg -i rudof_0.2.19_amd64.deb
+# Copy and install locally-compiled rudof-generate v0.2.20-prerelease
+COPY rudof-generate_0.2.20-prerelease-1_amd64.deb /tmp/
+RUN dpkg -i /tmp/rudof-generate_0.2.20-prerelease-1_amd64.deb && \
+    rm /tmp/rudof-generate_0.2.20-prerelease-1_amd64.deb
 
 # Copy benchmark scripts and schema files
 COPY execute_benchmark_binary.py .
-COPY example_schema.shex .
 
 # Create output directory as a volume mount point
 VOLUME ["/app/output"]

@@ -15,12 +15,11 @@ parallel_fields = true
 [generation]
 entity_count = 10000
 seed = 42
-cardinality_strategy = "Balanced"
+cardinality_strategy = "Maximum"
 
-# Low coherence: balanced cardinality with random property selection
-# Random selection means some entities skip some properties
-# This creates sparsity while keeping same predicate union as high coherence
-property_fill_probability = 0.6
+# Low coherence: keep the same schema but make the generated graphs much sparser.
+# Random selection picks only a fraction of the available properties per instance.
+property_fill_probability = 0.25
 ignore_min_cardinality = true
 max_properties_per_instance = 0
 property_selection_strategy = "Random"
