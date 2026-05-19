@@ -13,7 +13,7 @@ parallel_shapes = true
 parallel_fields = true
 
 [generation]
-entity_count = 20000
+entity_count = 70000
 seed = 42
 cardinality_strategy = "Maximum"
 

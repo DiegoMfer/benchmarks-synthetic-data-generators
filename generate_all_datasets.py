@@ -470,7 +470,7 @@ class RUDOFGenerateGenerator(DatasetGenerator):
     
     def generate(self, schema='example_schema.shex', config_file='benchmark_config.toml'):
         print(f"\n{'='*80}")
-        print(f"🟠 GENERATING RUDOF GENERATE DATASET (Binary v0.2.19)")
+        print(f"🟠 GENERATING RUDOF GENERATE DATASET (Binary v0.2.20)")
         print(f"{'='*80}")
         print(f"Schema: {schema}")
         print(f"Config file: {config_file}")
