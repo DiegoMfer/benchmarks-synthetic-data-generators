@@ -1,0 +1,356 @@
+================================================================================
+SUMMARY TABLE - ALL CONFIGURATIONS
+================================================================================
+
+This table provides a quick reference of all HIGH and LOW coherence configurations
+for all 8 RDF synthetic data generators.
+
+All configurations use LUBM (univ-bench.owl) ontology or LUBM-like structure.
+All runs: 10 (number of experimental runs unless specified otherwise)
+
+================================================================================
+1. BSBM - Berlin SPARQL Benchmark (E-commerce)
+================================================================================
+
+HIGH COHERENCE (BSBM_HIGH_COHERENCE):
+  products:         100000
+  format:           ttl
+  forward_chaining: True
+  Expected Output:  output/dataset.ttl (~3-4 GB, ~35M triples)
+
+LOW COHERENCE (BSBM_LOW_COHERENCE):
+  products:         50000
+  format:           ttl
+  forward_chaining: True
+  Expected Output:  output/dataset.ttl (~1.5-2 GB, ~17.5M triples)
+
+Key Difference:  Scale of products (products parameter controls density)
+Coherence Control: LIMITED (scale only)
+Command:          python3 BSBM/execute_benchmark.py --products [100000|50000]
+
+================================================================================
+2. LUBM - Lehigh University Benchmark
+================================================================================
+
+HIGH COHERENCE (LUBM_HIGH_COHERENCE):
+  universities:     65
+  seed:             0
+  format:           owl
+  Expected Output:  output/University*.owl (~1,342,835 triples, ~6-7 GB)
+
+LOW COHERENCE (LUBM_LOW_COHERENCE):
+  universities:     45
+  seed:             42
+  format:           owl
+  Expected Output:  output/University*.owl (~929,655 triples, ~4-5 GB)
+
+Key Difference:  Scale of universities (reduced for comparison)
+Coherence Control: BASELINE (inherently complete/high coherence)
+Command:          python3 LUBM/execute_benchmark.py --universities [65|45] --seed [0|42]
+
+================================================================================
+3. GAIA - Ontology Instance Generator (LUBM)
+================================================================================
+
+HIGH COHERENCE (GAIA_LUBM_HIGH_COHERENCE):
+  instances:        110000
+  materialization:  True   ← KEY PARAMETER
+  Expected Output:  output/gaia_instances.owl (~1,650,000-2,200,000 triples, ~20-30 MB)
+
+LOW COHERENCE (GAIA_LUBM_LOW_COHERENCE):
+  instances:        110000  (same count, fewer properties)
+  materialization:  False  ← KEY PARAMETER
+  Expected Output:  output/gaia_instances.owl (~550,000-770,000 triples, ~10-15 MB)
+
+Key Difference:  Materialization flag (inference of superclass properties)
+Coherence Control: EXCELLENT (materialization directly affects coherence)
+Command:          python3 GAIA/execute_benchmark.py --instances 110000 [--materialization|]
+
+================================================================================
+4. LINKGEN - Flexible Linked Data Generator (LUBM)
+================================================================================
+
+HIGH COHERENCE (LINKGEN_LUBM_HIGH_COHERENCE):
+  triples:          150000
+  ontology:         univ-bench.owl
+  distribution:     gaussian      ← KEY PARAMETER (even coverage)
+  gaussian_mean:    50
+  gaussian_deviation: 10
+  threads:          4
+  Expected Output:  output/data_*.nt (~150K distinct triples)
+
+LOW COHERENCE (LINKGEN_LUBM_LOW_COHERENCE):
+  triples:          150000  (same count, different distribution)
+  ontology:         univ-bench.owl
+  distribution:     zipf   ← KEY PARAMETER (power-law coverage)
+  threads:          4
+  Expected Output:  output/data_*.nt (~150K distinct triples, varied coverage)
+
+Key Difference:  Statistical distribution (gaussian vs. Zipf)
+Coherence Control: EXCELLENT (distribution directly affects property frequency patterns)
+Command:          python3 LINKGEN/execute_benchmark.py --triples 150000 --distribution [gaussian|zipf]
+
+================================================================================
+5. PYGRAFT - Schema and Knowledge Graph Generator
+================================================================================
+
+HIGH COHERENCE (PYGRAFT_HIGH_COHERENCE):
+  mode:             full
+  n_classes:        43           (LUBM-like)
+  n_relations:      32
+  max_depth:        150          ← HIGH COHERENCE (many, consistent)
+  std_instances:    40           ← MODERATE STD
+  avg_relations:    5            ← HIGH (complete property coverage)
+  std_relations:    1            ← LOW STD (uniform)
+  p_subclass:       0.25
+  p_disjoint:       0.10
+  p_functional:     0.05         ← LOW (non-deterministic)
+  p_symmetric:      0.15
+  p_transitive:     0.15
+  Expected Output:  output/rdf_data.xml (~1 million triples, ~20-40 MB)
+
+LOW COHERENCE (PYGRAFT_LOW_COHERENCE):
+  mode:             full
+  n_classes:        43           (LUBM-like, same)
+  n_relations:      32           (same)
+  max_depth:        4            (same)
+  avg_instances:    150          ← SAME as high (required for stability)
+  std_instances:    40           ← SAME STD (required for stability)
+  avg_relations:    2            ← LOW (sparse property coverage)
+  std_relations:    2            ← HIGH STD (varied)
+  p_subclass:       0.25         ← SAME (same schema)
+  p_disjoint:       0.10         ← SAME
+  p_functional:     0.05         ← SAME
+  p_symmetric:      0.15         ← SAME
+  p_transitive:     0.15         ← SAME
+  Expected Output:  output/rdf_data.xml (~200 K triples, ~4-8 MB)
+
+Key Difference:  Relation counts (5 vs. 2) and relations std dev (1 vs. 2)
+Coherence Control: EXCELLENT (multiple parameters for fine-grained control)
+Command:          python3 PYGRAFT/execute_benchmark.py --mode full --n-classes 43 \
+                    --avg-instances 150nchmark.py --mode full --n-classes 43 \
+                    --avg-instances [200|50] --avg-relations [5|2] --std-relations [1|2]
+
+================================================================================
+6. RDFGRAPHGEN - SHACL-based Generator
+================================================================================
+
+HIGH COHERENCE (RDFGRAPHGEN_LUBM_HIGH_COHERENCE):
+  shape:            lubm_shacl.ttl
+  scale_factor:     3000         ← KEY PARAMETER (high scale)
+  Expected Output:  output/output-graph.ttl (~80-150K triples, ~2-4 MB)
+
+LOW COHERENCE (RDFGRAPHGEN_LUBM_LOW_COHERENCE):
+  shape:            2500          ← KEY PARAMETER (balanced scale, increased for execution time)
+  Expected Output:  output/output-graph.ttl (~65-125K triples, ~1.5-3 MB)
+
+Key Difference:  Scale factor (3000 vs. 2500)
+Coherence Control: GOOD (scale determines property fill rate)
+Command:          python3 RDFGRAPHGEN/execute_benchmark.py --scale-factor [3000|2
+Command:          python3 RDFGRAPHGEN/execute_benchmark.py --scale-factor [3000|500]
+
+================================================================================
+7. RUDOFGENERATE - ShEx/SHACL High-Performance Generator
+================================================================================
+
+HIGH COHERENCE - SHEX (RUDOFGENERATE_LUBM_SHEX_HIGH_COHERENCE):
+  schema:           lubm.shex
+  config_file:      benchmark_config_high_coherence.toml
+  cardinality_strategy: Maximum  ← KEY PARAMETER
+  entity_count:     70000
+  property_fill_probability: 1.0  (100%)
+  property_selection_strategy: All
+  quality:          High
+  Expected Output:  output/generated_data.ttl (~700K-1M triples, ~20-30 MB)
+
+LOW COHERENCE - SHEX (RUDOFGENERATE_LUBM_SHEX_LOW_COHERENCE):
+  schema:           lubm.shex
+  config_file:      benchmark_config_low_coherence.toml
+  cardinality_strategy: Maximum  (same, but selective property use)
+  entity_count:     70000        (same count)
+  property_fill_probability: 0.25 (25%)
+  property_selection_strategy: Random ← KEY PARAMETER
+  quality:          Low
+  Expected Output:  output/generated_data.ttl (~175K-250K triples, ~5-10 MB)
+
+HIGH COHERENCE - SHACL (RUDOFGENERATE_LUBM_SHACL_HIGH_COHERENCE):
+  schema:           lubm_shacl.ttl
+  config_file:      benchmark_config_high_coherence.toml
+  (Same config as ShEx variant)
+  Expected Output:  output/generated_data.ttl (~700K-1M triples, ~20-30 MB)
+
+LOW COHERENCE - SHACL (RUDOFGENERATE_LUBM_SHACL_LOW_COHERENCE):
+  schema:           lubm_shacl.ttl
+  config_file:      benchmark_config_low_coherence.toml
+  (Same config as ShEx variant)
+  Expected Output:  output/generated_data.ttl (~175K-250K triples, ~5-10 MB)
+
+Key Difference:  Property selection strategy (All vs. Random) + property_fill_probability
+Coherence Control: EXCELLENT (direct control via TOML config + property fill parameters)
+Command:          python3 RUDOFGENERATE/execute_benchmark_binary.py \
+                    --schema [lubm.shex|lubm_shacl.ttl] \
+                    --config [benchmark_config_high_coherence.toml|benchmark_config_low_coherence.toml]
+
+================================================================================
+COHERENCE CONTROL MECHANISMS COMPARISON
+================================================================================
+
+Generator          │ Control Method              │ Effectiveness │ Flexibility
+─────────────────┼─────────────────────────────┼───────────────┼────────────
+BSBM              │ Scale (products)            │ ✓✓            │ ✓
+LUBM              │ Scale (universities)        │ ✓             │ ✓✓✓ (reference)
+GAIA              │ Materialization flag        │ ✓✓✓ BEST      │ ✓✓✓
+LINKGEN           │ Distribution (uniform/Zipf) │ ✓✓✓ BEST      │ ✓✓✓
+PYGRAFT           │ Instance/relation counts    │ ✓✓✓ BEST      │ ✓✓✓✓ BEST
+RDFGRAPHGEN       │ Scale factor                │ ✓✓            │ ✓✓
+RUDOFGENERATE     │ Cardinality strategy + TOML │ ✓✓✓ BEST      │ ✓✓✓✓ BEST
+
+================================================================================
+KEY COHERENCE PARAMETERS BY GENERATOR
+================================================================================
+
+┌──────────────────┬───────────────────────────────┬──────────────────────────┐
+│ Generator        │ HIGH COHERENCE                │ LOW COHERENCE            │
+├──────────────────┼───────────────────────────────┼──────────────────────────┤
+│ BSBM             │ products=50000                │ products=10000           │
+│ LUBM             │ universities=10               │ universities=5           │
+│ GAIA             │ materialization=True          │ materialization=False    │
+│ LINKGEN          │ distribution=uniform          │ distribution=zipf        │
+│ PYGRAFT          │ avg_inst=200,avg_rel=5        │ avg_inst=50, avg_rel=2   │
+│ RDFGRAPHGEN      │ scale_factor=3000             │ scale_factor=500         │
+│ RUDOFGENERATE    │ cardinality=Maximum           │ cardinality=Minimum      │
+└──────────────────┴───────────────────────────────┴──────────────────────────┘
+
+================================================================================
+EXPECTED TRIPLES COUNT (APPROXIMATE)
+================================================================================
+
+Generator                                HIGH COHERENCE    LOW COHERENCE
+─────────────────────────────────────────────────────────────────────────────
+BSBM                                      35 M              17.5 M
+LUBM                                      1.34 M            929 K
+GAIA                                      1.65-2.2 M        550-770 K
+LINKGEN                                   150 K distinct    150 K distinct
+PYGRAFT                                   1 M               200 K
+RDFGRAPHGEN                               80-150 K          65-125 K
+RUDOFGENERATE                         200K-1M           50-250K
+
+Total Coverage: ~39-40 M triples high coherence, ~19.7-20 M triples low coherence
+
+================================================================================
+EXECUTION TIMES (APPROXIMATE)
+================================================================================
+
+Generator                    HIGH COHERENCE    LOW COHERENCE    Notes
+─────────────────────────────────────────────────────────────────────────────
+BSBM (Java)                  ~5-10 minutes     ~2-3 minutes     Memory intensive
+LUBM (Java)                  ~2-3 minutes      ~1-2 minutes     Moderate scale
+GAIA (Java)                  ~40 seconds       ~40 seconds      Same time, fewer triples
+LINKGEN (Java)               ~20 seconds       ~20 seconds      Same time, different dist.
+PYGRAFT (Python)             ~1-2 minutes      ~30-60 seconds   Optional reasoning adds time
+RDFGRAPHGEN (Python)         ~5-10 sec         ~4-8 sec         Scale factor dependent
+RUDOFGENERATE (Rust binary)  ~2-4 seconds      ~1-2 seconds     FASTEST
+
+================================================================================
+DOCKER AVAILABILITY
+================================================================================
+
+Generator      │ Docker Support │ Docker Compose │ Volumes
+───────────────┼────────────────┼────────────────┼─────────────────────
+BSBM           │ ✓ Yes          │ ✓ Yes          │ output/
+LUBM           │ ✓ Yes          │ ✓ Yes          │ output/
+GAIA           │ ✓ Yes          │ ✓ Yes          │ output/
+LINKGEN        │ ✓ Yes          │ ✓ Yes          │ output/
+PYGRAFT        │ ✓ Yes          │ ✓ Yes          │ output/
+RDFGRAPHGEN    │ ✓ Yes          │ ✓ Yes          │ output/
+RUDOFGENERATE  │ ✓ Yes          │ ✓ Yes          │ output/
+
+All generators support Docker Compose: docker-compose run --rm [generator]
+
+================================================================================
+MEMORY REQUIREMENTS (APPROXIMATE)
+================================================================================
+
+Generator (at typical size)  │ Minimum │ Recommended │ Maximum
+─────────────────────────────┼─────────┼─────────────┼──────────
+BSBM (100K products)         │ 4 GB    │ 8 GB        │ 16 GB
+LUBM (65 universities)       │ 2 GB    │ 4 GB        │ 8 GB
+GAIA (110K instances)        │ 512 MB  │ 1 GB        │ 2 GB
+LINKGEN (150K triples)       │ 512 MB  │ 1 GB        │ 2 GB
+PYGRAFT (43 classes)         │ 512 MB  │ 2 GB        │ 4 GB
+RDFGRAPHGEN (scale 3000)     │ 512 MB  │ 1 GB        │ 2 GB
+RUDOFGENERATE (20K entities) │ 256 MB  │ 512 MB      │ 1 GB
+
+================================================================================
+RECOMMENDED EXECUTION WORKFLOW
+================================================================================
+
+1. Test Individual Generators:
+   # BSBM
+   python3 BSBM/execute_benchmark.py --products 50000 --format ttl
+   
+   # LUBM
+   python3 LUBM/execute_benchmark.py --universities 10 --seed 0
+   
+   # GAIA
+   python3 GAIA/execute_benchmark.py --instances 10000 --materialization
+   
+   # LINKGEN
+   python3 LINKGEN/execute_benchmark.py --triples 6000 --distribution uniform
+   
+   # PYGRAFT
+   python3 PYGRAFT/execute_benchmark.py --mode full --n-classes 43 --avg-instances 200
+   
+   # RDFGRAPHGEN
+   python3 RDFGRAPHGEN/execute_benchmark.py --scale-factor 3000
+   
+   # RUDOFGENERATE
+   python3 RUDOFGENERATE/execute_benchmark_binary.py --schema lubm.shex --entity-count 20000
+
+2. Generate Full Suite:
+   python3 generate_all_datasets.py  # Runs all generators with all configs
+
+3. Analyze Results:
+   python3 generate_csv_metrics.py   # Produces metrics_comparison.csv
+
+================================================================================
+QUICK REFERENCE - GENERATOR SELECTION
+================================================================================
+
+Use BSBM if:
+  - Need e-commerce domain data
+  - Want to test SPARQL benchmarks
+  - Need baseline comparison
+
+Use LUBM if:
+  - Need academic/university domain
+  - Want highly structured reference data
+  - Need baseline coherence comparison
+
+Use GAIA if:
+  - Want to study materialization effects
+  - Need controllable coherence via materialization
+  - Test OWL reasoning implementations
+
+Use LINKGEN if:
+  - Want statistical distribution control
+  - Test realistic LOD patterns (Zipf)
+  - Study distribution effects on coherence
+
+Use PYGRAFT if:
+  - Need maximum coherence control flexibility
+  - Want both schema and data generation
+  - Require OWL semantics and consistency
+
+Use RDFGRAPHGEN if:
+  - Want SHACL-based generation
+  - Need W3C standard compliance
+  - Scale factor is simple/intuitive control
+
+Use RUDOFGENERATE if:
+  - Need fastest generation (Rust binary)
+  - Want fine-grained configuration
+  - Need both ShEx and SHACL support
+  - Working with large-scale benchmarks
+
+================================================================================

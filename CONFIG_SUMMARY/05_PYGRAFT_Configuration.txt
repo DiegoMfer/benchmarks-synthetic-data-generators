@@ -1,0 +1,345 @@
+================================================================================
+PYGRAFT - Schema and Knowledge Graph Generator
+================================================================================
+
+Tool Information:
+  Name: PyGraft
+  GitHub: https://github.com/nicolas-hbt/pygraft
+  Paper: https://arxiv.org/pdf/2309.03685.pdf
+  Type: Schema + Knowledge Graph generator
+  Purpose: Generate synthetic yet realistic RDF schemas and KGs
+  Location: PYGRAFT/ directory
+  Script: execute_benchmark.py
+
+Technical Details:
+  Language: Python
+  Features: Full OWL/RDFS constructs, consistency checking, parallel processing
+  Optional Reasoner: HermiT (for consistency checking)
+  Output Format: XML (RDF)
+  Modes: schema-only, KG-only, full (schema + KG)
+
+PyGraft Advantage:
+  - Generates BOTH schema and data (unlike most generators)
+  - Configurable class hierarchies and properties
+  - Can control coherence through instance and relation parameters
+  - Supports full OWL constructs (symmetric, transitive, functional, etc.)
+
+================================================================================
+HIGH COHERENCE CONFIGURATION
+================================================================================
+
+Name: PYGRAFT_HIGH_COHERENCE
+Goal: Uniform instance/property coverage with consistent structure
+
+Parameters (High Coherence Focus):
+  mode: full                         # Generate schema + KG
+  runs: 10                           # Number of experimental runs
+  seed: 42                           # Reproducible generation
+  
+  # --- LUBM-like Schema (consistent with low coherence) ---
+  n_classes: 43                      # Match LUBM class count
+  n_relations: 32                    # Match LUBM property count
+  max_depth: 4                        # Match LUBM hierarchy depth
+  
+  # --- HIGH COHERENCE: Instance distribution ---
+  avg_instances: 150                 # Many instances/class
+  std_instances: 40                  # Moderate std = consistent class populations
+  avg_relations: 5                   # High avg = COMPLETE property coverage
+  std_relations: 1                   # Low std = UNIFORM relations per instance
+  
+  # --- High Coherence Property Configuration ---
+  p_subclass: 0.25                   # Moderate hierarchy
+  p_disjoint: 0.10                   # Few disjoint classes
+  p_inverse: 0.25                    # Moderate inverse properties
+  p_functional: 0.05                 # Few functional properties
+  p_symmetric: 0.15                  # Moderate symmetric properties
+  p_transitive: 0.15                 # Moderate transitive properties
+  
+  # --- Schema Parameters ---
+  p_asymmetric: 0.05
+  p_reflexive: 0.05
+  p_irreflexive: 0.05
+  p_subproperty: 0.10
+  p_inverse_functional: 0.05
+  
+  check_consistency: True             # Enable consistency checking
+  multitask: False                    # Sequential processing (stable)
+
+Execution:
+  Command: python3 PYGRAFT/execute_benchmark.py --mode full --n-classes 43 --avg-instances 200 --avg-relations 5 --std-relations 1
+
+Coherence Rationale - High:
+  - avg_instances=150 + std_instances=40:
+    * Each class has ~150±40 instances
+    * MODERATE variation across classes
+    * Consistent class populations = high coherence
+  
+  - avg_relations=5 + std_relations=1:
+    * Each instance has ~5±1 relations
+    * UNIFORM relation counts across instances
+    * Most instances have SIMILAR property sets
+  
+  - p_functional=0.05 (low):
+    * Few functional properties
+    * Allows for varied property values
+    * More realistic data structure
+  
+  - Combined Effect:
+    * Most instances of a type have similar structure
+    * Consistent property presence/absence patterns
+    * Coherence ≈ 0.65-0.75
+
+Expected Output:
+  - Schema file: output/schema.rdf
+  - Data file: output/rdf_data.xml
+  - Total triples: ~5 million (200 * 43 * 5 * 2 + properties)
+  - File size: ~100-1 million+ (150 * 43 * 5 * 2 + properties)
+  - File size: ~20-4
+================================================================================
+LOW COHERENCE CONFIGURATION
+================================================================================
+
+Name: PYGRAFT_LOW_COHERENCE
+Goal: Varied instance/property coverage with inconsistent structure
+
+Parameters (Low Coherence Focus):
+  mode: full                         # Generate schema + KG
+  runs: 10                           # Number of experimental runs
+  seed: 42                           # Same seed (reproducible)
+  
+  # --- LUBM-like Schema (same as high coherence for fair comparison) ---
+  n_classes: 43                      # Match LUBM class count
+  n_relations: 32                    # Match LUBM property count
+  max_depth: 4                        # Match LUBM hierarchy depth
+  
+  # --- LOW COHERENCE: Instance distribution ---
+  avg_instances: 150                 # Same as high coherence
+  std_instances: 40                  # SAME as high coherence (required for stability)
+  avg_relations: 2                   # Low avg = SPARSE property coverage
+  std_relations: 2                   # High std = VARIED relations per instance
+  
+  # --- Low Coherence Property Configuration ---
+  p_subclass: 0.25                   # High hierarchy probability
+  p_disjoint: 0.10                   # More disjoint classes
+  p_inverse: 0.25                    # More inverse properties
+  p_functional: 0.05                 # Few functional properties
+  p_symmetric: 0.15                  # More symmetric properties
+  p_transitive: 0.15                 # More transitive properties
+  
+  # --- Schema Parameters ---
+  p_asymmetric: 0.10
+  p_reflexive: 0.05
+  p_irreflexive: 0.05
+  p_subproperty: 0.10
+  p_inverse_functional: 0.05
+  
+  check_consistency: True
+  multitask: False
+
+Execution:
+  Command: python3 PYGRAFT/execute_benchmark.py --mode full --n-classes 43 --avg-instances 50 --avg-relations 2 --std-relations 2
+
+Coherence Rationale - Low:
+  - avg_instances=150 + std_instances=40:
+    * Each class has ~150±40 instances
+    * MODERATE variation across classes (same as HIGH)
+    * Allows variation in class populations
+  
+  - avg_relations=2 + std_relations=2:
+    * Each instance has ~2±2 relations (0-4 range)
+    * HIGHLY VARIED relation counts across instances
+    * Most instances have DIFFERENT property sets
+  
+  - Combined Effect:
+    * Instances of same type have different structures
+    * Inconsistent property presence/absence patterns
+    * Sparse property coverage overall
+    * Coherence ≈ 0.30-0.45
+    * VARIED relation counts across instances
+    * Most instances have DIFFERENT property sets
+  
+  - p_functional=0.05 (low):
+    * Few functional properties
+    * More non-deterministic values
+    * Increases value variability
+  
+  - p_transitive/symmetric=0.15 (high):
+    * More complex relationship patterns
+    * Harder to predict property relationships
+  
+  - Combined Effect:
+    * Instances of same type have DISSIMILAR structure
+    * Highly variable property presence/absence patterns
+    * Similar to DBpedia/LOD data
+    * Coherence ≈ 0.2-0.4
+
+Expected Output:
+  - Schema file: output/schema.rdf
+  - Data file: output/rdf_data.xml
+  - Total triples: ~1 million (50 * 43 * 2 + properties)
+  - File size: ~20-30 MB
+
+================================================================================
+CONFIGURATION OPTIONS
+================================================================================
+
+Generation Modes:
+  --mode schema           # Only generate schema (classes/properties)
+  --mode kg              # Only generate knowledge graph (requires schema)
+  --mode full            # Generate both schema and KG (default)
+
+Class Configuration:
+  --n-classes N          # Number of classes (default: 50)
+  --max-depth N          # Max class hierarchy depth (default: 5)
+  --n-relations N        # Number of properties/relations (default: 30)
+
+Instance Generation:
+  --avg-instances N      # Average instances per class (default: 50)
+  --std-instances N      # Std deviation for instances (default: 10)
+
+Relation Configuration:
+  --avg-relations N      # Average relations per instance (default: 3)
+  --std-relations N      # Std deviation for relations (default: 1)
+
+Class Properties:
+  --p-subclass P         # Subclass probability (0.0-1.0)
+  --p-disjoint P         # Disjoint class probability
+  --p-inverse P          # Inverse property probability
+  --p-functional P       # Functional property probability
+  --p-symmetric P        # Symmetric property probability
+  --p-asymmetric P       # Asymmetric property probability
+  --p-transitive P       # Transitive property probability
+  --p-reflexive P        # Reflexive property probability
+  --p-irreflexive P      # Irreflexive property probability
+  --p-subproperty P      # Sub-property probability
+  --p-inverse-functional P # Inverse functional probability
+
+Advanced Options:
+  --check-consistency    # Enable HermiT consistency checking (default: True)
+  --no-check-consistency # Disable consistency checking (faster)
+  --multitask           # Enable parallel processing
+  --seed N              # Random seed (default: 42)
+  --verbosity N         # Log level 0-2 (default: 1)
+  --output-dir DIR      # Output directory (default: output)
+
+Scale Examples:
+  Small (10 classes):     100 instances * 10 classes = 1,000 instances
+  Medium (50 classes):    50-200 instances * 50 classes = 2,500-10,000 instances
+  Large (200 classes):    100-200 instances * 200 classes = 20,000-40,000 instances
+
+================================================================================
+PYGRAFT COHERENCE CONTROL PARAMETERS
+================================================================================
+
+Parameters Affecting Coherence:
+
+1. Instance Distribution:
+   - avg_instances: Controls average instances/class
+     High (200) = consistent class size = high coherence
+     Low (50) = variable class size = low coherence
+   
+   - std_instances: Controls instance count variance
+     Low (20) = uniform = high coherence
+     High (40) = varied = low coherence
+
+2. Relation Distribution:
+   - avg_relations: Controls average relations/instance
+     High (5) = complete = high coherence
+     Low (2) = sparse = low coherence
+   
+   - std_relations: Controls relation count variance
+     Low (1) = uniform = high coherence
+     High (2) = varied = low coherence
+
+3. Class Structure:
+   - p_subclass: Hierarchy depth
+     Low (0.10) = flat = high coherence
+     High (0.25) = deep = low coherence
+   
+   - p_functional: Property determinism
+     High (0.20) = deterministic = high coherence
+     Low (0.05) = non-deterministic = low coherence
+
+4. Property Relationships:
+   - p_inverse, p_symmetric, p_transitive: Structural complexity
+     Low values = simpler = higher coherence
+     High values = complex = lower coherence
+
+================================================================================
+DOCKER USAGE
+================================================================================
+
+Build:
+  ./build-docker.sh
+  docker build -t pygraft-benchmark .
+
+Run High Coherence:
+  docker run --rm -v $(pwd)/output:/app/output pygraft-benchmark --mode full --n-classes 43 --avg-instances 200 --avg-relations 5
+
+Run Low Coherence:
+  docker run --rm -v $(pwd)/output:/app/output pygraft-benchmark --mode full --n-classes 43 --avg-instances 50 --avg-relations 2
+
+Docker Compose:
+  docker-compose up
+
+================================================================================
+SPECIAL FEATURES
+================================================================================
+
+Consistency Checking:
+  - Uses HermiT OWL reasoner
+  - Validates schema consistency
+  - Ensures no logical contradictions
+  - Slower but ensures logical soundness
+
+Parallel Processing:
+  - --multitask enables parallel generation
+  - Speeds up large schema/KG generation
+  - Useful for n-classes > 100
+
+Output Formats:
+  - RDF/XML format
+  - Can be loaded into RDF stores
+  - Supports full OWL/RDFS reasoning
+
+Citation:
+  @misc{hubert2023pygraft,
+    title={PyGraft: Configurable Generation of Schemas and Knowledge Graphs at Your Fingertips},
+    author={Nicolas Hubert and Pierre Monnin and Mathieu d'Aquin and Armelle Brun and Davy Monticolo},
+    year={2023},
+    eprint={2309.03685}
+  }
+
+================================================================================
+IMPORTANT NOTES
+================================================================================
+
+PyGraft Advantages for Coherence Study:
+  - Control both schema AND data generation
+  - Clear parameters for coherence control
+  - Supports full OWL semantics
+  - Can test schema-level coherence effects
+
+Stability Notes:
+  - LUBM-like structure (43 classes, 32 properties, depth 4) chosen for stability
+  - Same seed=42 in both configs for reproducibility
+  - High/Low differ only in instance and relation parameters
+
+Memory Requirements:
+  - 50 classes, 50 instances: 500MB
+  - 100 classes, 100 instances: 2GB
+  - 200 classes, 150 instances: 5GB
+
+Generation Time:
+  - Small (10 classes): 5 seconds
+  - Medium (50 classes): 20 seconds
+  - Large (200 classes): 2-5 minutes
+  - Consistency checking adds ~50% overhead
+
+Use Cases:
+  - Testing coherence metrics
+  - Evaluating knowledge graph completion
+  - Benchmarking schema-aware queries
+  - Studying OWL reasoning performance
+
+================================================================================

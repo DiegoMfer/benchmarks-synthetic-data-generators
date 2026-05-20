@@ -1,0 +1,296 @@
+================================================================================
+RDFGRAPHGEN - SHACL-based RDF Generator
+================================================================================
+
+Tool Information:
+  Name: RDFGraphGen
+  GitHub: https://github.com/cadmiumkitty/rdfgraphgen
+  PyPI: https://pypi.org/project/rdf-graph-gen/
+  Type: SHACL shape-based RDF generator
+  Purpose: Generate RDF data conforming to SHACL shape constraints
+  Schema: lubm_shacl.ttl (LUBM ontology as SHACL shapes)
+  Location: RDFGRAPHGEN/ directory
+  Script: execute_benchmark.py
+
+Technical Details:
+  Language: Python
+  Input: SHACL shape definitions
+  Output Format: Turtle (.ttl)
+  Key Feature: Scale factor controls data volume
+  Dependencies: rdf-graph-gen Python package
+
+SHACL (Shapes Constraint Language):
+  - W3C standard for defining RDF constraints
+  - Defines shapes (classes), properties, datatypes, cardinalities
+  - Validation and constraint language
+  - Unlike SPARQL, focuses on SHACL conformance
+
+================================================================================
+HIGH COHERENCE CONFIGURATION
+================================================================================
+
+Name: RDFGRAPHGEN_LUBM_HIGH_COHERENCE
+Goal: High scale factor ensures complete shape conformance
+
+Parameters:
+  shape: lubm_shacl.ttl              # LUBM schema in SHACL format
+  scale_factor: 3000                 # KEY PARAMETER - Higher scale
+  runs: 10                           # Number of experimental runs
+
+Execution:
+  Command: python3 RDFGRAPHGEN/execute_benchmark.py --scale-factor 3000
+  Or: ./run-benchmark.sh 3000
+  Or: docker run --rm -v $(pwd)/output:/app/output rdfgraphgen-benchmark --scale-factor 3000
+
+Coherence Rationale - High:
+  - scale_factor=3000 generates LARGE, COMPLETE dataset
+  - Higher scale means more instances per shape
+  - Each shape generates more examples with full property coverage
+  - All SHACL cardinality constraints are satisfied
+  - Properties defined as required (minCount 1) are all present
+  - Optional properties tend to be filled (due to scale)
+  - Result: DENSE, STRUCTURED data
+
+Scale Factor Impact on Coherence:
+  - Large scale_factor (3000):
+    * More instances = higher probability of filling optional properties
+    * Better coverage of property combinations
+    * Fewer missing/null values
+    * Coherence ≈ 0.7-0.85
+  
+  - Similar to relational database with high fill rate
+
+Expected Output:
+  - File: output/output-graph.ttl
+  - Triples: ~80,000-150,000
+  - File Size: ~2-4 MB
+  - Instances: ~3000 (based on scale factor)
+
+Report Output: output/benchmark_report.json
+
+================================================================================
+LOW COHERENCE CONFIGURATION
+================================================================================
+
+Name: RDFGRAPHGEN_LUBM_LOW_COHERENCE
+Goal: Lower scale factor results in sparser data
+
+Parameters:
+  shape: lubm_shacl.ttl              # LUBM schema in SHACL format
+  scale_factor: 2500                  # KEY PARAMETER - Increased for balance
+  runs: 10                           # Number of experimental runs
+
+Execution:
+  Command: python3 RDFGRAPHGEN/execute_benchmark.py --scale-factor 2500
+  Or: ./run-benchmark.sh 2500
+  Or: docker run --rm -v $(pwd)/output:/app/output rdfgraphgen-benchmark --scale-factor 2500
+
+Coherence Rationale - Low:
+  - scale_factor=2500 generates MEDIUM-SIZE dataset (increased from 500 for balanced execution time)
+  - Moderate scale means reasonable instances per shape
+  - Each shape generates good number of examples
+  - Optional properties moderately filled
+  - Good variation in property coverage across instances
+  - Result: MODERATE data with reasonable balance
+
+Scale Factor Impact on Coherence:
+  - Moderate scale_factor (2500):
+    * Good number of instances = reasonable property fill rate
+    * Decent coverage of property combinations
+    * Some missing/null values for better variation
+    * Balanced variation between instances
+    * Coherence ≈ 0.50-0.70 (moderate structure)
+  
+  - Similar to mixed LOD + structured dataset
+
+Expected Output:
+  - File: output/output-graph.ttl
+  - Triples: ~65,000-125,000
+  - File Size: ~1.5-3 MB
+  - Instances: ~2500 (based on scale factor)
+
+Report Output: output/benchmark_report.json
+
+================================================================================
+CONFIGURATION OPTIONS
+================================================================================
+
+Parameters:
+  --scale-factor N       # Scale factor (default: 100)
+                         # Controls number of instances generated
+  --shape FILE          # SHACL shape file (default: input-shape.ttl)
+  --output FILE         # Output filename (default: output-graph.ttl)
+  --output-dir DIR      # Output directory (default: output)
+
+Scale Factor Values and Effects:
+  - 10:     Tiny dataset (~5K triples)
+  - 50:     Small dataset (~25K triples)
+  - 100:    Medium dataset (~50K triples)
+  - 500:    Large dataset (~250K triples)
+  - 1000:   Very large (~500K triples)
+  - 3000:   Extra large (~1.5M triples)
+  - 5000:   Huge (~2.5M triples)
+  - 10000+: Massive (10M+ triples)
+
+Examples:
+
+  Quick Test (10K triples):
+    ./run-benchmark.sh 50
+
+  Standard (100K triples):
+    ./run-benchmark.sh 500
+
+  Large (500K triples):
+    ./run-benchmark.sh 1000
+
+  Production (5M triples):
+    ./run-benchmark.sh 5000
+
+================================================================================
+SHACL SHAPE CONSTRAINTS
+================================================================================
+
+LUBM SHACL Shapes Include:
+
+1. Class Definitions:
+   - University, Department, Faculty, Student, Course, Publication
+   - Each has defined shape constraints
+
+2. Property Cardinalities:
+   - minCount: Minimum occurrences (required properties)
+   - maxCount: Maximum occurrences
+
+3. Datatype Constraints:
+   - String properties (name, email, etc.)
+   - Integer properties (age, index, etc.)
+   - Date properties
+
+4. Relationship Constraints:
+   - Object properties linking classes
+   - Cardinality constraints on relationships
+
+Scale Factor Interpretation:
+  - Lower scale: Only satisfy minCount constraints
+  - Higher scale: Fill maxCount constraints, add optional properties
+  - Coherence increases with scale (more property filling)
+
+================================================================================
+COHERENCE SCALE-FACTOR RELATIONSHIP
+================================================================================
+
+Mathematical Relationship:
+
+Triples ≈ scale_factor × instances_per_class × properties_per_class
+
+Property Fill Rate ≈ (minCount + scale_factor × (maxCount - minCount)) / maxCount
+
+For LUBM:
+  - High (scale=3000): Fill rate ≈ 0.8-0.95 (high coherence)
+  - Low (scale=500): Fill rate ≈ 0.3-0.5 (low coherence)
+
+Explanation:
+  - SHACL defines min/max cardinalities
+  - Scale factor determines how densely properties are filled
+  - Larger scale = more complete property coverage
+  - Directly affects coherence metric
+
+================================================================================
+DOCKER USAGE
+================================================================================
+
+Build:
+  ./build-docker.sh
+  docker build -t rdfgraphgen-benchmark .
+
+Run High Coherence (3000):
+  docker run --rm -v $(pwd)/output:/app/output rdfgraphgen-benchmark --scale-factor 3000
+
+Run Low Coherence (500):
+  docker run --rm -v $(pwd)/output:/app/output rdfgraphgen-benchmark --scale-factor 500
+
+Docker Compose:
+  docker-compose run --rm rdfgraphgen-benchmark --scale-factor 1000
+
+Performance on different scales:
+  Scale 10:   ~1 second
+  Scale 100:  ~2 seconds
+  Scale 500:  ~5 seconds
+  Scale 1000: ~10 seconds
+  Scale 5000: ~30 seconds
+  Scale 10000: ~1 minute
+
+================================================================================
+CUSTOM SHACL SHAPES
+================================================================================
+
+Creating Custom Shapes:
+
+Example SHACL Shape (Turtle format):
+
+  @prefix sh: <http://www.w3.org/ns/shacl#> .
+  @prefix ex: <http://example.org/> .
+
+  ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+      sh:path ex:name ;
+      sh:datatype xsd:string ;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
+    ] ;
+    sh:property [
+      sh:path ex:age ;
+      sh:datatype xsd:integer ;
+      sh:minCount 0 ;
+      sh:maxCount 1 ;
+    ] .
+
+Key Constraint Types:
+  - sh:minCount: Minimum property occurrences
+  - sh:maxCount: Maximum property occurrences
+  - sh:datatype: Required datatype
+  - sh:node: Reference to other shape (relationships)
+
+================================================================================
+IMPORTANT NOTES
+================================================================================
+
+SHACL vs SPARQL:
+  - SHACL: Constraint/shape language (defines structure)
+  - SPARQL: Query language (searches data)
+  - RDFGraphGen uses SHACL for generation constraints
+
+Advantages of SHACL for Generation:
+  - W3C standard (vs. non-standard schema formats)
+  - Explicit cardinality constraints
+  - Clear property requirements
+  - Validates generated data
+
+Generation Algorithm:
+  1. Parse SHACL shapes from lubm_shacl.ttl
+  2. For each shape, generate instances
+  3. For each instance, fill properties:
+     - Required (minCount ≥ 1): Always fill
+     - Optional: Fill based on scale factor
+     - Cardinality limits: Respect maxCount
+  4. Write to Turtle format
+
+Scale Factor Limitations:
+  - Very large scales (10000+) can use significant memory
+  - Generation time scales linearly with scale factor
+  - Test with smaller scale first before large runs
+
+LUBM SHACL Specifics:
+  - Defines university domain constraints
+  - Required properties: type, name, etc.
+  - Optional properties: descriptions, relationships
+  - Coherence controlled primarily by scale factor
+
+Typical Use Cases:
+  - Testing SHACL validation implementations
+  - Evaluating shape-aware query engines
+  - Coherence measurement with shape constraints
+  - Comparing structured vs. unstructured generation
+
+================================================================================

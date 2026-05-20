@@ -1,0 +1,254 @@
+================================================================================
+LINKGEN - Linked Data Generator (Flexible RDF Generator)
+================================================================================
+
+Tool Information:
+  Name: LINKGEN (Multi-purpose Synthetic Linked Data Generator)
+  GitHub: https://github.com/akjoshi/linkgen/
+  Type: Statistical distribution-based RDF generator
+  Purpose: Generate RDF data with configurable statistical distributions
+  Ontology: univ-bench.owl (LUBM)
+  Location: LINKGEN/ directory
+  Script: execute_benchmark.py
+
+Technical Details:
+  Language: Java
+  Key Feature: Statistical distribution control (Zipf, Gaussian, Uniform)
+  Parallel Processing: Multi-threaded generation
+  Output Formats: N-Triples (.nt), N-Quads (.nq)
+  Special: Noise generation, entity linking, sameas creation
+
+================================================================================
+HIGH COHERENCE CONFIGURATION
+================================================================================
+
+Name: LINKGEN_LUBM_HIGH_COHERENCE
+Goal: Uniform distribution ensures even property coverage
+
+Parameters:
+  triples: 150000                      # Number of distinct triples
+  ontology: univ-bench.owl           # LUBM ontology file
+  distribution: gaussian              # KEY PARAMETER - Gaussian distribution
+  gaussian_mean: 50                  # Centered mean for uniform-like coverage
+  gaussian_deviation: 10              # Low deviation = consistent property usage
+  threads: 4                         # Parallel threads
+  runs: 10                           # Number of experimental runs
+
+Execution:
+  Command: python3 LINKGEN/execute_benchmark.py --triples 150000 --distribution gaussian --gaussian-mean 50 --gaussian-deviation 10 --ontology univ-bench.owl --threads 4
+  Or: ./run-benchmark.sh 150000 univ-bench.owl gaussian
+  Or: docker run --rm -v $(pwd)/output:/app/output linkgen-benchmark --triples 150000 --distribution gaussian
+
+Coherence Rationale:
+  - distribution=gaussian creates MORE UNIFORM property coverage
+  - All properties have SIMILAR frequency across instances
+  - Each instance type receives BALANCED property representation
+  - No property dominates the data distribution
+  - Resembles uniform relational database structure
+  - Coherence ≈ 0.7-0.9 (high structure, balanced coverage)
+
+Distribution Effect on Coherence:
+  - Gaussian: Subject frequency = Normal/bell-curve distribution
+  - Result: Most instances have SIMILAR properties (centered around mean)
+  - High Coherence: All instances of type T have similar property sets
+
+Expected Output:
+  - Files: output/data_0.nt, data_1.nt, etc. (multi-file)
+  - Total Triples: ~150,000 distinct triples
+  - File Size: ~2-3 MB
+  - Format: N-Triples (line-based)
+
+Report Output: output/benchmark_report.json
+
+================================================================================
+LOW COHERENCE CONFIGURATION
+================================================================================
+
+Name: LINKGEN_LUBM_LOW_COHERENCE
+Goal: Zipf distribution creates uneven property coverage
+
+Parameters:
+  triples: 150000                      # Same number of triples
+  ontology: univ-bench.owl           # LUBM ontology file
+  distribution: zipf                 # KEY PARAMETER - Power-law distribution
+  threads: 4                         # Parallel threads
+  runs: 10                           # Number of experimental runs
+
+Execution:
+  Command: python3 LINKGEN/execute_benchmark.py --triples 150000 --distribution zipf --ontology univ-bench.owl --threads 4
+  Or: ./run-benchmark.sh 150000 univ-bench.owl zipf
+  Or: docker run --rm -v $(pwd)/output:/app/output linkgen-benchmark --triples 150000 --distribution zipf
+
+Coherence Rationale:
+  - distribution=zipf creates UNEVEN property coverage (power-law)
+  - Some properties are VERY FREQUENT, others are RARE
+  - Instance property sets are HIGHLY VARIED
+  - Few properties cover most of data (80-20 rule)
+  - Rest of properties appear sporadically
+  - Resembles real-world LOD datasets (DBpedia)
+  - Coherence ≈ 0.2-0.5 (low structure, unbalanced coverage)
+
+Zipf Distribution Impact:
+  - Property frequency follows power-law: frequency ∝ rank^(-α)
+  - Top properties: Very high frequency (many instances have them)
+  - Middle properties: Medium frequency
+  - Tail properties: Very rare (few instances)
+  - Result: SPARSE, INCONSISTENT property coverage
+
+Expected Output:
+  - Files: output/data_0.nt, data_1.nt, etc. (multi-file)
+  - Total Triples: ~6,000 distinct triples (same count)
+  - File Size: ~200-150,000 distinct triples (same count)
+  - File Size: ~2-3 Mne-based)
+
+Report Output: output/benchmark_report.json
+
+================================================================================
+CONFIGURATION OPTIONS
+================================================================================
+
+Core Parameters:
+  --triples N              # Number of distinct triples (default: 100000)
+  --ontology FILE          # Ontology file: dbpedia_2015.owl, schemaorg.owl
+  --distribution TYPE      # Distribution: zipf, gaussian, uniform
+  --threads N              # Number of threads (default: 2)
+  --format FORMAT          # Output: nt (N-Triples) or nq (N-Quads)
+  --output-name NAME       # Base name for output files (default: data)
+
+Distribution Parameters:
+
+  Zipf Distribution:
+    --zipf-exponent VALUE   # Exponent (1.0-3.0, typical: 2.1)
+                            # Higher = steeper (more uneven)
+                            # Lower = flatter (more uniform)
+
+  Gaussian Distribution:
+    --gaussian-mean VALUE   # Mean value (default: 200)
+    --gaussian-deviation VALUE # Std deviation (default: 15)
+
+  Uniform Distribution:
+    # No additional parameters
+
+Advanced Parameters:
+  --triples-per-file N     # Triples per output file (default: 100000)
+  --max-file-size SIZE     # Max file size in bytes
+  --avg-frequency N        # Avg frequency per subject (default: 5)
+  --num-strings N          # Unique string values (default: 10)
+
+Noise Generation:
+  --noise                  # Enable noise data generation (default: True)
+  --noise-total N          # Total noise instances (default: 10000)
+  --noise-notype N         # Instances without type (default: 100)
+  --noise-invalid N        # Invalid instances (default: 100)
+  --noise-duplicate N      # Duplicate instances (default: 1000)
+
+Entity Linking:
+  --sameas                 # Generate sameAs links (default: False)
+
+Triples Scale Examples:
+  - 1,000 triples: ~35 KB
+  - 10,000 triples: ~350 KB
+  - 100,000 triples: ~3.5 MB
+  - 1,000,000 triples: ~35 MB
+  - 10,000,000 triples: ~350 MB
+
+Distribution Comparison:
+
+  Uniform Distribution:
+    - All properties equally likely
+    - Consistent property presence
+    - Coherence ≈ 0.8-0.9
+    - Similar to TPC-H
+
+  Gaussian Distribution:
+    - Properties cluster around mean
+    - Most properties near average frequency
+    - Coherence ≈ 0.6-0.7
+    - Semi-structured
+
+  Zipf Distribution:
+    - Few properties very common
+    - Most properties rare
+    - Coherence ≈ 0.2-0.5
+    - Similar to DBpedia/Wikipedia
+
+================================================================================
+LINKGEN SPECIAL FEATURES
+================================================================================
+
+Noise Generation:
+  - Intentionally creates malformed triples
+  - Simulates real-world data quality issues
+  - Useful for testing data cleaning
+  - Controlled by noise parameters
+
+Entity Linking (sameAs):
+  - Can create links to real entities
+  - Requires entity file: entity.nt
+  - Simulates entity resolution challenges
+  - Creates cross-dataset links
+
+VoID (Vocabulary of Interlinked Datasets):
+  - Auto-generates VoID description
+  - Output file: void.ttl
+  - Describes dataset statistics
+  - Useful for dataset discovery
+
+================================================================================
+DOCKER USAGE
+================================================================================
+
+Build:
+  ./build-docker.sh
+  docker build -t linkgen-benchmark .
+
+Run High Coherence (Uniform):
+  docker run --rm -v $(pwd)/output:/app/output linkgen-benchmark --triples 6000 --distribution uniform
+
+Run Low Coherence (Zipf):
+  docker run --rm -v $(pwd)/output:/app/output linkgen-benchmark --triples 6000 --distribution zipf
+
+Docker Compose:
+  docker-compose up
+  docker-compose run --rm linkgen-benchmark --triples 10000
+
+================================================================================
+IMPORTANT NOTES
+================================================================================
+
+LINKGEN Large Data Handling:
+  - Generator handles multi-billion triple datasets
+  - Uses efficient streaming/batching
+  - Parallel file writing for very large outputs
+  - Memory-efficient (doesn't load all data)
+
+Coherence Study Value:
+  - LINKGEN uniquely controls distribution
+  - Different distributions directly affect coherence
+  - Zipf creates realistic LOD data patterns
+  - Uniform creates structured database patterns
+
+Typical Use Cases:
+  - Generating Linked Open Data (LOD) variants
+  - Testing query performance under different distributions
+  - Evaluating property selection algorithms
+  - Coherence measurement experiments
+
+LINKGEN vs Other Generators:
+  - More flexible than BSBM (ontology-based)
+  - More controllable than LUBM (limited coherence)
+  - Different focus than GAIA (uses statistical dist, not materialization)
+  - Good complement to PYGRAFT
+
+Performance Characteristics:
+  - Generation speed: ~100K triples/sec (single-threaded)
+  - Parallel speedup: ~3-4x with 4 threads
+  - Memory: ~500MB for 10M triples (streaming)
+  - Scales to billions of triples
+
+Quality/Noise Trade-off:
+  - noise=True: More realistic but less clean data
+  - noise=False: Perfect data but unrealistic
+  - Most benchmarks use noise=True for realism
+
+================================================================================
