@@ -1,0 +1,324 @@
+# Data Generator Configuration for fhir.shex (Full FHIR R5 schema)
+# Schema uses FHIR ontology: http://hl7.org/fhir/
+# 1,286 shapes covering all FHIR R5 resource and data types.
+
+# ============================================================================
+# GENERATION SETTINGS
+# ============================================================================
+[generation]
+# 1,300 entities ensures every shape gets at least 1 (Equal distributes
+# base_count = floor(1300/1286) = 1, remainder = 14 shapes get a 2nd entity).
+entity_count = 10000
+seed = 42
+entity_distribution = "Equal"
+cardinality_strategy = "Maximum"
+schema_format = "ShEx"
+
+# Include all optional properties on every instance to maximize triple density.
+property_fill_probability = 1.0
+ignore_min_cardinality = false
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+# ============================================================================
+# FIELD GENERATORS - default behavior
+# ============================================================================
+[field_generators.default]
+locale = "en"
+quality = "High"
+
+# ============================================================================
+# DATATYPE-SPECIFIC GENERATORS
+# ============================================================================
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 0
+max = 120
+
+# xsd:int — same range as integer, 32-bit signed
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#int"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#int".parameters]
+min = 0
+max = 2147483647
+
+# xsd:long — 64-bit signed; cap to a readable range
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#long"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#long".parameters]
+min = 0
+max = 999999999
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#decimal"]
+generator = "decimal"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#decimal".parameters]
+min = 0.0
+max = 500.0
+precision = 2
+
+# xsd:double — scientific/measurement values
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#double"]
+generator = "decimal"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#double".parameters]
+min = 0.0
+max = 1000.0
+precision = 4
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#boolean"]
+generator = "boolean"
+parameters = {}
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date"]
+generator = "date"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date".parameters]
+start_year = 1940
+end_year = 2026
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#dateTime"]
+generator = "datetime"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#dateTime".parameters]
+start_year = 2015
+end_year = 2026
+include_time = true
+
+# xsd:time — HH:MM:SS pattern
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#time"]
+generator = "pattern"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#time".parameters]
+pattern = "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+
+# xsd:gYear — four-digit calendar year
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#gYear"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#gYear".parameters]
+min = 1900
+max = 2026
+
+# xsd:gYearMonth — YYYY-MM pattern
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#gYearMonth"]
+generator = "pattern"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#gYearMonth".parameters]
+pattern = "20[012][0-9]-(0[1-9]|1[0-2])"
+
+# xsd:base64Binary — binary content encoded as base64
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#base64Binary"]
+generator = "string"
+parameters = {}
+
+# xsd:anyURI — generic HTTP URI
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#anyURI"]
+generator = "uri"
+parameters = {}
+
+# ============================================================================
+# PROPERTY-SPECIFIC GENERATORS (FHIR URIs)
+# ============================================================================
+
+# Identifiers → structured ID pattern
+[field_generators.properties."http://hl7.org/fhir/identifier"]
+generator = "pattern"
+[field_generators.properties."http://hl7.org/fhir/identifier".parameters]
+pattern = "[A-Z]{2}\\d{6}"
+
+# Canonical URLs used by conformance resources
+[field_generators.properties."http://hl7.org/fhir/url"]
+generator = "uri"
+parameters = {}
+
+# Human-readable names / titles / labels
+[field_generators.properties."http://hl7.org/fhir/name"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/title"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/description"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/purpose"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/copyright"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/copyrightLabel"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/publisher"]
+generator = "string"
+parameters = {}
+
+# Semantic version string
+[field_generators.properties."http://hl7.org/fhir/version"]
+generator = "pattern"
+[field_generators.properties."http://hl7.org/fhir/version".parameters]
+pattern = "\\d+\\.\\d+\\.\\d+"
+
+# Patient demographics
+[field_generators.properties."http://hl7.org/fhir/birthDate"]
+generator = "date"
+[field_generators.properties."http://hl7.org/fhir/birthDate".parameters]
+start_year = 1925
+end_year = 2024
+
+# Encounter / appointment dates
+[field_generators.properties."http://hl7.org/fhir/plannedStartDate"]
+generator = "datetime"
+[field_generators.properties."http://hl7.org/fhir/plannedStartDate".parameters]
+start_year = 2022
+end_year = 2026
+include_time = true
+
+[field_generators.properties."http://hl7.org/fhir/plannedEndDate"]
+generator = "datetime"
+[field_generators.properties."http://hl7.org/fhir/plannedEndDate".parameters]
+start_year = 2022
+end_year = 2026
+include_time = true
+
+# Date properties used across many resources
+[field_generators.properties."http://hl7.org/fhir/date"]
+generator = "datetime"
+[field_generators.properties."http://hl7.org/fhir/date".parameters]
+start_year = 2015
+end_year = 2026
+include_time = false
+
+[field_generators.properties."http://hl7.org/fhir/approvalDate"]
+generator = "date"
+[field_generators.properties."http://hl7.org/fhir/approvalDate".parameters]
+start_year = 2010
+end_year = 2026
+
+[field_generators.properties."http://hl7.org/fhir/lastReviewDate"]
+generator = "date"
+[field_generators.properties."http://hl7.org/fhir/lastReviewDate".parameters]
+start_year = 2015
+end_year = 2026
+
+# Observation / diagnostic timestamps
+[field_generators.properties."http://hl7.org/fhir/issued"]
+generator = "datetime"
+[field_generators.properties."http://hl7.org/fhir/issued".parameters]
+start_year = 2023
+end_year = 2026
+include_time = true
+
+[field_generators.properties."http://hl7.org/fhir/effectiveDate"]
+generator = "datetime"
+[field_generators.properties."http://hl7.org/fhir/effectiveDate".parameters]
+start_year = 2022
+end_year = 2026
+include_time = true
+
+# Sequence numbers (e.g., in bundles, lists)
+[field_generators.properties."http://hl7.org/fhir/sequence"]
+generator = "integer"
+[field_generators.properties."http://hl7.org/fhir/sequence".parameters]
+min = 1
+max = 100
+
+# Quantity / numeric measurements
+[field_generators.properties."http://hl7.org/fhir/quantity"]
+generator = "decimal"
+[field_generators.properties."http://hl7.org/fhir/quantity".parameters]
+min = 0.0
+max = 1000.0
+precision = 2
+
+# Boolean flags common in FHIR
+[field_generators.properties."http://hl7.org/fhir/active"]
+generator = "boolean"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/preferred"]
+generator = "boolean"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/organizer"]
+generator = "boolean"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/experimental"]
+generator = "boolean"
+parameters = {}
+
+# Free-text reasons / notes
+[field_generators.properties."http://hl7.org/fhir/reason"]
+generator = "string"
+parameters = {}
+
+[field_generators.properties."http://hl7.org/fhir/note"]
+generator = "string"
+parameters = {}
+
+# ============================================================================
+# COHERENCE OVERRIDES PER FHIR RESOURCE TYPE
+# ============================================================================
+# Core clinical resources: ensure every property is always populated.
+
+[generation.type_overrides."http://hl7.org/fhir/Patient"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Encounter"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Observation"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Condition"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Procedure"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/DiagnosticReport"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Medication"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/MedicationRequest"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Practitioner"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Organization"]
+property_fill_probability = 1.0
+
+[generation.type_overrides."http://hl7.org/fhir/Location"]
+property_fill_probability = 1.0
+
+# ============================================================================
+# OUTPUT SETTINGS
+# ============================================================================
+[output]
+path = "fhir_generated.ttl"
+format = "Turtle"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 0
+
+# ============================================================================
+# PARALLEL PROCESSING
+# ============================================================================
+[parallel]
+worker_threads = 4
+batch_size = 100
+parallel_shapes = true
+parallel_fields = true
