@@ -1,0 +1,104 @@
+# Tuned Data Generator Configuration for fhir_r4_tuned.shex (FHIR R4)
+# =============================================================================
+# WHY THIS CONFIG EXISTS
+# The published FHIR R4 ShEx models every primitive's `fhir:value` as a
+# reference to an *undefined* fhirpath shape (System.String, System.Date, ...).
+# Consequently rudof emits an empty placeholder node and NO literal value, so
+# the baseline dataset had 0 `fhir:value` literals and no dates. The companion
+# schema `fhir_r4_tuned.shex` rebinds those primitives to native xsd datatypes
+# (xsd:string, xsd:date, xsd:dateTime, xsd:decimal, xsd:integer, xsd:boolean,
+# xsd:time), which lets the datatype field generators below populate every
+# leaf with a typed, value-valid, temporally-plausible literal.
+#
+# NOTE: in FHIR-RDF every primitive literal is carried by the shared
+# `fhir:value` predicate on a generic primitive shape. rudof's property
+# generators target the property that directly carries the literal, so only
+# the *datatype* generators below take effect on those leaves; element-level
+# semantic binding (e.g. forcing Coding.system to SNOMED/LOINC) is therefore
+# out of scope for a purely structural schema and is intentionally not
+# attempted here.
+# =============================================================================
+
+[generation]
+entity_count = 10000
+seed = 42
+entity_distribution = "Equal"
+cardinality_strategy = "Maximum"
+schema_format = "ShEx"
+
+# Populate every optional property on every instance.
+property_fill_probability = 1.0
+ignore_min_cardinality = false
+max_properties_per_instance = 0
+property_selection_strategy = "All"
+property_count_variance = 0.0
+
+[field_generators.default]
+locale = "en"
+quality = "High"
+
+# ============================================================================
+# DATATYPE-SPECIFIC GENERATORS  (these now fire on every fhir:value leaf)
+# ============================================================================
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 0
+max = 1000
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#decimal"]
+generator = "decimal"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#decimal".parameters]
+min = 0.0
+max = 500.0
+precision = 2
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#boolean"]
+generator = "boolean"
+parameters = {}
+
+# Dates kept inside a clinically plausible window (well within 1900..now+1).
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date"]
+generator = "date"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#date".parameters]
+start_year = 1940
+end_year = 2026
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#dateTime"]
+generator = "datetime"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#dateTime".parameters]
+start_year = 2010
+end_year = 2026
+include_time = true
+
+# xsd:time -> HH:MM:SS
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#time"]
+generator = "pattern"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#time".parameters]
+regex = "(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+
+# xsd:anyURI -> generic URI (used by uri/url/canonical primitives)
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#anyURI"]
+generator = "uri"
+parameters = {}
+
+# ============================================================================
+# OUTPUT
+# ============================================================================
+[output]
+path = "fhir_generated.ttl"
+format = "Turtle"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 0
+
+[parallel]
+worker_threads = 4
+batch_size = 100
+parallel_shapes = true
+parallel_fields = true

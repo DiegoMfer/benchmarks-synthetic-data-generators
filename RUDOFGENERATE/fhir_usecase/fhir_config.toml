@@ -1,6 +1,7 @@
-# Data Generator Configuration for fhir.shex (Full FHIR R5 schema)
+# Data Generator Configuration for fhir_r4.shex (Full FHIR R4 schema)
 # Schema uses FHIR ontology: http://hl7.org/fhir/
-# 1,286 shapes covering all FHIR R5 resource and data types.
+# 684 shapes covering all FHIR R4 resource and data types.
+# R4 chosen to match the Synthea dataset (Synthea does not export R5).
 
 # ============================================================================
 # GENERATION SETTINGS
