@@ -10,7 +10,7 @@ The project has two independent parts:
 | Part | What it does | Generates | Compared by | Output |
 |------|--------------|-----------|-------------|--------|
 | **1 — Benchmark** | General-purpose RDF generators on domain benchmarks | `1-Datasets/` | `generate_csv_metrics.py` | `metrics_comparison.csv` |
-| **2 — FHIR use case** | Two generators producing FHIR R4 healthcare RDF | `2-fhir/` | `compare_fhir_quality.py` | chart in `output_charts/` |
+| **2 — FHIR use case** | Two generators producing FHIR R4 healthcare RDF | `2-fhir/` | `fhir_scale_comparison.py` | chart in `output_charts/` |
 
 The two parts mirror each other: a "generate all" script fills a numbered
 dataset folder, and a comparison script reads that folder and writes metrics.
@@ -82,34 +82,30 @@ converted to RDF with [org.hl7.fhir.core](https://github.com/hapifhir/org.hl7.fh
 Both emit [FHIR R4](https://hl7.org/fhir/R4/) Turtle, so they can be compared directly.
 
 ```bash
-# Generate both FHIR datasets into 2-fhir/
-python3 generate_all_fhir_datasets.py --generators ALL
+# Generate Synthea
+python3 generate_all_fhir_datasets.py --generators SYNTHEA
 
-# Or run a single generator
-python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE
-python3 generate_all_fhir_datasets.py --generators SYNTHEA --population 100
+# Generate rudof at a Synthea-comparable scale (tuned schema + large config)
+python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE \
+    --schema fhir_usecase/fhir_r4_tuned.shex \
+    --config fhir_usecase/fhir_config_tuned_large.toml
 
-# Compare data quality -> chart + numbers
-python3 compare_fhir_quality.py
+# Compare the two datasets -> chart
+python3 fhir_scale_comparison.py
 ```
 
-`run_fhir.sh` runs the whole part-2 pipeline (generate → compare). The
-comparison writes `output_charts/fhir_quality_comparison.pdf` (the chart) and
-`2-fhir/quality_comparison.json` (the numbers behind it).
-
-Only metrics with a published source are reported. Conformance, completeness and
-plausibility follow the [Kahn et al. (2016)](https://doi.org/10.5334/egems.218)
-harmonized data-quality framework; terminology binding and clinical-quality-measure
-(CQM) feasibility follow [Chen et al. (2019)](https://doi.org/10.1186/s12911-019-0793-0).
+`run_fhir.sh` runs the whole part-2 pipeline (generate → compare). The comparison
+writes `output_charts/fhir_scale_comparison.pdf`, contrasting the two datasets on
+dataset scale (triples, resources) and on how instances are distributed across
+FHIR resource types.
 
 ### Dataset layout
 
 ```
 2-fhir/
 ├── INDEX.md                      # auto-generated overview of all runs
-├── RUDOFGENERATE_FHIR/run_1/     # ShEx-driven FHIR R4 RDF
-├── SYNTHEA_FHIR/run_1/           # Synthea clinical FHIR R4 RDF
-└── quality_comparison.json       # metrics behind the chart
+├── RUDOFGENERATE_FHIR/run_N/     # ShEx-driven FHIR R4 RDF
+└── SYNTHEA_FHIR/run_N/           # Synthea clinical FHIR R4 RDF
 ```
 
 ---

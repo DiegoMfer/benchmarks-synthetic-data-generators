@@ -10,7 +10,7 @@ fills 1-Datasets/:
     Synthea       -> 2-fhir/SYNTHEA_FHIR/run_N/         (Synthea + org.hl7.fhir.core)
 
 Both datasets are FHIR R4 RDF (Turtle) so they can be compared directly. The
-resulting 2-fhir/ folder is consumed by compare_fhir_quality.py.
+resulting 2-fhir/ folder is consumed by fhir_scale_comparison.py.
 
 Usage:
     python3 generate_all_fhir_datasets.py                       # both generators, 1 run

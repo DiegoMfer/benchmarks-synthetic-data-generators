@@ -11,10 +11,10 @@ Big picture
   `generate_csv_metrics.py` reads `1-Datasets/` to write `metrics_comparison.csv`.
 - Part 2 (FHIR use case): `generate_all_fhir_datasets.py` runs both FHIR generators
   (RUDOF and Synthea, selectable via `--generators`) into `2-fhir/<GEN>_FHIR/run_N/`;
-  `compare_fhir_quality.py` reads `2-fhir/` and writes `2-fhir/quality_comparison.json`
-  plus the chart `output_charts/fhir_quality_comparison.pdf`. It reports only metrics
-  with a published source (Kahn et al. 2016; Chen et al. 2019). `run_fhir.sh` runs this
-  pipeline end to end.
+  `fhir_scale_comparison.py` reads `2-fhir/` and writes the chart
+  `output_charts/fhir_scale_comparison.pdf`, contrasting the two datasets on scale
+  (triples, resources) and resource-type distribution via a memory-safe streaming
+  pass. `run_fhir.sh` runs this pipeline end to end.
 - Each generator folder (e.g. `BSBM`, `LUBM`, `GAIA`, `LINKGEN`, `PYGRAFT`, `RDFGRAPHGEN`, `RUDOFGENERATE`, `SYNTHEA`) contains
   a generator runner (`execute_benchmark.py` or `execute_benchmark_binary.py`), an `output/` directory and a `benchmark_report.json`.
 
