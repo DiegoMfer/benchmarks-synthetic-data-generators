@@ -23,7 +23,7 @@ pre-warmed so conversion runs without needing network access.
 Driven by the repo-root orchestration script (recommended):
 
 ```bash
-python3 ../generate_synthea_dataset.py --population 20 --seed 42
+python3 ../generate_all_fhir_datasets.py --generators SYNTHEA --population 20 --seed 42
 # → output written to ../2-fhir/SYNTHEA_FHIR/run_N/ (alongside RUDOFGENERATE_FHIR)
 ```
 

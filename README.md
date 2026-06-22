@@ -1,115 +1,133 @@
-# RDF Synthetic Data Generators Benchmark
+# Synthetic RDF Data Generators — Benchmark
 
-A comprehensive benchmark suite for evaluating 10 different RDF synthetic data generators with Docker containerization.
+A benchmark suite for comparing synthetic RDF data generators. Every generator
+runs in its own Docker container for reproducibility.
 
 **Author:** DiegoMfer (diegomartin.research@gmail.com)
 
-## 🚀 Quick Start
+The project has two independent parts:
 
-### Generate All Datasets
+| Part | What it does | Generates | Compared by | Output |
+|------|--------------|-----------|-------------|--------|
+| **1 — Benchmark** | General-purpose RDF generators on domain benchmarks | `1-Datasets/` | `generate_csv_metrics.py` | `metrics_comparison.csv` |
+| **2 — FHIR use case** | Two generators producing FHIR R4 healthcare RDF | `2-fhir/` | `compare_fhir_quality.py` | chart in `output_charts/` |
+
+The two parts mirror each other: a "generate all" script fills a numbered
+dataset folder, and a comparison script reads that folder and writes metrics.
+
+## Requirements
+
+- Python 3.8+ (`pip install -r requirements.txt`)
+- Docker & Docker Compose — every generator runs containerized, so no Java or
+  other local dependencies are needed.
+- Linux / macOS / WSL
+
+---
+
+## Part 1 — Benchmark
 
 ```bash
-python3 generate_all_datasets.py
+# Generate every benchmark dataset into 1-Datasets/
+python3 generate_all_benchmark_datasets.py --generators ALL
+
+# Or only some generators
+python3 generate_all_benchmark_datasets.py --generators BSBM LUBM
+
+# Compute metrics from 1-Datasets/ into metrics_comparison.csv
+python3 generate_csv_metrics.py
 ```
 
-This will generate datasets from all 10 generators and save them in the `1-Datasets/` folder with complete metadata. All generators run in Docker containers for consistency and reproducibility.
+`run_benchmark.sh` runs the whole part-1 pipeline (generate → metrics). Plot the
+results with the `metrics_histogram.ipynb` notebook (charts are written to
+`output_charts/`).
 
-### Generate Specific Datasets
+### Generators
 
-```bash
-# Generate only BSBM and LUBM datasets
-python3 generate_all_datasets.py --generators BSBM LUBM
+| Generator | Domain | Approach | Source |
+|-----------|--------|----------|--------|
+| BSBM | E-commerce | Products, vendors, offers, reviews | [berlinsparqlbenchmark](http://wbsg.informatik.uni-mannheim.de/bizer/berlinsparqlbenchmark/) |
+| LUBM | University | Departments, professors, students, courses | [swat.cse.lehigh.edu/projects/lubm](http://swat.cse.lehigh.edu/projects/lubm/) |
+| GAIA | University | Instance generator over the LUBM `univ-bench` ontology | — |
+| LINKGEN | Linked data | Configurable distributions (Zipf / Gaussian) | [github.com/akjoshi/linkgen](https://github.com/akjoshi/linkgen) |
+| PyGraft | Knowledge graph | RDFS / OWL constructs | [github.com/nicolas-hbt/pygraft](https://github.com/nicolas-hbt/pygraft) |
+| RDFGraphGen | Schema-driven | Generates data from SHACL shapes | [github.com/cadmiumkitty/rdfgraphgen](https://github.com/cadmiumkitty/rdfgraphgen) |
+| RUDOF Generate | Schema-driven | Generates data from ShEx / SHACL schemas | [github.com/rudof-project/rudof](https://github.com/rudof-project/rudof) |
 
-# Generate only RUDOF Generate dataset
-python3 generate_all_datasets.py --generators RUDOFGENERATE
-```
+LUBM variants (`*_LUBM_SHEX`, `*_LUBM_SHACL`, …) run RDFGraphGen and RUDOF
+Generate against LUBM shapes so schema-driven output can be compared against the
+LUBM benchmark on the same ontology. Per-generator configuration is documented
+in `CONFIG_SUMMARY/` and in each generator's own `README.md`.
 
-### Custom Dataset Directory
-
-```bash
-python3 generate_all_datasets.py --dataset-dir my-custom-datasets
-```
-
-## 📊 Available Generators (10 Total)
-
-| Generator | Status | Type | Description |
-|-----------|--------|------|-------------|
-| **BSBM** | ✅ Working | Docker | E-commerce benchmark with products, vendors, offers, and reviews |
-| **LUBM** | ✅ Working | Docker | University domain with departments, professors, students, and courses |
-| **GAIA** | ✅ Working | Docker | Ontology instance generator using LUBM ontology |
-| **LINKGEN** | ✅ Working | Docker | Flexible linked data generator with configurable distributions (Zipf/Gaussian) |
-| **PyGraft** | ✅ Working | Docker | Knowledge graph generator with RDFS/OWL constructs |
-| **RDFGraphGen** | ✅ Working | Docker | SHACL-based synthetic data generator |
-| **RDFGraphGen-LUBM** | ✅ Working | Docker | RDFGraphGen variant with LUBM SHACL shapes |
-| **RUDOF Generate** | ✅ Working | Docker | ShEx-based RDF generator (Binary v0.1.142) |
-| **RUDOF Generate-LUBM-ShEx** | ✅ Working | Docker | RUDOF variant with LUBM ShEx schema |
-| **RUDOF Generate-LUBM-SHACL** | ✅ Working | Docker | RUDOF variant with LUBM SHACL shapes |
-
-## 📁 Dataset Structure
-
-After running the generation script, datasets are organized as follows:
+### Dataset layout
 
 ```
 1-Datasets/
-├── INDEX.md                    # Overview of all generated datasets
+├── INDEX.md                 # auto-generated overview of all runs
 ├── BSBM/
-│   ├── metadata.json          # Configuration and generation metadata
-│   ├── dataset.ttl            # Generated RDF data
-│   └── benchmark_report.json  # Performance metrics
-├── LUBM/
-│   ├── metadata.json
-│   ├── University0_*.owl      # Generated OWL files
-│   └── benchmark_report.json
-├── RUDOFGENERATE/
-│   ├── metadata.json
-│   ├── generated_data.ttl
-│   ├── generated_data.stats.json
-│   └── benchmark_report.json
-└── ... (other generators)
+│   └── run_1/
+│       ├── metadata.json    # configuration + generation metadata
+│       ├── dataset.ttl      # generated RDF
+│       └── benchmark_report.json
+└── ...                      # one folder per generator, one run_N/ per run
 ```
 
-## 🔧 Requirements
+---
 
-- Python 3.8+
-- Docker & Docker Compose (all generators run containerized)
-- Linux/macOS/WSL (Docker host environment)
+## Part 2 — FHIR use case
 
-**Note:** All generators are containerized, so you don't need to install Java or other dependencies locally. Docker Compose handles all dependencies.
-
-## 📈 Benchmark Comparison
-
-Use the Jupyter notebook for comprehensive performance comparisons:
+A healthcare use case comparing two ways of producing FHIR R4 RDF: a
+schema-driven generator (RUDOF Generate, from a FHIR ShEx schema) and a
+clinical simulator ([Synthea](https://github.com/synthetichealth/synthea),
+converted to RDF with [org.hl7.fhir.core](https://github.com/hapifhir/org.hl7.fhir.core)).
+Both emit [FHIR R4](https://hl7.org/fhir/R4/) Turtle, so they can be compared directly.
 
 ```bash
-jupyter notebook benchmark_comparison.ipynb
+# Generate both FHIR datasets into 2-fhir/
+python3 generate_all_fhir_datasets.py --generators ALL
+
+# Or run a single generator
+python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE
+python3 generate_all_fhir_datasets.py --generators SYNTHEA --population 100
+
+# Compare data quality -> chart + numbers
+python3 compare_fhir_quality.py
 ```
 
-The notebook provides:
-- Execution time comparisons
-- Triples/second performance metrics
-- Output size analysis
-- Interactive visualizations
+`run_fhir.sh` runs the whole part-2 pipeline (generate → compare). The
+comparison writes `output_charts/fhir_quality_comparison.pdf` (the chart) and
+`2-fhir/quality_comparison.json` (the numbers behind it).
 
-## 🛠️ Individual Generator Usage
+Only metrics with a published source are reported. Conformance, completeness and
+plausibility follow the [Kahn et al. (2016)](https://doi.org/10.5334/egems.218)
+harmonized data-quality framework; terminology binding and clinical-quality-measure
+(CQM) feasibility follow [Chen et al. (2019)](https://doi.org/10.1186/s12911-019-0793-0).
 
-Each generator can also be run independently via its Docker Compose setup:
+### Dataset layout
+
+```
+2-fhir/
+├── INDEX.md                      # auto-generated overview of all runs
+├── RUDOFGENERATE_FHIR/run_1/     # ShEx-driven FHIR R4 RDF
+├── SYNTHEA_FHIR/run_1/           # Synthea clinical FHIR R4 RDF
+└── quality_comparison.json       # metrics behind the chart
+```
+
+---
+
+## Running a generator on its own
+
+Each generator has its own Docker Compose setup, for example:
 
 ```bash
-# BSBM
 cd BSBM && docker compose run --rm bsbm-benchmark --products 10000 --format ttl
-
-# LUBM
 cd LUBM && docker compose run --rm lubm-benchmark --universities 10
-
-# RUDOF Generate
 cd RUDOFGENERATE && docker compose run --rm rudof --entity-count 100000
 ```
 
-## 🐳 Docker Containerization
+See each generator folder's `README.md` and `DOCKER_SETUP.md` for details.
 
-All 10 generators now run in Docker containers for consistent, reproducible results across environments:
+## Other folders
 
-- **Base Images**: eclipse-temurin:21-jre-jammy (Java), debian:bookworm-slim (system packages), python:3.11-slim (Python tools)
-- **Volume Mounting**: Generated datasets are saved to the host's `output/` directory
-- **Isolation**: Each generator runs in its own containerized environment with all dependencies pre-installed
-
+- `Auxiliar_folder/` — scripts to extract ShEx/SHACL shapes from LUBM data (see its `README.md`).
+- `CONFIG_SUMMARY/` — per-generator configuration reference.
+- `output_charts/` — charts produced by the benchmark notebook.

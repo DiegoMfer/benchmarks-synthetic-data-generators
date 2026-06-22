@@ -75,7 +75,7 @@ All generators use the **LUBM (Lehigh University Benchmark) ontology** or LUBM-l
 
 ## For More Information
 - See `coherence_configurations.txt` in the root directory for detailed explanations
-- See `generate_all_datasets.py` for the Python configuration dictionary
+- See `generate_all_benchmark_datasets.py` for the Python configuration dictionary
 - See individual generator READMEs in their respective folders
 
 ---

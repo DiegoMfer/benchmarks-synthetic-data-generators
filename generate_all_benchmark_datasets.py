@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """
-Dataset Generation Script for RDF Synthetic Data Generators
+Benchmark Dataset Generation Script (part 1 of the benchmark)
 
-This script generates datasets from all 8 RDF generators and saves them
-in the 1-Datasets/ folder with proper organization and metadata.
+Generates datasets from the RDF benchmark generators (BSBM, LUBM, GAIA,
+LINKGEN, PyGraft, RDFGraphGen, RUDOF Generate and their LUBM variants) and
+saves them in the 1-Datasets/ folder with metadata.
+
+The resulting 1-Datasets/ folder is consumed by generate_csv_metrics.py.
+The separate FHIR use case (part 2) is produced by generate_all_fhir_datasets.py.
 
 Usage:
-    python3 generate_all_datasets.py [--generators GENERATOR1 GENERATOR2 ...]
-    
+    python3 generate_all_benchmark_datasets.py [--generators GENERATOR1 GENERATOR2 ...]
+
 Examples:
-    python3 generate_all_datasets.py                    # Generate all datasets
-    python3 generate_all_datasets.py --generators BSBM LUBM  # Generate specific datasets
+    python3 generate_all_benchmark_datasets.py                    # Generate all datasets
+    python3 generate_all_benchmark_datasets.py --generators BSBM LUBM  # Generate specific datasets
 """
 
 import subprocess
@@ -775,13 +779,13 @@ def main():
         epilog="""
 Examples:
   Generate all datasets:
-    python3 generate_all_datasets.py
-    
+    python3 generate_all_benchmark_datasets.py
+
   Generate specific datasets:
-    python3 generate_all_datasets.py --generators BSBM LUBM RUDOFGENERATE
-    
+    python3 generate_all_benchmark_datasets.py --generators BSBM LUBM RUDOFGENERATE
+
   Generate with custom dataset directory:
-    python3 generate_all_datasets.py --dataset-dir my-datasets
+    python3 generate_all_benchmark_datasets.py --dataset-dir my-datasets
         """
     )
     

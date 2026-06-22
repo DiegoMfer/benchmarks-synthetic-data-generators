@@ -1,2 +1,6 @@
+# Generated datasets
 1-Datasets
 2-fhir
+
+# Python
+__pycache__/
