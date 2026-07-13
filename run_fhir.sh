@@ -19,7 +19,7 @@ echo "Generating rudof (tuned schema, Synthea-comparable scale) -> 2-fhir/"
 echo "----------------------------------------------------------------"
 python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE \
     --schema fhir_usecase/fhir_r4_tuned.shex \
-    --config fhir_usecase/fhir_config_tuned_large.toml
+    --config fhir_usecase/fhir_config_structural.toml
 
 echo "----------------------------------------------------------------"
 echo "Comparing datasets -> output_charts/fhir_scale_comparison.pdf"

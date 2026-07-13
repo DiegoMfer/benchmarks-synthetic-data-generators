@@ -1,25 +1,31 @@
-# LARGE Tuned Data Generator Configuration (Synthea-comparable scale)
-# Same as fhir_config_tuned.toml but entity_count raised to 140000 (~2.2M triples,
-# the same order of magnitude as Synthea) for the matched-scale comparison. Original tuned config
-# (10000 entities) is unchanged.
+# rudof generate -- configuration for the FHIR structural-conformance experiment
 # =============================================================================
-# WHY THIS CONFIG EXISTS
-# The published FHIR R4 ShEx models every primitive's `fhir:value` as a
-# reference to an *undefined* fhirpath shape (System.String, System.Date, ...).
-# Consequently rudof emits an empty placeholder node and NO literal value, so
-# the baseline dataset had 0 `fhir:value` literals and no dates. The companion
-# schema `fhir_r4_tuned.shex` rebinds those primitives to native xsd datatypes
-# (xsd:string, xsd:date, xsd:dateTime, xsd:decimal, xsd:integer, xsd:boolean,
-# xsd:time), which lets the datatype field generators below populate every
-# leaf with a typed, value-valid, temporally-plausible literal.
+# PURPOSE
+# This config produces the rudof FHIR-RDF dataset at a Synthea-comparable scale
+# for the Part-2 FHIR pipeline (run_fhir.sh -> fhir_scale_comparison.py). It is
+# paired with the schema fhir_r4_tuned.shex.
 #
-# NOTE: in FHIR-RDF every primitive literal is carried by the shared
-# `fhir:value` predicate on a generic primitive shape. rudof's property
-# generators target the property that directly carries the literal, so only
-# the *datatype* generators below take effect on those leaves; element-level
-# semantic binding (e.g. forcing Coding.system to SNOMED/LOINC) is therefore
-# out of scope for a purely structural schema and is intentionally not
-# attempted here.
+# DESIGN RATIONALE (why these values, for these metrics)
+#  * entity_count = 60000  -> yields ~2.2M triples / ~9.7k resources, the same
+#    order of magnitude as the Synthea reference dataset, so the structural
+#    footprint metrics (triples, nodes, ratios) are compared at a comparable
+#    scale. 60k is also the largest budget that fits in memory on the benchmark
+#    host (140k was OOM-killed).
+#  * cardinality_strategy = "Maximum", property_fill_probability = 1.0,
+#    property_selection_strategy = "All"  -> every optional element of every
+#    shape is materialized, so the dataset exercises the FULL breadth of the
+#    FHIR R4 schema (all ~145 resource types). This maximizes the structural
+#    surface the conformance triage inspects (typing arcs, primitive wrapping,
+#    nesting), rather than under-reporting it.
+#  * the tuned datatype generators below ensure rudof emits real primitive
+#    literals, so the "malformed primitive" check (is a primitive wrapped in a
+#    fhir:value node, or hung directly on the property?) is meaningful rather
+#    than vacuous.
+#
+# NOTE: the structural-conformance results (canonical resource typing, primitive
+# wrapping, blank-node nesting) are a property of how rudof *serializes* RDF and
+# are independent of these parameters; the parameters only set the scale and the
+# schema breadth at which that serialization is observed.
 # =============================================================================
 
 [generation]
@@ -29,7 +35,7 @@ entity_distribution = "Equal"
 cardinality_strategy = "Maximum"
 schema_format = "ShEx"
 
-# Populate every optional property on every instance.
+# Populate every optional property on every instance (full schema coverage).
 property_fill_probability = 1.0
 ignore_min_cardinality = false
 max_properties_per_instance = 0
@@ -41,7 +47,7 @@ locale = "en"
 quality = "High"
 
 # ============================================================================
-# DATATYPE-SPECIFIC GENERATORS  (these now fire on every fhir:value leaf)
+# DATATYPE-SPECIFIC GENERATORS  (fire on every fhir:value leaf)
 # ============================================================================
 [field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
 generator = "string"

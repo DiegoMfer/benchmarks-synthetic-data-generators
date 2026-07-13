@@ -88,7 +88,7 @@ python3 generate_all_fhir_datasets.py --generators SYNTHEA
 # Generate rudof at a Synthea-comparable scale (tuned schema + large config)
 python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE \
     --schema fhir_usecase/fhir_r4_tuned.shex \
-    --config fhir_usecase/fhir_config_tuned_large.toml
+    --config fhir_usecase/fhir_config_structural.toml
 
 # Compare the two datasets -> chart
 python3 fhir_scale_comparison.py
