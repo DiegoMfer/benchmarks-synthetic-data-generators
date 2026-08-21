@@ -1,0 +1,14 @@
+# The build context is the project root so every image can copy the shared
+# generators/_common/ entry library and src/rdfbench/report.py. Without this
+# file that also ships every generated dataset to the Docker daemon on each
+# build -- data/ reaches multiple GB, which made builds take minutes even when
+# every layer was cached.
+data/
+.git/
+.codegraph/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+tests/
+profiles/

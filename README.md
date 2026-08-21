@@ -1,129 +1,253 @@
-# Synthetic RDF Data Generators — Benchmark
+# benchmark-execution
 
-A benchmark suite for comparing synthetic RDF data generators. Every generator
-runs in its own Docker container for reproducibility.
+Benchmark suite for synthetic RDF data generators. Every generator runs in its
+own Docker container; one command generates the datasets, measures them, and
+writes the comparison.
 
-**Author:** DiegoMfer (diegomartin.research@gmail.com)
+```bash
+python3 main.py --profile e2_smoke  # tiny scales, ~30 s, verifies everything
+python3 main.py --profile e2        # the real benchmark: 10 runs each, hours
+```
 
-The project has two independent parts:
+That single command runs all four stages — build images, generate datasets,
+compute metrics, render charts. Nothing else needs to be invoked.
 
-| Part | What it does | Generates | Compared by | Output |
-|------|--------------|-----------|-------------|--------|
-| **1 — Benchmark** | General-purpose RDF generators on domain benchmarks | `1-Datasets/` | `generate_csv_metrics.py` | `metrics_comparison.csv` |
-| **2 — FHIR use case** | Two generators producing FHIR R4 healthcare RDF | `2-fhir/` | `fhir_scale_comparison.py` | chart in `output_charts/` |
-
-The two parts mirror each other: a "generate all" script fills a numbered
-dataset folder, and a comparison script reads that folder and writes metrics.
+Each of the five experiments in [EXPERIMENTS.md](EXPERIMENTS.md) is a profile
+and runs independently of the others.
 
 ## Requirements
 
-- Python 3.8+ (`pip install -r requirements.txt`)
-- Docker & Docker Compose — every generator runs containerized, so no Java or
-  other local dependencies are needed.
-- Linux / macOS / WSL
+- Python 3.10+ — `pip install -e .` (PyYAML, rdflib, matplotlib)
+- Docker with Compose v2. Every generator is containerised, so no Java, Maven or
+  per-generator Python environment is needed on the host.
 
----
+## What it produces
 
-## Part 1 — Benchmark
+```
+data/
+  runs/<profile>/<experiment>/run_N/    generated RDF + report.json + container.log
+  results/<profile>/metrics.csv         one row per run
+  results/<profile>/charts/*.pdf        see "Charts" below
+```
+
+`data/` is gitignored in full — generated datasets are never committed.
+
+## Generators
+
+| Generator | Domain | Approach |
+|---|---|---|
+| `bsbm` | E-commerce | Products, vendors, offers, reviews |
+| `lubm` | University | Departments, professors, students, courses |
+| `gaia` | University | Instance generator over the LUBM `univ-bench` ontology |
+| `linkgen` | Linked data | Configurable Zipf / Gaussian distributions |
+| `pygraft` | Knowledge graph | RDFS / OWL constructs |
+| `rdfgraphgen` | Schema-driven | Generates data from SHACL shapes |
+| `rudof` | Schema-driven | Generates data from ShEx / SHACL schemas |
+| `synthea` | Healthcare | Clinical records exported as FHIR R4 Turtle |
+
+## Profiles
+
+One profile per experiment, each with a `_smoke` counterpart at minimum scale.
+
+| Profile | Experiment | Question |
+|---|---|---|
+| `e1` | Language equivalence | Can one constraint model serve both ShEx and SHACL? |
+| `e2` | Controllability | Which generators respond to a coherence configuration, and where does every generator sit? |
+| `e3` | Reachable range | Is achievable structuredness a property of the tool, or of the schema? |
+| `e4` | Conformance | How much of a schema survives translation into the IR? |
+| `e5` | FHIR case study | Does the approach generalise to an independent domain? |
+
+Every `_smoke` profile defines the *same experiments* as its full counterpart
+and differs only in its numbers, so the fast one exercises exactly the code path
+the real one uses. A test enforces that they stay in sync.
+
+**E3 depends on E2**, because it consumes schemas mined from datasets E2 produces:
 
 ```bash
-# Generate every benchmark dataset into 1-Datasets/
-python3 generate_all_benchmark_datasets.py --generators ALL
-
-# Or only some generators
-python3 generate_all_benchmark_datasets.py --generators BSBM LUBM
-
-# Compute metrics from 1-Datasets/ into metrics_comparison.csv
-python3 generate_csv_metrics.py
+python3 main.py --profile e2                       # 1. every dataset, incl. the ref_ generators
+python3 main.py extract --profile e2 --only ref_*  # 2. sheXer mines shapes from those
+python3 main.py --profile e3                       # 3. rudof sweeps property_fill over them
 ```
 
-`run_benchmark.sh` runs the whole part-1 pipeline (generate → metrics). Plot the
-results with the `metrics_histogram.ipynb` notebook (charts are written to
-`output_charts/`).
+Extracted schemas land in `schemas/extracted/<source-profile>/`. The profile name
+is part of the path so a smoke extraction can never overwrite a full-scale one.
 
-### Generators
-
-| Generator | Domain | Approach | Source |
-|-----------|--------|----------|--------|
-| BSBM | E-commerce | Products, vendors, offers, reviews | [berlinsparqlbenchmark](http://wbsg.informatik.uni-mannheim.de/bizer/berlinsparqlbenchmark/) |
-| LUBM | University | Departments, professors, students, courses | [swat.cse.lehigh.edu/projects/lubm](http://swat.cse.lehigh.edu/projects/lubm/) |
-| GAIA | University | Instance generator over the LUBM `univ-bench` ontology | — |
-| LINKGEN | Linked data | Configurable distributions (Zipf / Gaussian) | [github.com/akjoshi/linkgen](https://github.com/akjoshi/linkgen) |
-| PyGraft | Knowledge graph | RDFS / OWL constructs | [github.com/nicolas-hbt/pygraft](https://github.com/nicolas-hbt/pygraft) |
-| RDFGraphGen | Schema-driven | Generates data from SHACL shapes | [github.com/cadmiumkitty/rdfgraphgen](https://github.com/cadmiumkitty/rdfgraphgen) |
-| RUDOF Generate | Schema-driven | Generates data from ShEx / SHACL schemas | [github.com/rudof-project/rudof](https://github.com/rudof-project/rudof) |
-
-LUBM variants (`*_LUBM_SHEX`, `*_LUBM_SHACL`, …) run RDFGraphGen and RUDOF
-Generate against LUBM shapes so schema-driven output can be compared against the
-LUBM benchmark on the same ontology. Per-generator configuration is documented
-in `CONFIG_SUMMARY/` and in each generator's own `README.md`.
-
-### Dataset layout
-
-```
-1-Datasets/
-├── INDEX.md                 # auto-generated overview of all runs
-├── BSBM/
-│   └── run_1/
-│       ├── metadata.json    # configuration + generation metadata
-│       ├── dataset.ttl      # generated RDF
-│       └── benchmark_report.json
-└── ...                      # one folder per generator, one run_N/ per run
-```
-
----
-
-## Part 2 — FHIR use case
-
-A healthcare use case comparing two ways of producing FHIR R4 RDF: a
-schema-driven generator (RUDOF Generate, from a FHIR ShEx schema) and a
-clinical simulator ([Synthea](https://github.com/synthetichealth/synthea),
-converted to RDF with [org.hl7.fhir.core](https://github.com/hapifhir/org.hl7.fhir.core)).
-Both emit [FHIR R4](https://hl7.org/fhir/R4/) Turtle, so they can be compared directly.
+A schema can also be mined from **any** directory of RDF — a real dataset with no
+generator behind it — which is the sharpest input for E3:
 
 ```bash
-# Generate Synthea
-python3 generate_all_fhir_datasets.py --generators SYNTHEA
-
-# Generate rudof at a Synthea-comparable scale (tuned schema + large config)
-python3 generate_all_fhir_datasets.py --generators RUDOFGENERATE \
-    --schema fhir_usecase/fhir_r4_tuned.shex \
-    --config fhir_usecase/fhir_config_structural.toml
-
-# Compare the two datasets -> chart
-python3 fhir_scale_comparison.py
+python3 main.py extract --from /path/to/dataset --name dbpedia
 ```
 
-`run_fhir.sh` runs the whole part-2 pipeline (generate → compare). The comparison
-writes `output_charts/fhir_scale_comparison.pdf`, contrasting the two datasets on
-dataset scale (triples, resources) and on how instances are distributed across
-FHIR resource types.
+That writes `schemas/extracted/external/dbpedia.shex`; add a matching
+`rudof_dbpedia_fill_*` series to `e3.yaml` to include it.
 
-### Dataset layout
-
-```
-2-fhir/
-├── INDEX.md                      # auto-generated overview of all runs
-├── RUDOFGENERATE_FHIR/run_N/     # ShEx-driven FHIR R4 RDF
-└── SYNTHEA_FHIR/run_N/           # Synthea clinical FHIR R4 RDF
-```
-
----
-
-## Running a generator on its own
-
-Each generator has its own Docker Compose setup, for example:
+## Useful invocations
 
 ```bash
-cd BSBM && docker compose run --rm bsbm-benchmark --products 10000 --format ttl
-cd LUBM && docker compose run --rm lubm-benchmark --universities 10
-cd RUDOFGENERATE && docker compose run --rm rudof --entity-count 100000
+python3 main.py --list                            # profiles and generators
+python3 main.py --only bsbm_high_coherence        # one experiment, end to end
+python3 main.py --runs 3                          # override the repeat count
+python3 main.py --skip-generate                   # re-measure data already on disk
+python3 main.py --profile e2 --fail-fast          # stop at the first failure
+python3 main.py extract --profile e2 --only ref_bsbm_high   # mine a schema from a finished run
+python3 main.py extract --from data/real --name dbpedia   # ... or from any RDF directory
+python3 -m pytest tests/                          # unit tests, no Docker needed
 ```
 
-See each generator folder's `README.md` and `DOCKER_SETUP.md` for details.
+## How it is put together
 
-## Other folders
+Three files carry the design; everything else follows from them.
 
-- `Auxiliar_folder/` — scripts to extract ShEx/SHACL shapes from LUBM data (see its `README.md`).
-- `CONFIG_SUMMARY/` — per-generator configuration reference.
-- `output_charts/` — charts produced by the benchmark notebook.
+**1. One container contract.** Every generator image accepts `--out /out` plus
+its own parameters, and writes a canonical `report.json`:
+
+```json
+{
+  "generator": "bsbm",
+  "params": { "products": 100 },
+  "duration_seconds": 3.19,
+  "output": { "files": ["dataset.ttl"], "rdf_format": "turtle", "triples_reported": 75550 },
+  "tool": { "name": "bsbmtools", "version": null },
+  "schema_version": "1.0"
+}
+```
+
+Report normalisation happens *inside* each container, where the knowledge about
+that tool lives. The host validates the schema and reads plain fields — it never
+guesses at layout. `src/rdfbench/report.py` is copied into every image, so host
+and container cannot drift.
+
+`triples_reported` is what the tool *claims* and may be `null`; the metrics
+engine always computes `triples_measured` independently from the actual RDF.
+Both reach the CSV, so a tool that miscounts shows up as a discrepancy instead
+of silently becoming the published number.
+
+**Build context.** `.dockerignore` is load-bearing. The compose build context is
+the project root, so every image can copy the shared `generators/_common/`
+library and `src/rdfbench/report.py`. Without `.dockerignore` that also ships
+`data/` to the Docker daemon on every build -- it reaches several GB after a few
+runs, which made cached builds take minutes. Keep `data/` excluded.
+
+**2. One compose file.** `docker-compose.yml` uses a YAML anchor for the shared
+volume/user/environment, so a generator is three lines. The build context is the
+project root, which is what lets every image copy the shared entry library.
+
+**3. Generators are data, not code.** Each `generators/<name>/generator.yaml`
+declares the compose service, output files, RDF format, and the parameter→flag
+mapping. Adding a generator needs no host-side Python.
+
+```yaml
+name: bsbm
+service: bsbm
+data_files: ["dataset.*"]
+rdf_format: turtle
+params:
+  products: { flag: --products, type: int }
+```
+
+Container-side, `generators/_common/entry.py` handles timing, output accounting,
+error handling and report writing once, so each `entrypoint.py` only expresses
+what is specific to its tool.
+
+## Charts
+
+The figures keep the forms from the previous `metrics_histogram.ipynb`, because
+those forms encode the experimental design:
+
+| File | What it shows |
+|---|---|
+| `coherence_by_generator.pdf` | Grouped bars, HIGH vs LOW config per generator, mean ± std |
+| `type_coverage_by_generator.pdf` | Same, for mean type coverage |
+| `throughput_by_generator.pdf` | Same, for measured throughput |
+| `execution_time_by_generator.pdf` | Same, for wall-clock generation time |
+| `triples_by_generator.pdf` | Same, for triples produced |
+| `coherence_sensitivity.pdf` | \|Δ coherence\| per generator, signed by colour |
+| `sweep_rdf_coherence.pdf` | E1 and E3: coherence against the swept parameter, one line per series |
+| `schema_conformance.pdf` | E4: constraints kept vs lost per schema, validity annotated |
+
+Which charts a profile gets is decided from its data rather than declared: a
+profile that sweeps one numeric parameter gets response curves, one whose
+experiments all report conformance gets the conformance figure, and one that
+declares a `compare_with` counterpart gets the bracketing triplets.
+
+The benchmark's question is whether a generator *responds* to its coherence
+configuration, and that question lives in the HIGH/LOW pair — so the two
+configurations sit side by side under one generator label rather than becoming
+independent bars.
+
+`coherence_sensitivity.pdf` is the summary figure: bars are the absolute
+HIGH − LOW difference so magnitudes compare at a glance, while colour and the
+signed annotation preserve direction. A **red** bar is a generator whose HIGH
+config produced *less* coherent data than its LOW config. The difference is
+computed per run and then averaged, so the error bar reflects run-to-run
+variation in the effect itself.
+
+**Y-scale is chosen from the data**, not hardcoded. Throughput spans orders of
+magnitude, and the previous notebook pinned the broken axis at 0–50k / 250k–1.1M,
+which silently goes wrong when the data changes. `_scale_for()` picks:
+
+- **linear** when the dynamic range is under 50×;
+- **a broken axis** when the values split into two tight clusters — on the
+  published data this derives 0–47,560 and 314,372–1,136,778, reproducing the
+  notebook's hand-picked limits;
+- **a log axis with a dot plot** when values spread continuously across orders
+  of magnitude, since no single break helps. Dots rather than bars, because bar
+  length on a log axis is not proportional to value.
+
+Colour is the validated blue/orange pair. The notebook's steelblue/coral fails
+accessibility checks — steelblue falls below the chroma floor and reads grey,
+coral falls below 3:1 against the surface. The sensitivity chart's diverging
+red/blue is kept exactly as it was; it already passes.
+
+## Metrics
+
+Computed in a single streaming pass (`src/rdfbench/metrics/`). N-Triples is read
+line by line; other formats go through an rdflib `Store` that forwards each
+triple and stores nothing, so no graph is ever materialised. Strings are interned
+to integers. This is what makes 35M-triple datasets measurable on a workstation.
+
+Coherence is the structuredness measure of Duan et al. (SIGMOD 2011). For a type
+`t` with instances `I(t)` and predicates `P(t)`:
+
+```
+CV(t) = Σ |properties(s)| for s ∈ I(t)  /  (|P(t)| × |I(t)|)
+```
+
+Reported instance-weighted as `RDF_Coherence` and as a plain mean over types in
+`RDF_Type_Coverage_Avg`.
+
+The metrics engine is a direct port of the previous implementation and was
+verified to produce **bit-identical** results on the same datasets across all
+three parse paths.
+
+## Caveats worth knowing
+
+- **GAIA reports no triple count.** It only prints an instance count. Its
+  `Triples_Reported` is `null` by design; use the measured value. (The previous
+  pipeline multiplied the instance count by 3 and published that as if measured.)
+- **GAIA has no seed parameter**, so its output differs between runs of the same
+  configuration. The 10-run spread in `paper` captures this.
+- **LINKGEN exits non-zero even on success.** Its entrypoint judges success by
+  whether the data files exist, and says so in a comment.
+- **PyGraft crashes below ~1000 entities** (`classes × avg_instances`) with a
+  `ZeroDivisionError` in its own sampler. The smoke profile sits just above that
+  threshold.
+- **PyGraft writes RDF/XML**, because its internal reasoner cannot re-read the
+  Turtle it emits.
+- **LEMMING's image is built from source and its clone can hang.** It is the
+  only generator compiled at image-build time (`git clone` + Maven), and the
+  clone has wedged indefinitely more than once — observed at 24 minutes with no
+  CPU in the container. Git low-speed timeouts now turn that into a fast
+  failure. Build the images once before any timing run and pass `--skip-build`
+  after; the 97 MB shaded jar is too large to vendor instead.
+- **`.dockerignore` is load-bearing.** The compose build context is the project
+  root, so images can copy the shared entry library — without the file, the
+  2.0 GB of generated data under `data/` is uploaded to the Docker daemon on
+  every build. That turned cached builds into multi-minute operations and made
+  the smoke profiles look like they had hung. Context is 56 MB with it in place.
+- **BSBM stamps prices with a custom datatype** (`bsbm:USD`), and rudof refuses
+  a schema naming a datatype it cannot generate. The sheXer extractor rewrites
+  non-XSD datatypes to `xsd:string` and records which ones in
+  `extraction.json`; see EXPERIMENTS.md §9.1 for why that is sound for what E3
+  measures.

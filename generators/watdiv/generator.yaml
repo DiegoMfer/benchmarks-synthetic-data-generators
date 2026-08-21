@@ -1,0 +1,11 @@
+name: watdiv
+service: watdiv
+description: WatDiv - RDF generator with a dataset-description language and tunable structuredness
+
+data_files: ["dataset.nt"]
+rdf_format: nt
+
+params:
+  model: { flag: --model, type: str }
+  scale_factor: { flag: --scale-factor, type: int }
+  property_fill: { flag: --property-fill, type: float }

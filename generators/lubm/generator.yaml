@@ -1,0 +1,11 @@
+name: lubm
+service: lubm
+description: Lehigh University Benchmark - departments, professors, students, courses
+
+data_files: ["University*.owl"]
+rdf_format: xml
+
+params:
+  universities: { flag: --universities, type: int }
+  seed: { flag: --seed, type: int }
+  index: { flag: --index, type: int }

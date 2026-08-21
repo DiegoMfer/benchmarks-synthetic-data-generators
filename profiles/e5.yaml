@@ -1,0 +1,45 @@
+# E5 -- Case study: generalisation to HL7 FHIR
+#
+# Q5: does the schema-driven approach generalise to an independently designed,
+#     industrial-scale domain schema, with no domain-specific code?
+#
+# A two-way comparison at comparable scale. FHIR R4 is a demanding target: its
+# RDF representation was designed with no knowledge of this generator, and the
+# published ShEx schema carries 684 shapes covering every R4 resource and
+# datatype.
+#
+#   rudof_normal   the authoritative FHIR R4 ShEx, as published
+#   synthea        a clinical-record simulator validated against clinical
+#                  quality measures; the strong domain-specific baseline
+#
+# THE QUESTION IS NOT WHO WINS. Synthea is a domain simulator producing
+# idiomatic FHIR-RDF; rudof is a general-purpose generator fed nothing but the
+# published schema. The question is whether the schema alone is enough to cover
+# the specification, and what that costs.
+#
+# The measured answer is a trade-off, and both halves must be reported:
+# rudof instantiates every R4 resource type where Synthea reaches a small
+# fraction, and Synthea conforms to the FHIR-RDF paradigm where rudof does not.
+#
+# The FHIR-specific metrics -- R4 coverage, missing resourceType, malformed
+# primitives, blank-node footprint -- are computed by `rdfbench.metrics.fhir`,
+# which runs only when the data is in the FHIR namespace.
+#
+#   python3 main.py --profile e5
+
+name: e5
+description: "E5 - FHIR R4 case study: schema coverage against domain-specific conformance"
+runs: 10
+timeout_seconds: 14400
+
+experiments:
+  rudof_normal:
+    generator: rudof
+    params: { schema: fhir/fhir_r4.shex, config: fhir/fhir_config_structural.toml, entities: 18000, seed: 42 }
+    description: The published FHIR R4 ShEx, unmodified
+
+
+  synthea:
+    generator: synthea
+    params: { population: 20, seed: 42 }
+    description: Clinical simulator; the domain-specific baseline

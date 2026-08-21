@@ -1,6 +1,10 @@
-# Generated datasets
-1-Datasets
-2-fhir
-
-# Python
+data/
+# Extracted schemas are committed -- they are inputs to E3 phase 2 and must be
+# reproducible alongside it -- but the raw docker output that produced them is
+# not, being long, machine-specific and already summarised in extraction.json.
+schemas/extracted/**/*.extraction.log
 __pycache__/
+*.egg-info/
+.pytest_cache/
+.codegraph/
+.venv/

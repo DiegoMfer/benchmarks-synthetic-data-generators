@@ -1,0 +1,12 @@
+name: gaia
+service: gaia
+description: Ontology instance generator over the LUBM univ-bench ontology
+
+data_files: ["gaia_instances.owl"]
+rdf_format: xml
+
+params:
+  instances: { flag: --instances, type: int }
+  materialization: { flag: --materialization, type: bool, false_flag: --no-materialization }
+  limit: { flag: --limit, type: int }
+  threads: { flag: --threads, type: int }

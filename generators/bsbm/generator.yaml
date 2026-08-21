@@ -1,0 +1,14 @@
+name: bsbm
+service: bsbm
+description: Berlin SPARQL Benchmark - e-commerce products, vendors, offers and reviews
+
+# Fallback output discovery. The authoritative list is the `output.files` the
+# container records in report.json; these globs only matter for a run whose
+# report predates a filename change.
+data_files: ["dataset.*"]
+rdf_format: turtle
+
+params:
+  products: { flag: --products, type: int }
+  format: { flag: --format, type: str }
+  forward_chaining: { flag: --forward-chaining, type: bool, false_flag: --no-forward-chaining }

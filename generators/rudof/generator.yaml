@@ -1,0 +1,14 @@
+name: rudof
+service: rudof
+description: ShEx/SHACL-driven high-performance RDF generator
+
+data_files: ["generated_data.ttl"]
+rdf_format: turtle
+
+params:
+  schema: { flag: --schema, type: str }
+  config: { flag: --config, type: str }
+  entities: { flag: --entities, type: int }
+  seed: { flag: --seed, type: int }
+  parallel: { flag: --parallel, type: int }
+  property_fill: { flag: --property-fill, type: float }

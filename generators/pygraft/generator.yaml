@@ -1,0 +1,22 @@
+name: pygraft
+service: pygraft
+description: Schema and knowledge graph generator with RDFS/OWL constructs
+
+data_files: ["full_graph.rdf"]
+rdf_format: xml
+
+params:
+  classes: { flag: --classes, type: int }
+  relations: { flag: --relations, type: int }
+  avg_instances: { flag: --avg-instances, type: int }
+  std_instances: { flag: --std-instances, type: int }
+  avg_relations: { flag: --avg-relations, type: int }
+  std_relations: { flag: --std-relations, type: int }
+  max_depth: { flag: --max-depth, type: int }
+  p_subclass: { flag: --p-subclass, type: float }
+  p_disjoint: { flag: --p-disjoint, type: float }
+  p_inverse: { flag: --p-inverse, type: float }
+  p_functional: { flag: --p-functional, type: float }
+  p_symmetric: { flag: --p-symmetric, type: float }
+  p_transitive: { flag: --p-transitive, type: float }
+  seed: { flag: --seed, type: int }

@@ -1,0 +1,31 @@
+# E4 -- smoke scale.
+#
+# Same four schemas as e4.yaml, one run each, at the smallest entity count that
+# still exercises every shape. Translation loss does not depend on scale at all
+# -- it is computed from the schema before any triple is generated -- so this
+# smoke run reports the *same* loss percentages as the full profile and is a
+# genuine check of the number, not just of the wiring.
+#
+#   python3 main.py --profile e4_smoke
+
+name: e4_smoke
+description: E4 at minimum scale, for verifying the conformance pipeline
+runs: 1
+timeout_seconds: 1800
+
+experiments:
+  conformance_lubm_shex:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_high_coherence.toml, entities: 2000, seed: 42 }
+    description: LUBM, ShEx
+
+  conformance_lubm_shacl:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_high_coherence.toml, entities: 2000, seed: 42 }
+    description: LUBM, SHACL
+
+  conformance_fhir_shex:
+    generator: rudof
+    params: { schema: fhir/fhir_r4.shex, config: fhir/fhir_config_structural.toml, entities: 2000, seed: 42 }
+    description: FHIR R4, ShEx (as published)
+

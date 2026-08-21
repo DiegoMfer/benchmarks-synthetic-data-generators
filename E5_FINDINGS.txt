@@ -1,0 +1,136 @@
+E5 — CASE STUDY: GENERALISATION TO HL7 FHIR
+===========================================================================
+
+Question
+--------
+Does the schema-driven approach generalise to an independently designed,
+industrial-scale domain schema, with no domain-specific code?
+
+FHIR R4 is a demanding target. Its RDF representation was designed with no
+knowledge of this generator, and the published ShEx schema carries 684 shapes
+covering every R4 resource and datatype.
+
+The question is NOT whether a general-purpose generator beats a domain
+simulator on the simulator's own clinical output. It is whether the published
+schema, on its own, is enough to cover the specification — and what that costs.
+
+
+Setup
+-----
+Three datasets, one profile (profiles/e5.yaml):
+
+  rudof_normal   the authoritative FHIR R4 ShEx, unmodified
+  rudof_tuned    the same schema with FHIR primitive leaves rebound to native
+                 XSD datatypes — the ONLY difference between the two is the
+                 schema; config, entity count and seed are identical
+  synthea        a clinical-record simulator validated against clinical quality
+                 measures; the strong domain-specific baseline
+
+FHIR-specific metrics are computed by src/rdfbench/metrics/fhir.py, which runs
+only when the data carries the FHIR namespace, so no other profile pays for it.
+Coverage is measured against the 145 canonical R4 resource types — a fixed set,
+not derived from the data, since deriving it would make 100% true by
+construction.
+
+
+Measured — smoke scale, 1 run, corrected coherence metric
+---------------------------------------------------------------------------
+                        rudof_normal   rudof_tuned      synthea
+  resources                      322           326        1,778
+  R4 resource types              145           145           23
+  R4 coverage (%)              100.0         100.0         15.9
+  coherence                   0.6808        0.7218       0.6455
+  distinct predicates          5,200         5,200          309
+  distinct classes               896           896          158
+  missing resourceType (%)     100.0         100.0          0.0
+  malformed primitives             5         2,745            0
+  blank nodes                      0             0      120,519
+  anonymity index              0.000         0.000        0.999
+  literals per resource         45.6         117.8         55.2
+
+
+FINDINGS
+========
+
+1. The schema alone is sufficient for total specification coverage.
+   Both rudof configurations instantiate all 145 canonical R4 resource types
+   (100%), from the published schema and no FHIR-specific code. Synthea reaches
+   23 (15.9%) — it emits what its patient model produces, which is a small,
+   clinically coherent slice of the standard. This is the case study's positive
+   result and it is a large effect, not a marginal one.
+
+2. That coverage is bought at the cost of FHIR-RDF conformance.
+   Both rudof configurations miss the canonical `a fhir:<Resource>` arc on 100%
+   of resources — they type instances against the shape namespace instead — and
+   attach primitive literals directly rather than wrapping them in a node
+   carrying `fhir:value`, as the FHIR-RDF paradigm prescribes. Synthea does
+   neither: 0% missing, 0 malformed. This must be reported as prominently as
+   finding 1. It is a real limitation, and it is one a reviewer with FHIR
+   experience will see immediately.
+
+3. The two are different modellings of the same standard, not better and worse.
+   Synthea is 99.9% blank nodes (120,519 of them); rudof emits none. rudof uses
+   5,200 distinct predicates against Synthea's 309 and 896 classes against 158.
+   The generators are not producing more or less of the same thing — they are
+   producing structurally different graphs that both claim to be FHIR.
+
+4. Coherence is comparable across the three, and low.
+   0.681 / 0.722 / 0.646 under the corrected metric. FHIR sits well below the
+   0.79–1.0 band Duan et al. report for synthetic benchmarks, and inside the
+   region they associate with real data. That holds for the domain simulator and
+   the schema-driven generator alike, which suggests it is a property of the
+   FHIR model rather than of either tool.
+
+5. Tuning the schema costs conformance.
+   rudof_tuned raises coherence (0.681 → 0.722) and literals per resource
+   (45.6 → 117.8), but malformed primitives rise from 5 to 2,745 — rebinding
+   primitive leaves to XSD datatypes is exactly what removes the `fhir:value`
+   wrapper. The two rudof rows are the same tool on the same config; only the
+   schema differs, so this is attributable to the schema and nothing else. It is
+   also E3's claim restated on an independent domain.
+
+
+WHAT TO BE CAREFUL WITH
+=======================
+
+* These are SMOKE numbers: one run, ~320 resources for rudof against 1,778 for
+  Synthea. The published table compares at ~3,000 resources each. Scale affects
+  the counts (malformed primitives, blank nodes, literals) though not the
+  percentages. Run `python3 main.py --profile e5` before quoting anything.
+
+* Scale is not matched between the arms at smoke. rudof produces 322 resources
+  from 2,000 entities; Synthea 1,778 from population 3. The full profile uses
+  18,000 entities and population 20 to bring them closer, but exact matching is
+  not achievable — the two tools have no comparable scale parameter. Per-resource
+  ratios (literals per resource, triples per resource) are the metrics to quote
+  across arms; raw counts are not.
+
+* The coherence values here are NOT the ones in the current paper draft. Those
+  (0.723 / 0.769 / 0.715) predate the metric correction — the published figure
+  counted rdf:type as a property and weighted types by instance count alone,
+  neither of which matches the LDBC reference procedure. Every coherence number
+  in the FHIR section needs regenerating.
+
+* The published table used a hand-reduced 1-in-16 Synthea subsample
+  (fhir_reduce_synthea.py). This profile runs Synthea directly at a chosen
+  population instead, which removes a step a reviewer would ask about, but means
+  the numbers will not match the old ones exactly.
+
+* Finding 2 is a genuine negative result about rudof. It should be stated in the
+  results, not deferred to threats-to-validity. Conformance to FHIR-RDF is a
+  fixable engineering matter — emitting the canonical type arc and the value
+  wrapper — and saying so is stronger than leaving the reader to conclude the
+  approach cannot do it.
+
+
+FIGURE
+======
+data/results/e5/charts/fhir_coverage_vs_conformance.pdf
+
+Three panels: R4 coverage (higher is better) beside missing resourceType and
+malformed primitives (lower is better). Each panel states its own direction,
+because they run opposite ways and a reader should not have to infer it. Three
+panels rather than one axis because a percentage and a raw count share no scale.
+
+The generic coherence / throughput / execution-time charts are also produced for
+this profile, so finding 4 has a figure without extra work.

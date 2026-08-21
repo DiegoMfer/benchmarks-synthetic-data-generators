@@ -1,0 +1,117 @@
+# E2 -- Controllability, and where every generator sits
+#
+# Q2: among generators that can be fed the same schema, which can actually move
+#     structuredness? And where does everything else fall on the same scale?
+#
+# ONE FIGURE, TWO CLAIMS, SEPARATED BY A DIVIDER.
+#
+# LEFT -- the controlled comparison. Every generator here is fed the LUBM
+# schema; rudof and RDFGraphGen get the byte-identical `lubm_shacl.ttl`. Same
+# input, same domain, so a difference between them is a difference between the
+# tools. This is the only genuinely controlled cross-tool comparison in the
+# benchmark.
+#
+# RIGHT (`ref_`) -- generators that CANNOT be given that schema: BSBM and LUBM
+# have their domain compiled in, WatDiv reads a bespoke DSL, PyGraft invents its
+# own schema per run, LEMMING and SimplexKG consume a graph. Putting them left of
+# the divider would destroy E2's control. They appear as reference points on the
+# same normalised scale, which is exactly the protocol Duan et al. used to
+# compare benchmarks against real data -- the metric normalises per dataset, so
+# no shared input is required for the comparison to be meaningful.
+#
+# They keep their own HIGH/LOW configuration where they have one. That matters:
+# WatDiv moves its output by ~0.48 and is a genuine competitor on
+# controllability, and hiding that behind a single grey bar would be a
+# convenient omission rather than a result.
+#
+# The mechanism behind HIGH/LOW differs per tool (EXPERIMENTS.md 3.3); it is each
+# generator's own nearest analogue of property completeness, never one shared
+# parameter. Only rudof(ShEx) vs rudof(SHACL) in E1 is a same-parameter
+# comparison.
+#
+# E2's runs also feed E3: the `ref_*` datasets are what sheXer extracts schemas
+# from, so there is no separate source profile.
+#
+#   python3 main.py --profile e2_smoke
+
+name: e2_smoke
+description: "E2 at smoke scale - all generators on one axis"
+runs: 1
+timeout_seconds: 1800
+
+experiments:
+  # -- COMPARED: fed the LUBM schema
+  rudof_shex_high:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_sweep.toml, property_fill: 1.0, entities: 3000, seed: 42 }
+    description: ShEx, maximum property fill
+  rudof_shex_low:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_sweep.toml, property_fill: 0.1, entities: 3000, seed: 42 }
+    description: ShEx, minimum property fill
+  rudof_shacl_high:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_sweep.toml, property_fill: 1.0, entities: 3000, seed: 42 }
+    description: SHACL, maximum property fill
+  rudof_shacl_low:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_sweep.toml, property_fill: 0.1, entities: 3000, seed: 42 }
+    description: SHACL, minimum property fill
+  rdfgraphgen:
+    generator: rdfgraphgen
+    params: { shape: lubm/lubm_shacl.ttl, scale_factor: 200 }
+    description: the byte-identical SHACL shapes rudof reads; exposes no structural parameter
+  gaia_high:
+    generator: gaia
+    params: { instances: 1000, materialization: true, threads: 2 }
+    description: OWL materialisation on
+  gaia_low:
+    generator: gaia
+    params: { instances: 1000, materialization: false, threads: 2 }
+    description: OWL materialisation off
+  linkgen_high:
+    generator: linkgen
+    params: { triples: 5000, ontology: univ-bench.owl, distribution: gaussian, threads: 2 }
+    description: Gaussian degree distribution
+  linkgen_low:
+    generator: linkgen
+    params: { triples: 5000, ontology: univ-bench.owl, distribution: zipf, threads: 2 }
+    description: Zipf degree distribution
+
+  # -- REFERENCE: cannot be given the shared schema
+  ref_lubm:
+    generator: lubm
+    params: { universities: 1, seed: 0 }
+    description: fixed-schema; the scale anchor for the LUBM domain
+  ref_bsbm_high:
+    generator: bsbm
+    params: { products: 100, format: ttl, forward_chaining: true }
+    description: fixed-schema e-commerce, RDFS materialisation on
+  ref_bsbm_low:
+    generator: bsbm
+    params: { products: 100, format: ttl, forward_chaining: false }
+    description: fixed-schema e-commerce, no materialisation
+  ref_watdiv_high:
+    generator: watdiv
+    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 1, property_fill: 1.0 }
+    description: bespoke DSL, every property group emitted
+  ref_watdiv_low:
+    generator: watdiv
+    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 1, property_fill: 0.1 }
+    description: bespoke DSL, one group in ten emitted
+  ref_pygraft_high:
+    generator: pygraft
+    params: { classes: 43, relations: 32, max_depth: 4, avg_instances: 50, std_instances: 40, avg_relations: 5, std_relations: 1, p_subclass: 0.25, p_disjoint: 0.10, p_inverse: 0.25, p_functional: 0.05, p_symmetric: 0.15, p_transitive: 0.15, seed: 42 }
+    description: invents its own schema; 5 relations per class
+  ref_pygraft_low:
+    generator: pygraft
+    params: { classes: 43, relations: 32, max_depth: 4, avg_instances: 50, std_instances: 40, avg_relations: 2, std_relations: 1, p_subclass: 0.25, p_disjoint: 0.10, p_inverse: 0.25, p_functional: 0.05, p_symmetric: 0.15, p_transitive: 0.15, seed: 42 }
+    description: invents its own schema; 2 relations per class
+  ref_lemming:
+    generator: lemming
+    params: { seed_graph: lubm/lubm-seed.nt, vertices: 400, mode: Binary, threads: 2 }
+    description: data-driven; structure inherited from the seed graph
+  ref_simplexkg:
+    generator: lemming
+    params: { seed_graph: lubm/lubm-seed.nt, vertices: 400, mode: Simplex, threads: 2 }
+    description: data-driven, simplex variant; likewise no structural parameter

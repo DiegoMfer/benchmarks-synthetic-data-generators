@@ -1,0 +1,15 @@
+name: lemming
+service: lemming
+description: LEMMING / SimplexKG - data-driven generator that mimics an example graph
+
+data_files: ["generated_data.ttl"]
+rdf_format: turtle
+
+params:
+  seed_graph: { flag: --seed-graph, type: str }
+  vertices: { flag: --vertices, type: int }
+  mode: { flag: --mode, type: str }
+  threads: { flag: --threads, type: int }
+  optimization_iterations: { flag: --optimization-iterations, type: int }
+  simplex_property_sampling: { flag: --simplex-property-sampling, type: str }
+  simplex_class_sampling: { flag: --simplex-class-sampling, type: str }

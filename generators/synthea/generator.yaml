@@ -1,0 +1,10 @@
+name: synthea
+service: synthea
+description: Synthetic clinical records exported as FHIR R4 Turtle
+
+data_files: ["generated_data.ttl"]
+rdf_format: turtle
+
+params:
+  population: { flag: --population, type: int }
+  seed: { flag: --seed, type: int }

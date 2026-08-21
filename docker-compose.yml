@@ -1,0 +1,91 @@
+# One compose file for every generator.
+#
+# The old layout had eight of these scattered through the tree, each with its own
+# volume, user and environment conventions. A YAML anchor collapses the shared
+# part so a new generator is three lines, and the build context is the project
+# root so every image can copy the shared `generators/_common/` entry library and
+# the canonical `report.py`.
+#
+# RDFBENCH_OUT is set by the runner to the specific run directory, so containers
+# write their final output directly -- there is no generate-then-copy step.
+
+x-generator: &generator
+  volumes:
+    - "${RDFBENCH_OUT:?RDFBENCH_OUT must be set - run via main.py}:/out"
+    - "./schemas:/schemas:ro"
+  user: "${RDFBENCH_UID:-1000}:${RDFBENCH_GID:-1000}"
+  environment:
+    PYTHONUNBUFFERED: "1"
+  init: true
+
+services:
+  bsbm:
+    <<: *generator
+    image: rdfbench-bsbm:latest
+    build: { context: ., dockerfile: generators/bsbm/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx2G" }
+
+  lubm:
+    <<: *generator
+    image: rdfbench-lubm:latest
+    build: { context: ., dockerfile: generators/lubm/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx4G" }
+
+  gaia:
+    <<: *generator
+    image: rdfbench-gaia:latest
+    build: { context: ., dockerfile: generators/gaia/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx8G" }
+
+  linkgen:
+    <<: *generator
+    image: rdfbench-linkgen:latest
+    build: { context: ., dockerfile: generators/linkgen/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx4G" }
+
+  pygraft:
+    <<: *generator
+    image: rdfbench-pygraft:latest
+    build: { context: ., dockerfile: generators/pygraft/Dockerfile }
+
+  rdfgraphgen:
+    <<: *generator
+    image: rdfbench-rdfgraphgen:latest
+    build: { context: ., dockerfile: generators/rdfgraphgen/Dockerfile }
+
+  rudof:
+    <<: *generator
+    image: rdfbench-rudof:latest
+    build: { context: ., dockerfile: generators/rudof/Dockerfile }
+
+  synthea:
+    <<: *generator
+    image: rdfbench-synthea:latest
+    build: { context: ., dockerfile: generators/synthea/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx4G" }
+
+  watdiv:
+    <<: *generator
+    image: rdfbench-watdiv:latest
+    build: { context: ., dockerfile: generators/watdiv/Dockerfile }
+
+  lemming:
+    <<: *generator
+    image: rdfbench-lemming:latest
+    build: { context: ., dockerfile: generators/lemming/Dockerfile }
+    environment: { PYTHONUNBUFFERED: "1", JAVA_OPTS: "-Xmx4G" }
+
+  # -- extractors -------------------------------------------------------
+  # Not a generator: it reads a dataset and writes a schema, so it does not use
+  # the anchor above. It mounts a completed run directory read-only at /in and
+  # the schema output directory at /out, and never touches ./schemas.
+  shexer:
+    image: rdfbench-shexer:latest
+    build: { context: ., dockerfile: generators/_extractors/shexer/Dockerfile }
+    volumes:
+      - "${RDFBENCH_IN:?RDFBENCH_IN must be set - run via main.py extract}:/in:ro"
+      - "${RDFBENCH_OUT:?RDFBENCH_OUT must be set - run via main.py extract}:/out"
+    user: "${RDFBENCH_UID:-1000}:${RDFBENCH_GID:-1000}"
+    environment:
+      PYTHONUNBUFFERED: "1"
+    init: true

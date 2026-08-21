@@ -1,0 +1,56 @@
+# E4 -- Conformance metrics
+#
+# Q4: how much of the source schema survives translation into rudof's unified
+# intermediate representation, and does what comes out still satisfy it?
+#
+# Two figures, both emitted by rudof_generate into its `.stats.json` sidecar and
+# carried into the CSV by the report contract:
+#
+#   TripleValidity%        share of generated triples that satisfy the schema
+#   ShapeTranslationLoss%  share of the source schema's constraints that are not
+#                          representable in the unified IR
+#
+# These are the two metrics the paper *defines* and has never reported. This
+# profile exists to close that gap.
+#
+# The comparison is across schema languages and across domains, because those
+# are the two axes along which translation loss could plausibly differ: ShEx and
+# SHACL express constraints differently, and FHIR R4 is a far larger and more
+# irregular schema than LUBM. Holding the generator fixed and varying only the
+# input isolates the property of the translation rather than of the generator.
+#
+# Translation loss is a function of the schema alone, so it does not vary
+# between runs; validity depends on the generated data and could in principle.
+# Three runs are enough to show that it does not, without spending time on a
+# quantity with no variance to estimate.
+#
+#   python3 main.py --profile e4
+
+name: e4
+description: "E4 - conformance: schema translation loss and triple validity, by language and domain"
+runs: 3
+timeout_seconds: 3600
+
+experiments:
+  # -- LUBM: the same domain expressed in each language -------------------
+  # Identical constraints, different serialisation. Any difference in loss here
+  # is a property of the language, not of the domain.
+  conformance_lubm_shex:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_high_coherence.toml, entities: 70000, seed: 42 }
+    description: LUBM, ShEx
+
+  conformance_lubm_shacl:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_high_coherence.toml, entities: 70000, seed: 42 }
+    description: LUBM, SHACL
+
+  # -- FHIR: a substantially larger and more irregular schema -------------
+  # The published R4 ShEx, the same schema the FHIR case study is driven from.
+  # It is an order of magnitude larger than LUBM and far less regular, which is
+  # what makes it a useful second point for the translation-loss measurement.
+  conformance_fhir_shex:
+    generator: rudof
+    params: { schema: fhir/fhir_r4.shex, config: fhir/fhir_config_structural.toml }
+    description: FHIR R4, ShEx (as published)
+

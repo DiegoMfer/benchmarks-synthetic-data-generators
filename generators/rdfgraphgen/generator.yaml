@@ -1,0 +1,10 @@
+name: rdfgraphgen
+service: rdfgraphgen
+description: SHACL-driven generator - produces RDF from shape definitions
+
+data_files: ["output-graph.ttl"]
+rdf_format: turtle
+
+params:
+  shape: { flag: --shape, type: str }
+  scale_factor: { flag: --scale-factor, type: int }

@@ -1,0 +1,48 @@
+# Base configuration for the coherence sweep.
+# Derived from benchmark_config_low_coherence.toml: the Random property
+# selection strategy is what makes property_fill_probability effective.
+# The entrypoint overrides ONLY property_fill_probability, so every point
+# on the sweep differs in exactly one parameter.
+
+[output]
+format = "Turtle"
+path = "output/generated_data.ttl"
+compress = false
+write_stats = true
+parallel_writing = false
+parallel_file_count = 1
+
+[parallel]
+threads = 8
+batch_size = 100
+parallel_shapes = true
+parallel_fields = true
+
+[generation]
+entity_count = 70000
+seed = 42
+cardinality_strategy = "Maximum"
+
+# Low coherence: keep the same schema but make the generated graphs much sparser.
+# Random selection picks only a fraction of the available properties per instance.
+property_fill_probability = 0.25
+ignore_min_cardinality = true
+max_properties_per_instance = 0
+property_selection_strategy = "Random"
+property_count_variance = 0.0
+
+entity_distribution = "Equal"
+
+[field_generators.default]
+locale = "en"
+quality = "Low"
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer"]
+generator = "integer"
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#integer".parameters]
+min = 1
+max = 1000
+
+[field_generators.datatypes."http://www.w3.org/2001/XMLSchema#string"]
+generator = "string"
+parameters = {}

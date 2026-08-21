@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rdfbench"
+version = "1.0.0"
+description = "Benchmark suite for synthetic RDF data generators"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "DiegoMfer", email = "diegomartin.research@gmail.com" }]
+
+dependencies = [
+    "PyYAML>=6.0",
+    "rdflib>=7.0",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+rdfbench = "rdfbench.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: end-to-end tests that build and run Docker images",
+]

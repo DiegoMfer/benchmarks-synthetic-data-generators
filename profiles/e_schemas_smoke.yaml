@@ -1,0 +1,56 @@
+# Does the controllability claim generalise beyond one schema?
+#
+# Every coherence figure in the evaluation currently rests on LUBM -- a schema
+# authored inside this project, in a domain we chose. The obvious question is
+# whether the range rudof spans is a property of the tool or of that schema.
+#
+# This runs the SAME high/low pair as the controllability experiment, over
+# authored schemas of different provenance. The comparison is between *spans*,
+# never between absolute values: a schema that yields 0.9 is not better than one
+# yielding 0.5, and what is being tested is whether rudof can move each of them.
+#
+# Only authored schemas belong here. Schemas mined by sheXer from generated data
+# were tried first and are unsuitable: extraction discards frequency, so a source
+# generator that moved its own coherence by 0.48 yielded two extracted schemas
+# whose rudof bands differed by less than 0.04. ShEx cardinality is qualitative
+# and cannot record that a property appears on a tenth of instances.
+#
+#   python3 main.py --profile e_schemas_smoke
+
+name: e_schemas_smoke
+description: "Controllability across authored schemas of different provenance"
+runs: 1
+timeout_seconds: 1800
+
+experiments:
+  # -- LUBM: authored here, small and regular; the evaluation's main schema
+  lubm_shex_high:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_sweep.toml, property_fill: 1.0, entities: 3000, seed: 42 }
+    description: LUBM ShEx, maximum property fill
+  lubm_shex_low:
+    generator: rudof
+    params: { schema: lubm/lubm.shex, config: lubm/benchmark_config_sweep.toml, property_fill: 0.1, entities: 3000, seed: 42 }
+    description: LUBM ShEx, minimum property fill
+
+  # -- Same domain, other language: isolates the language from the schema
+  lubm_shacl_high:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_sweep.toml, property_fill: 1.0, entities: 3000, seed: 42 }
+    description: LUBM SHACL, maximum property fill
+  lubm_shacl_low:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_sweep.toml, property_fill: 0.1, entities: 3000, seed: 42 }
+    description: LUBM SHACL, minimum property fill
+
+  # -- FHIR R4: 13,455 lines, published by HL7, authored by nobody here.
+  # The strongest single point in this profile: an industrial standard the
+  # generator did not see during development.
+  fhir_high:
+    generator: rudof
+    params: { schema: fhir/fhir_r4.shex, config: fhir/fhir_config_structural.toml, property_fill: 1.0, entities: 2000, seed: 42 }
+    description: FHIR R4 ShEx, maximum property fill
+  fhir_low:
+    generator: rudof
+    params: { schema: fhir/fhir_r4.shex, config: fhir/fhir_config_structural.toml, property_fill: 0.1, entities: 2000, seed: 42 }
+    description: FHIR R4 ShEx, minimum property fill

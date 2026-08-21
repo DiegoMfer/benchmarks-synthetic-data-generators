@@ -1,0 +1,16 @@
+name: linkgen
+service: linkgen
+description: Linked data generator with configurable Zipf/Gaussian distributions
+
+data_files: ["data_*"]
+rdf_format: nt
+
+params:
+  triples: { flag: --triples, type: int }
+  ontology: { flag: --ontology, type: str }
+  distribution: { flag: --distribution, type: str }
+  zipf_exponent: { flag: --zipf-exponent, type: float }
+  gaussian_mean: { flag: --gaussian-mean, type: float }
+  gaussian_deviation: { flag: --gaussian-deviation, type: float }
+  threads: { flag: --threads, type: int }
+  triples_per_file: { flag: --triples-per-file, type: int }

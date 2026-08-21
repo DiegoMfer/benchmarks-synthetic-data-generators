@@ -1,0 +1,205 @@
+# LUBM university domain expressed in WatDiv's dataset-description language.
+#
+# Hand-translated from univ-bench.owl. WatDiv accepts neither OWL nor shapes, so
+# unlike the other schema-driven generators it cannot be fed the extracted ShEx
+# or SHACL files; this model is the translation, and the fact that it is manual
+# is a threat to validity that belongs in the paper.
+#
+# {fill} is substituted by the entrypoint from --property-fill. It appears as
+# the <pgroup> probability (fraction of instances carrying a literal-property
+# group) and as the association left_cover (fraction of instances carrying a
+# relation). Both are WatDiv's structuredness controls, so a single knob spans
+# the coherence range in the same way rudof's property-fill does.
+#
+# Association grammar:
+#   #association <subj> <pred> <obj> <left_card> <right_card[dist]> <left_cover> <dist>
+#
+# WatDiv does not emit rdf:type from a <type> declaration; in its own model
+# typing is an association onto a *category* type (Product -> ProductCategory).
+# LUBM's classes are fixed IRIs, which WatDiv cannot express, so each class is
+# anchored by a single-instance type <ub:XType> and every entity is typed onto
+# it. The class IRI is therefore ub:XType0 rather than ub:X, which is
+# structurally equivalent for coherence (instances group by a consistent class)
+# but means the generated IRIs are not literally LUBM's.
+#
+# Type coverage is fixed at 1.0 and never scaled by {fill}: an untyped instance
+# drops out of the coherence computation entirely, which would distort the
+# measure rather than lower it.
+#
+# On cardinalities: left_cardinality == 1 makes the mapping *injective* -- WatDiv
+# consumes each object so it is never reused (model.cpp: mapped_instances). Use 1
+# only for genuinely one-to-one relations such as headOf; anywhere an object must
+# serve many subjects (every rdf:type, every many-to-one relation) it must be 2.
+# right_cardinality is the number of links emitted per subject.
+
+#namespace ub=http://swat.cse.lehigh.edu/onto/univ-bench.owl#
+#namespace rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#
+
+# --- class anchors (see header: WatDiv cannot emit a fixed class IRI) --------
+<type*> ub:UniversityType 1
+</type>
+<type*> ub:DepartmentType 1
+</type>
+<type*> ub:ResearchGroupType 1
+</type>
+<type*> ub:FullProfessorType 1
+</type>
+<type*> ub:AssociateProfessorType 1
+</type>
+<type*> ub:LecturerType 1
+</type>
+<type*> ub:UndergraduateStudentType 1
+</type>
+<type*> ub:GraduateStudentType 1
+</type>
+<type*> ub:CourseType 1
+</type>
+<type*> ub:GraduateCourseType 1
+</type>
+<type*> ub:PublicationType 1
+</type>
+
+# --- organisational units ---------------------------------------------------
+<type> ub:University 10
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+</type>
+
+<type> ub:Department 30
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+</type>
+
+<type> ub:ResearchGroup 40
+<pgroup> {fill}
+#predicate ub:name string
+</pgroup>
+</type>
+
+# --- faculty ----------------------------------------------------------------
+<type> ub:FullProfessor 40
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:emailAddress string
+#predicate ub:telephone string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:researchInterest string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:age integer 30 70
+</pgroup>
+</type>
+
+<type> ub:AssociateProfessor 50
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:emailAddress string
+#predicate ub:telephone string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:researchInterest string
+</pgroup>
+</type>
+
+<type> ub:Lecturer 30
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:emailAddress string
+#predicate ub:telephone string
+</pgroup>
+</type>
+
+# --- students ---------------------------------------------------------------
+<type> ub:UndergraduateStudent 500
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:emailAddress string
+#predicate ub:telephone string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:age integer 18 30
+</pgroup>
+</type>
+
+<type> ub:GraduateStudent 200
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:emailAddress string
+#predicate ub:telephone string
+</pgroup>
+<pgroup> {fill}
+#predicate ub:age integer 21 40
+</pgroup>
+</type>
+
+# --- teaching and output ----------------------------------------------------
+<type> ub:Course 150
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+</type>
+
+<type> ub:GraduateCourse 100
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+</type>
+
+<type> ub:Publication 300
+<pgroup> 1.0
+#predicate ub:name string
+</pgroup>
+</type>
+
+# --- type assertions (cover fixed at 1.0, see header) ------------------------
+#association ub:University rdf:type ub:UniversityType 2 1 1.0 UNIFORM
+#association ub:Department rdf:type ub:DepartmentType 2 1 1.0 UNIFORM
+#association ub:ResearchGroup rdf:type ub:ResearchGroupType 2 1 1.0 UNIFORM
+#association ub:FullProfessor rdf:type ub:FullProfessorType 2 1 1.0 UNIFORM
+#association ub:AssociateProfessor rdf:type ub:AssociateProfessorType 2 1 1.0 UNIFORM
+#association ub:Lecturer rdf:type ub:LecturerType 2 1 1.0 UNIFORM
+#association ub:UndergraduateStudent rdf:type ub:UndergraduateStudentType 2 1 1.0 UNIFORM
+#association ub:GraduateStudent rdf:type ub:GraduateStudentType 2 1 1.0 UNIFORM
+#association ub:Course rdf:type ub:CourseType 2 1 1.0 UNIFORM
+#association ub:GraduateCourse rdf:type ub:GraduateCourseType 2 1 1.0 UNIFORM
+#association ub:Publication rdf:type ub:PublicationType 2 1 1.0 UNIFORM
+
+# --- relations --------------------------------------------------------------
+#association ub:Department ub:subOrganizationOf ub:University 2 1 1.0 UNIFORM
+#association ub:ResearchGroup ub:subOrganizationOf ub:Department 2 1 {fill} UNIFORM
+
+#association ub:FullProfessor ub:worksFor ub:Department 2 1 1.0 UNIFORM
+#association ub:FullProfessor ub:headOf ub:Department 1 1 {fill} UNIFORM
+#association ub:FullProfessor ub:teacherOf ub:Course 2 2 {fill} UNIFORM
+#association ub:FullProfessor ub:undergraduateDegreeFrom ub:University 2 1 {fill} UNIFORM
+#association ub:FullProfessor ub:doctoralDegreeFrom ub:University 2 1 {fill} UNIFORM
+
+#association ub:AssociateProfessor ub:worksFor ub:Department 2 1 1.0 UNIFORM
+#association ub:AssociateProfessor ub:teacherOf ub:Course 2 2 {fill} UNIFORM
+
+#association ub:Lecturer ub:worksFor ub:Department 2 1 1.0 UNIFORM
+#association ub:Lecturer ub:teacherOf ub:Course 2 1 {fill} UNIFORM
+
+#association ub:UndergraduateStudent ub:memberOf ub:Department 2 1 1.0 UNIFORM
+#association ub:UndergraduateStudent ub:takesCourse ub:Course 2 3 {fill} UNIFORM
+#association ub:UndergraduateStudent ub:advisor ub:FullProfessor 2 1 {fill} UNIFORM
+
+#association ub:GraduateStudent ub:memberOf ub:Department 2 1 1.0 UNIFORM
+#association ub:GraduateStudent ub:takesCourse ub:GraduateCourse 2 2 {fill} UNIFORM
+#association ub:GraduateStudent ub:advisor ub:FullProfessor 2 1 {fill} UNIFORM
+#association ub:GraduateStudent ub:undergraduateDegreeFrom ub:University 2 1 {fill} UNIFORM
+
+#association ub:Publication ub:publicationAuthor ub:FullProfessor 2 1 {fill} UNIFORM
