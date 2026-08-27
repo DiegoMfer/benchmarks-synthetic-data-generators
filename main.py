@@ -39,6 +39,11 @@ from rdfbench.pipeline import run_pipeline  # noqa: E402
 from rdfbench.runner import DockerError  # noqa: E402
 
 
+#: The profiles that produce the paper, cheapest first. Order is deliberate: a
+#: bad parameter surfaces in seconds on e4 rather than three hours into e2.
+ALL_PROFILES = ("e4", "e5", "e2")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="main.py",
@@ -51,6 +56,8 @@ examples:
   python3 main.py --only bsbm_high_coherence   one experiment, end to end
   python3 main.py --runs 1                     override the profile's repeat count
   python3 main.py --skip-generate              re-measure data already on disk
+  python3 main.py --all                        run every profile the paper needs
+  python3 main.py --all --smoke                the same, at smoke scale (~2 min)
   python3 main.py --list                       show available profiles and generators
   python3 main.py extract --profile e2        mine ShEx schemas from a finished run
         """,
@@ -77,6 +84,15 @@ examples:
     parser.add_argument(
         "--fail-fast", action="store_true",
         help="stop at the first failed run instead of continuing the sweep",
+    )
+    parser.add_argument(
+        "--all", action="store_true",
+        help="run every profile the paper depends on, cheapest first "
+             f"({', '.join(ALL_PROFILES)}), instead of a single --profile",
+    )
+    parser.add_argument(
+        "--smoke", action="store_true",
+        help="with --all, run the _smoke variant of each profile",
     )
     parser.add_argument(
         "--list", action="store_true",
@@ -193,6 +209,51 @@ def list_available(workspace: Workspace) -> int:
     return 0
 
 
+def run_all(workspace: Workspace, args: argparse.Namespace) -> int:
+    """Run every profile the paper depends on, and summarise at the end.
+
+    A failure does not stop the sweep. Finding out that e2 succeeded and e5 did
+    not is worth more than aborting at the first problem, since the profiles are
+    independent and a partial result is still usable.
+    """
+    names = [f"{n}_smoke" if args.smoke else n for n in ALL_PROFILES]
+    scale = "smoke" if args.smoke else "full"
+    print(f"running {len(names)} profile(s) at {scale} scale: {', '.join(names)}", flush=True)
+
+    outcomes: list[tuple[str, str]] = []
+    for name in names:
+        try:
+            result = run_pipeline(
+                workspace, name,
+                runs_override=args.runs,
+                skip_build=args.skip_build or args.skip_generate,
+                skip_generate=args.skip_generate,
+                skip_metrics=args.skip_metrics,
+                skip_plots=args.skip_plots,
+                keep_going=not args.fail_fast,
+            )
+            outcomes.append((name, "ok" if result.ok else "INCOMPLETE"))
+        except (ConfigError, DockerError) as exc:
+            outcomes.append((name, f"FAILED: {exc}"))
+            if args.fail_fast:
+                break
+        except KeyboardInterrupt:
+            outcomes.append((name, "interrupted"))
+            break
+
+    print("\n" + "=" * 78 + f"\nall profiles ({scale})\n" + "=" * 78, flush=True)
+    for name, status in outcomes:
+        print(f"  {name:<14} {status}", flush=True)
+
+    failed = [n for n, s in outcomes if s != "ok"]
+    if failed:
+        print(f"\n{len(failed)} profile(s) did not complete: {', '.join(failed)}", flush=True)
+        return 1
+    print("\nall profiles completed. Charts are under data/results/<profile>/charts/.",
+          flush=True)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     workspace = Workspace(ROOT)
@@ -207,6 +268,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.list:
         return list_available(workspace)
+
+    if args.all:
+        return run_all(workspace, args)
 
     try:
         result = run_pipeline(

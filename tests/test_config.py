@@ -109,7 +109,6 @@ ALL_PROFILES = [
     "e2", "e2_smoke",
     "e4", "e4_smoke",
     "e5", "e5_smoke",
-    "e_schemas", "e_schemas_smoke",
 ]
 
 
@@ -127,7 +126,7 @@ def test_shipped_profiles_are_valid_against_the_generator_specs(workspace, name)
         specs[experiment.generator].render_args(experiment.params)
 
 
-@pytest.mark.parametrize("full", ["e2", "e4", "e5", "e_schemas"])
+@pytest.mark.parametrize("full", ["e2", "e4", "e5"])
 def test_each_experiment_has_a_matching_smoke_profile(workspace, full):
     """A smoke profile must exercise exactly its full profile's configurations.
 

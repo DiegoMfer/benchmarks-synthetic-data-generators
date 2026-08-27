@@ -1,18 +1,19 @@
-# benchmark-execution
+# benchmarks-synthetic-data-generators
 
-Benchmark suite for synthetic RDF data generators. Every generator runs in its
-own Docker container; one command generates the datasets, measures them, and
-writes the comparison.
+Benchmark suite for synthetic RDF data generators, and the reproducibility
+artefact for *Schema-driven RDF synthetic data generation based on validation
+languages*. Every generator runs in its own Docker container; one command
+generates the datasets, measures them, and writes the comparison.
 
 ```bash
-python3 main.py --profile e2_smoke  # tiny scales, ~30 s, verifies everything
-python3 main.py --profile e2        # the real benchmark: 10 runs each, hours
+python3 main.py --all --smoke   # every profile at tiny scale, ~2 min: verifies everything
+python3 main.py --all           # the real benchmark: 212 runs, hours
 ```
 
 That single command runs all four stages — build images, generate datasets,
 compute metrics, render charts. Nothing else needs to be invoked.
 
-Each of the five experiments in [EXPERIMENTS.md](EXPERIMENTS.md) is a profile
+Each of the three experiments in [EXPERIMENTS.md](EXPERIMENTS.md) is a profile
 and runs independently of the others.
 
 ## Requirements
@@ -51,9 +52,7 @@ One profile per experiment, each with a `_smoke` counterpart at minimum scale.
 
 | Profile | Experiment | Question |
 |---|---|---|
-| `e1` | Language equivalence | Can one constraint model serve both ShEx and SHACL? |
 | `e2` | Controllability | Which generators respond to a coherence configuration, and where does every generator sit? |
-| `e3` | Reachable range | Is achievable structuredness a property of the tool, or of the schema? |
 | `e4` | Conformance | How much of a schema survives translation into the IR? |
 | `e5` | FHIR case study | Does the approach generalise to an independent domain? |
 
@@ -61,26 +60,17 @@ Every `_smoke` profile defines the *same experiments* as its full counterpart
 and differs only in its numbers, so the fast one exercises exactly the code path
 the real one uses. A test enforces that they stay in sync.
 
-**E3 depends on E2**, because it consumes schemas mined from datasets E2 produces:
+The `extract` command mines ShEx schemas out of a finished run, using sheXer:
 
 ```bash
-python3 main.py --profile e2                       # 1. every dataset, incl. the ref_ generators
-python3 main.py extract --profile e2 --only ref_*  # 2. sheXer mines shapes from those
-python3 main.py --profile e3                       # 3. rudof sweeps property_fill over them
+python3 main.py extract --profile e2 --only ref_bsbm_high   # from a benchmark run
+python3 main.py extract --from /path/to/dataset --name x    # or any directory of RDF
 ```
 
-Extracted schemas land in `schemas/extracted/<source-profile>/`. The profile name
-is part of the path so a smoke extraction can never overwrite a full-scale one.
-
-A schema can also be mined from **any** directory of RDF — a real dataset with no
-generator behind it — which is the sharpest input for E3:
-
-```bash
-python3 main.py extract --from /path/to/dataset --name dbpedia
-```
-
-That writes `schemas/extracted/external/dbpedia.shex`; add a matching
-`rudof_dbpedia_fill_*` series to `e3.yaml` to include it.
+Extracted schemas land in `schemas/extracted/`. No profile in this repository
+depends on them; the command is retained because mining a schema from real data
+is the natural way to extend the conformance experiment to inputs nobody
+authored.
 
 ## Useful invocations
 
@@ -89,6 +79,7 @@ python3 main.py --list                            # profiles and generators
 python3 main.py --only bsbm_high_coherence        # one experiment, end to end
 python3 main.py --runs 3                          # override the repeat count
 python3 main.py --skip-generate                   # re-measure data already on disk
+python3 main.py --all                             # every profile the paper needs
 python3 main.py --profile e2 --fail-fast          # stop at the first failure
 python3 main.py extract --profile e2 --only ref_bsbm_high   # mine a schema from a finished run
 python3 main.py extract --from data/real --name dbpedia   # ... or from any RDF directory
