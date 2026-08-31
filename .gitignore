@@ -14,6 +14,9 @@ __pycache__/
 .codegraph/
 .venv/
 
-# LEMMING prebuilt jar: 101 MB, over GitHub's hard blob limit. Reproduce it
-# with generators/lemming/export-vendor.sh - see generators/lemming/BUILD_ISSUE.txt
-generators/lemming/vendor/
+# generators/lemming/vendor/ IS committed, deliberately. The shaded jar is
+# 96.3 MiB -- inside GitHub's 100 MiB blob limit, though over the 50 MiB
+# warning threshold. It is committed because the upstream Maven host it would
+# otherwise be built from is offline, so this jar is currently the only way to
+# build the image at all; see generators/lemming/BUILD_ISSUE.txt. Deliberate
+# repository weight, in exchange for the benchmark staying reproducible.

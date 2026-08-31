@@ -4,13 +4,12 @@
 #
 # THIS IMAGE HAS TWO BUILD PATHS. See BUILD_ISSUE.txt for the full history.
 #
-#   vendor (default) - copies a prebuilt shaded jar from vendor/. No network,
-#                      builds in seconds, works anywhere. This is the only path
-#                      that currently works, because the upstream Maven host is
-#                      offline (see below). Obtain the jar with:
-#                          ./generators/lemming/export-vendor.sh
-#                      run on a machine that already has the image, then copy
-#                      generators/lemming/vendor/ across.
+#   vendor (default) - copies a prebuilt shaded jar from vendor/, which is
+#                      committed to this repository. No network, builds in
+#                      seconds, works anywhere a clone reaches. This is the only
+#                      path that currently works, because the upstream Maven
+#                      host is offline (see below). To regenerate the jar from a
+#                      working image: ./generators/lemming/export-vendor.sh
 #
 #   source           - clones and builds from source. Kept because it documents
 #                      how the vendored jar was produced and will work again if

@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# Export the prebuilt LEMMING artefacts out of an existing rdfbench-lemming
-# image into generators/lemming/vendor/, so the image can be rebuilt anywhere
-# without reaching maven.aksw.org (which has been offline since 2026 -- see
-# BUILD_ISSUE.txt).
+# Regenerate generators/lemming/vendor/ from an existing rdfbench-lemming image.
 #
-# Run this on a machine that already has a working image, then copy the vendor
-# directory to the machine that does not:
+# You do NOT need this to build the image: vendor/ is committed, so a clone
+# already has the jar and `docker compose build lemming` works offline. This
+# script exists for the case where the jar must be rebuilt -- an upstream
+# change, or maven.aksw.org coming back (it has been offline since 2026, see
+# BUILD_ISSUE.txt) -- and you want to refresh what is committed:
 #
+#     docker build --build-arg LEMMING_JAR_SOURCE=source \
+#         -f generators/lemming/Dockerfile -t rdfbench-lemming:latest .
 #     ./generators/lemming/export-vendor.sh
-#     tar czf lemming-vendor.tar.gz -C generators/lemming vendor
-#     scp lemming-vendor.tar.gz vm:/path/to/repo/
-#     # on the VM:
-#     tar xzf lemming-vendor.tar.gz -C generators/lemming
-#     docker compose build lemming
+#     git add generators/lemming/vendor && git commit
 #
 set -euo pipefail
 

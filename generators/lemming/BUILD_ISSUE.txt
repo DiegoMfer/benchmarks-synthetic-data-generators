@@ -11,26 +11,33 @@ image builds.
 
 FIX
 ---
-generators/lemming/vendor/ holds the prebuilt shaded jar (101 MB) plus the
-upstream test resources. The Dockerfile's default path copies them straight in:
+generators/lemming/vendor/ holds the prebuilt shaded jar plus the upstream test
+resources, and IS COMMITTED to this repository. A clone therefore has
+everything the build needs:
 
-    docker compose build lemming        # ~3 seconds, no network
+    git clone ... && docker compose build lemming     # ~3 seconds, no network
 
-vendor/ is NOT in git -- the jar is over GitHub's 100 MB hard blob limit. To get
-it onto a machine that does not have it, export it from one that does:
+No transfer step, no credentials, nothing to fetch from maven.aksw.org.
+
+On committing a 96 MiB binary. The jar is 100,978,739 bytes = 96.3 MiB. Note
+the units: `du` and `ls -h` print that as "101M" because they use decimal MB,
+but GitHub measures MiB and its hard blob limit is 100 MiB, so this is inside
+the limit with 3.7 MiB to spare. It is above the 50 MiB threshold at which
+GitHub prints a warning on push; the warning is expected and is not a failure.
+
+This is deliberate repository weight. The alternative -- keeping vendor/ out of
+git and shipping it by hand -- was the original design, and it failed the first
+time it was used: a fresh clone on a second machine could not build at all,
+because git cannot carry an ignored file. Since the upstream Maven host is
+offline, this jar is currently the ONLY way to build the image anywhere, which
+makes it closer to a source input than to a build artefact. Committing it is
+what keeps the benchmark reproducible from a clone alone.
+
+If the jar ever needs regenerating from a working image (for example after an
+upstream change, should the host return), export-vendor.sh does it:
 
     ./generators/lemming/export-vendor.sh
-    tar czf lemming-vendor.tar.gz -C generators/lemming vendor
-    scp lemming-vendor.tar.gz vm:/path/to/repo/
-
-    # on the target machine
-    tar xzf lemming-vendor.tar.gz -C generators/lemming
     (cd generators/lemming/vendor && sha256sum -c lemming.jar.sha256)
-    docker compose build lemming
-
-If no machine anywhere has a working image, the jar cannot currently be
-reproduced -- see the diagnosis below. That is a property of the upstream
-project's dependency hosting, not of this repository.
 
 Verified after the change: image rebuilt from scratch with the previous image
 deleted (2.6 s), then e2_smoke ref_lemming and ref_simplexkg both ran green.
