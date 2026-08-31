@@ -1,4 +1,9 @@
-data/
+data/*
+# The measured CSV and rendered charts are the point of running a profile and
+# are small; the raw per-run datasets under data/runs/ are not -- long,
+# machine-specific, and already summarised into data/results/.
+!data/results/
+!data/results/**
 # Extracted schemas are committed -- they are inputs to E3 phase 2 and must be
 # reproducible alongside it -- but the raw docker output that produced them is
 # not, being long, machine-specific and already summarised in extraction.json.

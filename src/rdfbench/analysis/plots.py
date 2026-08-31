@@ -505,7 +505,7 @@ def _grouped_chart(
                     ax.text(
                         x[xi] + offset, value + err + lift,
                         value_fmt.format(value), ha="center", va="bottom",
-                        fontsize=7.5, color=TEXT_SECONDARY,
+                        fontsize=7.5, color=TEXT_SECONDARY, clip_on=True,
                     )
             ax.set_ylim(0, span * 1.18)
         _style(ax)
