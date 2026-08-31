@@ -93,11 +93,11 @@ experiments:
     description: fixed-schema e-commerce, no materialisation
   ref_watdiv_high:
     generator: watdiv
-    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 10, property_fill: 1.0 }
+    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 700, property_fill: 1.0 }
     description: bespoke DSL, every property group emitted
   ref_watdiv_low:
     generator: watdiv
-    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 10, property_fill: 0.1 }
+    params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 700, property_fill: 0.1 }
     description: bespoke DSL, one group in ten emitted
   ref_pygraft_high:
     generator: pygraft

@@ -449,6 +449,9 @@ def _grouped_chart(
                     ax.bar(
                         x[xi] + offset, value - floor, slot * 0.9, bottom=floor,
                         yerr=stds[level][xi], capsize=4, color=colour,
+                        hatch=REFERENCE_HATCH if xi >= n_compared else None,
+                        edgecolor=SURFACE if xi >= n_compared else None,
+                        linewidth=0,
                         label=label if level not in labelled else None,
                         error_kw={"linewidth": 1.2, "ecolor": TEXT_SECONDARY},
                     )
