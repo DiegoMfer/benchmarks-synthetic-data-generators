@@ -1,8 +1,46 @@
+RESOLVED -- 2026-08-31. The image now builds from a vendored prebuilt jar and
+needs no network at all. Jump to "FIX" below for what to do; the diagnosis is
+kept underneath because the source build path is still in the Dockerfile and
+will start working again if the upstream host ever returns.
+
 Affects: both LEMMING (ref_lemming) and SimplexKG (ref_simplexkg) -- they are
 the same repository and the same Docker image (generators/lemming/), selected
 at runtime via `-m Binary` vs `-m Simplex`. Neither can be produced until this
 image builds.
 
+
+FIX
+---
+generators/lemming/vendor/ holds the prebuilt shaded jar (101 MB) plus the
+upstream test resources. The Dockerfile's default path copies them straight in:
+
+    docker compose build lemming        # ~3 seconds, no network
+
+vendor/ is NOT in git -- the jar is over GitHub's 100 MB hard blob limit. To get
+it onto a machine that does not have it, export it from one that does:
+
+    ./generators/lemming/export-vendor.sh
+    tar czf lemming-vendor.tar.gz -C generators/lemming vendor
+    scp lemming-vendor.tar.gz vm:/path/to/repo/
+
+    # on the target machine
+    tar xzf lemming-vendor.tar.gz -C generators/lemming
+    (cd generators/lemming/vendor && sha256sum -c lemming.jar.sha256)
+    docker compose build lemming
+
+If no machine anywhere has a working image, the jar cannot currently be
+reproduced -- see the diagnosis below. That is a property of the upstream
+project's dependency hosting, not of this repository.
+
+Verified after the change: image rebuilt from scratch with the previous image
+deleted (2.6 s), then e2_smoke ref_lemming and ref_simplexkg both ran green.
+Image size also fell from 546 MB to 437 MB, because the runtime stage now
+copies only lemming.jar rather than all of target/, which held a second
+identical 101 MB jar plus test classes.
+
+
+DIAGNOSIS (why the source build hangs)
+--------------------------------------
 Symptom: Building the `lemming` Docker image hangs indefinitely / times out during
 `mvn clean package`. `git clone` completes fine in ~2s; the build then sits with
 zero CPU usage until something external kills it.
@@ -35,8 +73,22 @@ failure instead of a hang -- none of these are on Maven Central):
 [ERROR] Failed to read artifact descriptor for org.dice_research:ldcbench.api:jar:1.0.0
 [ERROR] 	Caused by: The following artifacts could not be resolved: org.dice_research:ldcbench.api:pom:1.0.0 (absent): Could not transfer artifact ...
 
-Environment note: this reproduces consistently in the sandbox I'm running in,
-but apparently not on your laptop -- so it may be network-path-specific
-(routing/proxy/firewall between this sandbox and that host) rather than the
-server being globally down. Worth checking whether your laptop's resolution
-of maven.aksw.org or route to it differs.
+NOT network-path-specific. An earlier note in this file guessed the host might
+only be unreachable from the sandbox, since the laptop had built the image
+successfully. Retested 2026-08-31 from the laptop itself:
+
+    getent hosts maven.aksw.org   ->  139.18.63.188   (DNS resolves)
+    curl --max-time 20 https://maven.aksw.org/repository/internal/
+                                  ->  curl: (28), 0 bytes received
+
+So the laptop cannot reach it either. The image on the laptop dates from
+2026-07-29 and was built while the host was still answering; nothing about that
+machine's routing is special. The host has simply gone offline since. This is
+why the fix is to vendor the artefact rather than to adjust proxy or timeout
+settings -- there is nothing on the far end to reach.
+
+The source path in the Dockerfile is retained behind
+`--build-arg LEMMING_JAR_SOURCE=source`. Its retry loop now bounds each attempt
+with an OS-level `timeout`, which is the only thing that reliably stops the
+hang, and it fails after 3 attempts with a pointer back to this file rather
+than running for 15 minutes first.

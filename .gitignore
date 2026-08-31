@@ -13,3 +13,7 @@ __pycache__/
 .pytest_cache/
 .codegraph/
 .venv/
+
+# LEMMING prebuilt jar: 101 MB, over GitHub's hard blob limit. Reproduce it
+# with generators/lemming/export-vendor.sh - see generators/lemming/BUILD_ISSUE.txt
+generators/lemming/vendor/

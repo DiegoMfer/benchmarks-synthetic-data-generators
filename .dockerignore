@@ -12,3 +12,8 @@ __pycache__/
 .venv/
 tests/
 profiles/
+
+# The LEMMING shaded jar is 101 MB. Only generators/lemming/Dockerfile
+# needs it, and that build has its own Dockerfile.dockerignore which re-admits
+# it; excluding it here keeps it out of the other ten build contexts.
+generators/lemming/vendor/

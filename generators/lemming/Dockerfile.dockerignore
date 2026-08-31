@@ -1,0 +1,14 @@
+# BuildKit reads this in preference to the root .dockerignore for this
+# Dockerfile only. It is identical to the root file except that it does NOT
+# exclude generators/lemming/vendor/, which this image must copy the prebuilt
+# shaded jar from. The root file excludes that 101 MB directory so the other
+# ten generators do not ship it to the daemon on every build.
+data/
+.git/
+.codegraph/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
+tests/
+profiles/
