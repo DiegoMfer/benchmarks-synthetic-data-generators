@@ -1,0 +1,42 @@
+Affects: both LEMMING (ref_lemming) and SimplexKG (ref_simplexkg) -- they are
+the same repository and the same Docker image (generators/lemming/), selected
+at runtime via `-m Binary` vs `-m Simplex`. Neither can be produced until this
+image builds.
+
+Symptom: Building the `lemming` Docker image hangs indefinitely / times out during
+`mvn clean package`. `git clone` completes fine in ~2s; the build then sits with
+zero CPU usage until something external kills it.
+
+Root cause: pom.xml declares dependencies resolved from
+https://maven.aksw.org/repository/{internal,snapshots}, and that host does not
+respond to requests -- TCP connects and the TLS handshake completes, but the
+actual HTTP request never gets a reply:
+
+$ curl -v --max-time 15 https://maven.aksw.org/repository/internal/
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4)
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4)
+> GET /repository/internal/ HTTP/1.1
+> Host: maven.aksw.org
+...
+* Operation timed out after 15003 milliseconds with 0 bytes received
+curl: (28) Operation timed out after 15003 milliseconds with 0 bytes received
+
+Because Maven has no default timeout on that connection, `mvn package` just
+hangs forever waiting for a response instead of failing.
+
+Which dependencies actually need that host (confirmed by forcing a fast
+failure instead of a hang -- none of these are on Maven Central):
+
+[ERROR] Failed to execute goal on project lemming: Could not collect dependencies for project org.aksw.simba:lemming:jar:0.0.1-SNAPSHOT
+[ERROR] Failed to read artifact descriptor for org.aksw:word2vec-restful-webservice:jar:0.0.1
+[ERROR] 	Caused by: The following artifacts could not be resolved: org.aksw:word2vec-restful-webservice:pom:0.0.1 (absent): Could not transfer artifact ... from/to maven.aksw.internal (https://maven.aksw.org/repository/internal)
+[ERROR] Failed to read artifact descriptor for grph:grph:jar:2.1.2
+[ERROR] 	Caused by: The following artifacts could not be resolved: grph:grph:pom:2.1.2 (absent): Could not transfer artifact ...
+[ERROR] Failed to read artifact descriptor for org.dice_research:ldcbench.api:jar:1.0.0
+[ERROR] 	Caused by: The following artifacts could not be resolved: org.dice_research:ldcbench.api:pom:1.0.0 (absent): Could not transfer artifact ...
+
+Environment note: this reproduces consistently in the sandbox I'm running in,
+but apparently not on your laptop -- so it may be network-path-specific
+(routing/proxy/firewall between this sandbox and that host) rather than the
+server being globally down. Worth checking whether your laptop's resolution
+of maven.aksw.org or route to it differs.
