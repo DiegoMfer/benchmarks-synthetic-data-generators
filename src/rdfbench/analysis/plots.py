@@ -426,7 +426,6 @@ def _grouped_chart(
     full_title = f"{title} (HIGH vs LOW config) - mean +/- std over {runs} run(s)"
     if scale == "log":
         ylabel = f"{ylabel}, log scale"
-    value_fmt = "{:,.0f}" if max(all_values) >= 1000 else "{:.3f}"
 
     def draw(ax):
         if scale == "log":
@@ -471,16 +470,6 @@ def _grouped_chart(
             slot = width * 2 / max(group_max, 2)
             labelled: set[str] = set()
             span = max(all_values) or 1.0
-            # Where a generator's two bars are nearly equal -- which is itself a
-            # result, the tool not responding to its configuration -- their value
-            # labels overlap. Lift the second of such a pair so both stay legible
-            # instead of shrinking the type or dropping one.
-            crowded = [
-                len(base_levels) > 1
-                and max(means[lv][i] for lv in base_levels)
-                - min(means[lv][i] for lv in base_levels) < span * 0.06
-                for i, base_levels in enumerate(present)
-            ]
             for level, colour, label in active:
                 for xi, base_levels in enumerate(present):
                     if level not in base_levels:
@@ -498,18 +487,6 @@ def _grouped_chart(
                         error_kw={"linewidth": 1.2, "ecolor": TEXT_SECONDARY},
                     )
                     labelled.add(level)
-                    # The aqua slot sits below 3:1 against this surface, which
-                    # obliges a visible value rather than colour alone. Labelling
-                    # every bar is cheap here -- there are at most a dozen -- and
-                    # it also lets the figure be read without the CSV.
-                    lift = span * 0.025
-                    if crowded[xi] and k == len(base_levels) - 1:
-                        lift += span * 0.055
-                    ax.text(
-                        x[xi] + offset, value + err + lift,
-                        value_fmt.format(value), ha="center", va="bottom",
-                        fontsize=7.5, color=TEXT_SECONDARY, clip_on=True,
-                    )
             ax.set_ylim(0, span * 1.18)
         _style(ax)
         if scale != "log" and max(all_values) >= 10_000:
