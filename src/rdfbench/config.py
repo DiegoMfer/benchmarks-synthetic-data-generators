@@ -116,6 +116,12 @@ class Experiment:
     params: dict[str, Any]
     runs: int
     description: str = ""
+    #: A shapes file, relative to ``schemas/``, to validate this experiment's
+    #: output against with a third-party validator. Every other conformance
+    #: figure is the generator's own account of its output; this one is not.
+    #: Only the first run is validated, since the figure is a proportion with
+    #: no meaningful run-to-run variance and the validator is slow.
+    validate_against: str | None = None
 
 
 @dataclass(frozen=True)
@@ -150,6 +156,7 @@ class Profile:
                     params=dict(eraw.get("params") or {}),
                     runs=int(eraw.get("runs", default_runs)),
                     description=eraw.get("description", ""),
+                    validate_against=eraw.get("validate_against"),
                 )
             )
 

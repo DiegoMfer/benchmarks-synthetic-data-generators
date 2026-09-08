@@ -7,7 +7,9 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY generators/rudof/vendor/rudof-generate_0.2.20-prerelease-1_amd64.deb /tmp/rudof.deb
+# Pinned by filename rather than a glob, so the image records which build it
+# installs. Bump this line and the vendored file together.
+COPY generators/rudof/vendor/rudof-generate_0.3.18-1_amd64.deb /tmp/rudof.deb
 RUN dpkg -i /tmp/rudof.deb && rm /tmp/rudof.deb
 
 COPY src/rdfbench/__init__.py src/rdfbench/report.py /app/rdfbench/

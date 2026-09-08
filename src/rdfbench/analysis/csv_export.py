@@ -20,6 +20,7 @@ from typing import Iterable
 
 from ..metrics.accumulator import METRIC_FIELDS
 from ..metrics.compute import CONFORMANCE_FIELDS, RunMetrics
+from ..metrics.external import EXTERNAL_FIELDS
 from ..metrics.fhir import FHIR_FIELDS
 
 IDENTITY_FIELDS = ("Experiment", "Generator", "Run")
@@ -40,11 +41,15 @@ CONFORMANCE_COLUMNS = tuple(CONFORMANCE_FIELDS.values())
 #: Blank for every profile but the FHIR case study.
 DOMAIN_COLUMNS = tuple(FHIR_FIELDS.values())
 
+#: Blank unless the experiment names a schema to validate its output against.
+EXTERNAL_COLUMNS = tuple(EXTERNAL_FIELDS.values())
+
 FIELDNAMES = (
     *IDENTITY_FIELDS,
     *PERF_FIELDS,
     *METRIC_FIELDS,
     *CONFORMANCE_COLUMNS,
+    *EXTERNAL_COLUMNS,
     *DOMAIN_COLUMNS,
     *TRAILING_FIELDS,
 )
@@ -76,6 +81,8 @@ def _row(metric: RunMetrics) -> dict[str, object]:
         row[field] = metric.rdf.get(field)
     for field in CONFORMANCE_COLUMNS:
         row[field] = metric.conformance.get(field)
+    for field in EXTERNAL_COLUMNS:
+        row[field] = metric.external.get(field)
     for field in DOMAIN_COLUMNS:
         row[field] = metric.domain.get(field)
     return row

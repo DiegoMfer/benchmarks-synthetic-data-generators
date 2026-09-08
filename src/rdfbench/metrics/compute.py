@@ -23,7 +23,7 @@ from typing import Any
 
 from ..config import GeneratorSpec
 from ..report import BenchmarkReport, ReportError
-from . import fhir
+from . import external, fhir
 from .accumulator import METRIC_FIELDS, MetricsAccumulator
 from .parsers import parse_into
 
@@ -52,6 +52,11 @@ class RunMetrics:
     #: Domain-specific metrics, populated only when the data warrants them.
     #: Empty for every profile but the FHIR case study.
     domain: dict[str, Any] = field(default_factory=dict)
+    #: Third-party validation of the output against its own source schema,
+    #: populated only for experiments that declare one and only on the first
+    #: run. Kept apart from ``conformance`` because that is the generator's own
+    #: account and this is not.
+    external: dict[str, Any] = field(default_factory=dict)
     #: Schema-conformance figures, empty for generators that consume no schema.
     #: Kept separate from ``rdf`` because these are the generator's own claims
     #: about its input, not something measured from the output graph.
@@ -71,6 +76,7 @@ def compute_run_metrics(
     experiment: str,
     run: int,
     *,
+    validate_against: Path | None = None,
     verbose: bool = True,
 ) -> RunMetrics:
     """Measure one run directory: RDF structure plus reported performance."""
@@ -109,6 +115,19 @@ def compute_run_metrics(
     if result.domain and verbose:
         print(f"    FHIR: {result.domain.get('FHIR_Resource_Types')} resource type(s), "
               f"{result.domain.get('FHIR_R4_Coverage_Pct', 0):.1f}% of R4", flush=True)
+
+    # Third-party validation against the original shapes. First run only: the
+    # figure is a proportion, and the validator costs about a minute per
+    # hundred thousand triples.
+    if validate_against is not None and run == 1:
+        if verbose:
+            print(f"    validating against {validate_against.name} ...", flush=True)
+        result.external = external.analyse(files, rdf_format, validate_against)
+        if result.external and verbose:
+            pct = result.external.get("External_Conformance_Pct")
+            selected = result.external.get("External_Focus_Nodes_Selected")
+            print(f"    {pct:.2f}% of {selected:,} selected nodes conform"
+                  if pct is not None else "    no node was selected by any shape", flush=True)
 
     measured = result.rdf.get("RDF_Triples")
     reported = report.output.triples_reported

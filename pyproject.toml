@@ -14,6 +14,11 @@ dependencies = [
     "PyYAML>=6.0",
     "rdflib>=7.0",
     "matplotlib>=3.7",
+    # Third-party validation of generated data against its own source schema,
+    # used by any experiment declaring `validate_against`. Required rather than
+    # optional: a missing validator would leave the conformance column blank,
+    # which reads like a measurement rather than an absent one.
+    "pyshacl>=0.26",
 ]
 
 [project.optional-dependencies]

@@ -24,6 +24,19 @@
 # Three runs are enough to show that it does not, without spending time on a
 # quantity with no variance to estimate.
 #
+#
+# THIRD-PARTY VALIDATION. The two figures above are computed by rudof against
+# its own intermediate representation, so between them they establish that the
+# generator honours what it represents -- not that what it represents is what
+# the author wrote. The SHACL configurations therefore also declare
+# `validate_against`, which runs pySHACL over the generated data against the
+# original shapes file. Only the first run of each is validated: the figure is
+# a proportion with no meaningful run-to-run variance, and the validator costs
+# roughly a minute per hundred thousand triples.
+#
+# ShEx configurations declare no `validate_against` because the mechanism is a
+# SHACL validator; the ShEx side is covered by the language-parity result of E2.
+#
 #   python3 main.py --profile e4
 
 name: e4
@@ -44,6 +57,20 @@ experiments:
     generator: rudof
     params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_high_coherence.toml, entities: 70000, seed: 42 }
     description: LUBM, SHACL
+    validate_against: lubm/lubm_shacl.ttl
+
+  # -- The same domain at the low-coherence setting -----------------------
+  # The high profile above realises every admissible property; this one drops
+  # most of them, which is how the structuredness range of E2 is reached.
+  # Validating both is the point: it shows what that range costs in
+  # conformance, which is a question the internal metrics cannot answer,
+  # because triple validity ranges over triples that were emitted and an
+  # absent value cannot lower it.
+  conformance_lubm_shacl_low:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_low_coherence.toml, entities: 70000, seed: 42 }
+    description: LUBM, SHACL, low coherence
+    validate_against: lubm/lubm_shacl.ttl
 
   # -- FHIR: a substantially larger and more irregular schema -------------
   # The published R4 ShEx, the same schema the FHIR case study is driven from.

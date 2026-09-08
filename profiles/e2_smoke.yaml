@@ -83,14 +83,10 @@ experiments:
     generator: lubm
     params: { universities: 1, seed: 0 }
     description: fixed-schema; the scale anchor for the LUBM domain
-  ref_bsbm_high:
+  ref_bsbm:
     generator: bsbm
     params: { products: 100, format: ttl, forward_chaining: true }
-    description: fixed-schema e-commerce, RDFS materialisation on
-  ref_bsbm_low:
-    generator: bsbm
-    params: { products: 100, format: ttl, forward_chaining: false }
-    description: fixed-schema e-commerce, no materialisation
+    description: fixed-schema e-commerce; forward_chaining was measured and found not to be a coherence parameter, so there is no high/low split -- one configuration at the tool default
   ref_watdiv_high:
     generator: watdiv
     params: { model: lubm/lubm-watdiv.txt.template, scale_factor: 1, property_fill: 1.0 }

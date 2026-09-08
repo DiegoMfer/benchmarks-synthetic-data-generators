@@ -23,6 +23,13 @@ experiments:
     generator: rudof
     params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_high_coherence.toml, entities: 2000, seed: 42 }
     description: LUBM, SHACL
+    validate_against: lubm/lubm_shacl.ttl
+
+  conformance_lubm_shacl_low:
+    generator: rudof
+    params: { schema: lubm/lubm_shacl.ttl, config: lubm/benchmark_config_low_coherence.toml, entities: 2000, seed: 42 }
+    description: LUBM, SHACL, low coherence
+    validate_against: lubm/lubm_shacl.ttl
 
   conformance_fhir_shex:
     generator: rudof

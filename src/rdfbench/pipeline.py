@@ -113,8 +113,15 @@ def run_pipeline(
                 run_dir = workspace.run_dir(profile.name, experiment.name, run)
                 if not run_dir.exists():
                     continue
+                shapes = (
+                    workspace.schemas_dir / experiment.validate_against
+                    if experiment.validate_against
+                    else None
+                )
                 result.metrics.append(
-                    compute_run_metrics(run_dir, spec, experiment.name, run)
+                    compute_run_metrics(
+                        run_dir, spec, experiment.name, run, validate_against=shapes
+                    )
                 )
 
         results_dir = workspace.results_dir(profile.name)
