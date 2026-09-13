@@ -7,7 +7,7 @@ generates the datasets, measures them, and writes the comparison.
 
 ```bash
 python3 main.py --all --smoke   # every profile at tiny scale, ~2 min: verifies everything
-python3 main.py --all           # the real benchmark: 212 runs, hours
+python3 main.py --all           # the real benchmark: 542 runs, hours
 ```
 
 That single command runs all four stages — build images, generate datasets,

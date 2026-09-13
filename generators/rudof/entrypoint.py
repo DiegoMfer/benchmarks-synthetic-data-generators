@@ -39,18 +39,18 @@ def generate(out: Path, args: argparse.Namespace) -> GenerationResult:
     schema = _resolve(args.schema, "schema")
     output_file = out / OUTPUT
 
-    cmd = ["rudof_generate", "--schema", schema, "--output", output_file]
+    cmd = ["rudof", "generate", "-s", schema, "-o", output_file, "--force-overwrite"]
     if args.config:
         config = _resolve(args.config, "config")
         if args.property_fill is not None:
             config = _override_fill(config, args.property_fill)
-        cmd.extend(["--config", config])
+        cmd.extend(["--generator-config", config])
     if args.entities is not None:
-        cmd.extend(["--entities", args.entities])
+        cmd.extend(["-n", args.entities])
     if args.seed is not None:
         cmd.extend(["--seed", args.seed])
     if args.parallel is not None:
-        cmd.extend(["--parallel", args.parallel])
+        cmd.extend(["-p", args.parallel])
 
     sh(cmd)
 
@@ -159,7 +159,7 @@ def _int(value) -> int | None:
 
 def _version() -> str | None:
     try:
-        return sh(["rudof_generate", "--version"], echo=False).stdout.strip() or None
+        return sh(["rudof", "--version"], echo=False).stdout.strip() or None
     except Exception:
         return None
 
@@ -167,7 +167,7 @@ def _version() -> str | None:
 if __name__ == "__main__":
     run_generator(
         "rudof",
-        tool="rudof_generate",
+        tool="rudof",
         generate=generate,
         add_arguments=add_arguments,
         description="Generate RDF conforming to a ShEx or SHACL schema",

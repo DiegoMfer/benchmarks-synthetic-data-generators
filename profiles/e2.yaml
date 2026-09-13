@@ -36,7 +36,7 @@
 
 name: e2
 description: "E2 - controllability under a shared schema, with every other generator as a reference point"
-runs: 10
+runs: 30
 timeout_seconds: 14400
 
 experiments:
