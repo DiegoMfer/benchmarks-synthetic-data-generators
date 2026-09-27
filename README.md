@@ -18,7 +18,7 @@ and runs independently of the others.
 
 ## Requirements
 
-- Python 3.10+ — `pip install -e .` (PyYAML, rdflib, matplotlib)
+- Python 3.10+ — `pip install -e .` (PyYAML, rdflib, matplotlib, pySHACL)
 - Docker with Compose v2. Every generator is containerised, so no Java, Maven or
   per-generator Python environment is needed on the host.
 
@@ -31,20 +31,34 @@ data/
   results/<profile>/charts/*.pdf        see "Charts" below
 ```
 
-`data/` is gitignored in full — generated datasets are never committed.
+`data/runs/` is gitignored — generated datasets are never committed (a full
+run produces roughly 200 GB). `data/results/` *is* committed: the metrics and
+charts of the published runs ship with the repository.
 
 ## Generators
 
-| Generator | Domain | Approach |
-|---|---|---|
-| `bsbm` | E-commerce | Products, vendors, offers, reviews |
-| `lubm` | University | Departments, professors, students, courses |
-| `gaia` | University | Instance generator over the LUBM `univ-bench` ontology |
-| `linkgen` | Linked data | Configurable Zipf / Gaussian distributions |
-| `pygraft` | Knowledge graph | RDFS / OWL constructs |
-| `rdfgraphgen` | Schema-driven | Generates data from SHACL shapes |
-| `rudof` | Schema-driven | Generates data from ShEx / SHACL schemas |
-| `synthea` | Healthcare | Clinical records exported as FHIR R4 Turtle |
+| Generator | Input | Approach | Used in |
+|---|---|---|---|
+| `rudof` | ShEx / SHACL schema | Generates data from the schema (pinned to the published 0.3.21 release) | E2, E4, E5 |
+| `rdfgraphgen` | SHACL shapes | Generates data from the shapes | E2 |
+| `gaia` | OWL ontology | Instance generator over the LUBM `univ-bench` ontology | E2 |
+| `linkgen` | OWL ontology | Configurable Zipf / Gaussian degree distributions | E2 |
+| `lubm` | Built-in (university) | Departments, professors, students, courses | E2 |
+| `bsbm` | Built-in (e-commerce) | Products, vendors, offers, reviews | E2 |
+| `watdiv` | WatDiv dataset-description language | Tunable structuredness via its own DSL | E2 |
+| `pygraft` | None (invents its schema) | RDFS / OWL constructs, schema and data generated together | E2 |
+| `lemming` | Example graph | Mimics a seed graph; the same image runs **LEMMING** (`mode: Binary`) and **SimplexKG** (`mode: Simplex`) | E2 |
+| `synthea` | Built-in (healthcare) | Clinical records exported as FHIR R4 Turtle | E5 |
+
+E2 splits these in two: generators that can be fed the shared LUBM schema form
+the controlled comparison, and the rest (`ref_*` experiments) appear as
+reference points on the same scale. See [EXPERIMENTS.md](EXPERIMENTS.md).
+
+`generators/evogen/` is **not** wired into any profile. EvoGen was packaged and
+compiles, but crashes before producing a complete dataset on every parameter
+combination its README documents; the Dockerfile is kept so the attempt is
+reproducible. `generators/_extractors/shexer/` is the schema extractor used by
+the `extract` command, not a generator.
 
 ## Profiles
 
@@ -143,53 +157,37 @@ what is specific to its tool.
 
 ## Charts
 
-The figures keep the forms from the previous `metrics_histogram.ipynb`, because
-those forms encode the experimental design:
+Which charts a profile gets is decided from its data rather than declared:
 
-| File | What it shows |
-|---|---|
-| `coherence_by_generator.pdf` | Grouped bars, HIGH vs LOW config per generator, mean ± std |
-| `type_coverage_by_generator.pdf` | Same, for mean type coverage |
-| `throughput_by_generator.pdf` | Same, for measured throughput |
-| `execution_time_by_generator.pdf` | Same, for wall-clock generation time |
-| `triples_by_generator.pdf` | Same, for triples produced |
-| `coherence_sensitivity.pdf` | \|Δ coherence\| per generator, signed by colour |
-| `sweep_rdf_coherence.pdf` | E1 and E3: coherence against the swept parameter, one line per series |
-| `schema_conformance.pdf` | E4: constraints kept vs lost per schema, validity annotated |
+| File | Profiles | What it shows |
+|---|---|---|
+| `coherence_by_generator.pdf` | `e2`, `e5` | RDF coherence per experiment, mean ± std over runs |
+| `throughput_by_generator.pdf` | `e2`, `e5` | Same, for measured throughput |
+| `execution_time_by_generator.pdf` | `e2`, `e5` | Same, for wall-clock generation time |
+| `schema_conformance.pdf` | `e4` | Constraints kept vs lost per schema, validity annotated |
+| `fhir_coverage_vs_conformance.pdf` | `e5` | Coverage of the FHIR specification against conformance to it, per tool |
 
-Which charts a profile gets is decided from its data rather than declared: a
-profile that sweeps one numeric parameter gets response curves, one whose
-experiments all report conformance gets the conformance figure, and one that
-declares a `compare_with` counterpart gets the bracketing triplets.
+A profile in which every experiment reports conformance gets the conformance
+figure; one comparing two or more tools on a domain schema gets the FHIR
+trade-off figure; every other profile gets the per-generator bars.
 
-The benchmark's question is whether a generator *responds* to its coherence
-configuration, and that question lives in the HIGH/LOW pair — so the two
-configurations sit side by side under one generator label rather than becoming
-independent bars.
-
-`coherence_sensitivity.pdf` is the summary figure: bars are the absolute
-HIGH − LOW difference so magnitudes compare at a glance, while colour and the
-signed annotation preserve direction. A **red** bar is a generator whose HIGH
-config produced *less* coherent data than its LOW config. The difference is
-computed per run and then averaged, so the error bar reflects run-to-run
-variation in the effect itself.
+In E2 the benchmark's question is whether a generator *responds* to its
+coherence configuration, and that question lives in the HIGH/LOW pair — so the
+two configurations sit side by side under one generator label rather than
+becoming independent bars. Generators fed the shared schema come first; the
+reference generators follow after a visible gap.
 
 **Y-scale is chosen from the data**, not hardcoded. Throughput spans orders of
-magnitude, and the previous notebook pinned the broken axis at 0–50k / 250k–1.1M,
-which silently goes wrong when the data changes. `_scale_for()` picks:
+magnitude. `_scale_for()` picks:
 
 - **linear** when the dynamic range is under 50×;
-- **a broken axis** when the values split into two tight clusters — on the
-  published data this derives 0–47,560 and 314,372–1,136,778, reproducing the
-  notebook's hand-picked limits;
+- **a broken axis** when the values split into two tight clusters;
 - **a log axis with a dot plot** when values spread continuously across orders
   of magnitude, since no single break helps. Dots rather than bars, because bar
   length on a log axis is not proportional to value.
 
-Colour is the validated blue/orange pair. The notebook's steelblue/coral fails
-accessibility checks — steelblue falls below the chroma floor and reads grey,
-coral falls below 3:1 against the surface. The sensitivity chart's diverging
-red/blue is kept exactly as it was; it already passes.
+Colour is a validated blue/orange pair that passes contrast and colour-vision
+deficiency checks.
 
 ## Metrics
 
@@ -218,7 +216,7 @@ three parse paths.
   `Triples_Reported` is `null` by design; use the measured value. (The previous
   pipeline multiplied the instance count by 3 and published that as if measured.)
 - **GAIA has no seed parameter**, so its output differs between runs of the same
-  configuration. The 10-run spread in `paper` captures this.
+  configuration. The 30-run spread in `e2` captures this.
 - **LINKGEN exits non-zero even on success.** Its entrypoint judges success by
   whether the data files exist, and says so in a comment.
 - **PyGraft crashes below ~1000 entities** (`classes × avg_instances`) with a
@@ -226,19 +224,29 @@ three parse paths.
   threshold.
 - **PyGraft writes RDF/XML**, because its internal reasoner cannot re-read the
   Turtle it emits.
-- **LEMMING's image is built from source and its clone can hang.** It is the
-  only generator compiled at image-build time (`git clone` + Maven), and the
-  clone has wedged indefinitely more than once — observed at 24 minutes with no
-  CPU in the container. Git low-speed timeouts now turn that into a fast
-  failure. Build the images once before any timing run and pass `--skip-build`
-  after; the 97 MB shaded jar is too large to vendor instead.
+- **LEMMING builds from a vendored jar.** Its source build depends on
+  artifacts hosted only on maven.aksw.org, which stopped responding in 2026, so
+  the prebuilt 96 MiB shaded jar is committed under `generators/lemming/vendor/`.
+  The source build path is still in the Dockerfile; see
+  `generators/lemming/BUILD_ISSUE.txt`.
+- **rudof runs from its published release.** The `rudof_0.3.21_amd64.deb`
+  release asset is vendored and pinned by filename (its sha256 is in the
+  Dockerfile), so every run traces to one upstream release.
 - **`.dockerignore` is load-bearing.** The compose build context is the project
-  root, so images can copy the shared entry library — without the file, the
-  2.0 GB of generated data under `data/` is uploaded to the Docker daemon on
-  every build. That turned cached builds into multi-minute operations and made
-  the smoke profiles look like they had hung. Context is 56 MB with it in place.
+  root, so images can copy the shared entry library — without the file, all the
+  generated data under `data/` is uploaded to the Docker daemon on every build.
+  That turned cached builds into multi-minute operations and made the smoke
+  profiles look like they had hung.
 - **BSBM stamps prices with a custom datatype** (`bsbm:USD`), and rudof refuses
   a schema naming a datatype it cannot generate. The sheXer extractor rewrites
   non-XSD datatypes to `xsd:string` and records which ones in
   `extraction.json`; see EXPERIMENTS.md §9.1 for why that is sound for what E3
   measures.
+
+## License and citation
+
+The code in this repository is released under the [MIT License](LICENSE).
+Third-party generators, vendored binaries and schemas keep their own licenses.
+
+To cite this software, use the metadata in [CITATION.cff](CITATION.cff) (GitHub's
+"Cite this repository" button reads it).
