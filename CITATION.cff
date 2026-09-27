@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+title: "benchmarks-synthetic-data-generators: a benchmark suite for synthetic RDF data generators"
+abstract: >-
+  Benchmark suite for synthetic RDF data generators. Every generator runs in
+  its own Docker container; a single command builds the images, generates the
+  datasets, computes the metrics and renders the charts for the
+  controllability (E2), conformance (E4) and FHIR case-study (E5) experiments.
+authors:
+  - family-names: "Martín Fernández"
+    given-names: "Diego"
+    email: "diegomartin.research@gmail.com"
+    affiliation: "Universidad de Oviedo"
+    orcid: "https://orcid.org/0009-0003-6640-9474"
+repository-code: "https://github.com/DiegoMfer/benchmarks-synthetic-data-generators"
+license: MIT
+version: "1.0.0"
+keywords:
+  - RDF
+  - synthetic data generation
+  - benchmark
+  - knowledge graphs
+  - ShEx
+  - SHACL

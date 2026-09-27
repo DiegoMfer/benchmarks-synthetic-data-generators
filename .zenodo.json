@@ -1,0 +1,22 @@
+{
+  "upload_type": "software",
+  "title": "benchmarks-synthetic-data-generators: a benchmark suite for synthetic RDF data generators",
+  "description": "<p>Benchmark suite for synthetic RDF data generators. Every generator runs in its own Docker container; a single command (<code>python3 main.py --all</code>) builds the images, generates the datasets, computes the metrics and renders the charts for the controllability (E2), conformance (E4) and FHIR case-study (E5) experiments. Generated datasets are not included; they are reproducible with the command above.</p>",
+  "creators": [
+    {
+      "name": "Martín Fernández, Diego",
+      "affiliation": "Universidad de Oviedo",
+      "orcid": "0009-0003-6640-9474"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "RDF",
+    "synthetic data generation",
+    "benchmark",
+    "knowledge graphs",
+    "ShEx",
+    "SHACL"
+  ]
+}
