@@ -1,5 +1,6 @@
 # benchmarks-synthetic-data-generators
 [![DOI](https://zenodo.org/badge/1085678027.svg)](https://doi.org/10.5281/zenodo.23045647)
+
 Benchmark suite for synthetic RDF data generators, and the reproducibility
 artefact for *Schema-driven RDF synthetic data generation based on validation
 languages*. Every generator runs in its own Docker container; one command
